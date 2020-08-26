@@ -1,6 +1,6 @@
 package de.timmi6790.mineplex_stats.commands.bedrock;
 
-import de.timmi6790.discord_framework.datatypes.ListBuilder;
+import de.timmi6790.discord_framework.datatypes.builders.ListBuilder;
 import de.timmi6790.discord_framework.modules.command.CommandParameters;
 import de.timmi6790.discord_framework.modules.command.CommandResult;
 import de.timmi6790.discord_framework.modules.command.properties.ExampleCommandsCommandProperty;

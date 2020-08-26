@@ -1,10 +1,10 @@
 package de.timmi6790.mineplex_stats.commands.bedrock;
 
 import de.timmi6790.discord_framework.DiscordBot;
-import de.timmi6790.discord_framework.exceptions.CommandReturnException;
 import de.timmi6790.discord_framework.modules.command.AbstractCommand;
 import de.timmi6790.discord_framework.modules.command.CommandModule;
 import de.timmi6790.discord_framework.modules.command.CommandParameters;
+import de.timmi6790.discord_framework.modules.command.exceptions.CommandReturnException;
 import de.timmi6790.mineplex_stats.commands.AbstractStatsCommand;
 import de.timmi6790.mineplex_stats.statsapi.models.bedrock.BedrockGame;
 import net.dv8tion.jda.api.utils.MarkdownUtil;
@@ -35,7 +35,7 @@ public abstract class AbstractBedrockStatsCommand extends AbstractStatsCommand {
             return similarGames.get(0);
         }
 
-        final AbstractCommand<?> command = DiscordBot.getModuleManager().getModuleOrThrow(CommandModule.class).getCommand(BedrockGamesCommand.class).orElse(null);
+        final AbstractCommand<?> command = getModule(). getModuleOrThrow(CommandModule.class).getCommand(BedrockGamesCommand.class).orElse(null);
         this.sendHelpMessage(commandParameters, name, argPos, "game", command, new String[0], similarGames.stream().map(BedrockGame::getName).collect(Collectors.toList()));
 
         throw new CommandReturnException();

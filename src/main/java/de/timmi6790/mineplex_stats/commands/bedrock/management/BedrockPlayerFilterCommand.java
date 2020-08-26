@@ -1,6 +1,6 @@
 package de.timmi6790.mineplex_stats.commands.bedrock.management;
 
-import de.timmi6790.discord_framework.datatypes.MapBuilder;
+import de.timmi6790.discord_framework.datatypes.builders.MapBuilder;
 import de.timmi6790.discord_framework.modules.command.CommandParameters;
 import de.timmi6790.discord_framework.modules.command.CommandResult;
 import de.timmi6790.discord_framework.modules.command.properties.MinArgCommandProperty;

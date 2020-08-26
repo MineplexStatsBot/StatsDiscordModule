@@ -1,10 +1,9 @@
 package de.timmi6790.mineplex_stats;
 
-import de.timmi6790.discord_framework.DiscordBot;
 import de.timmi6790.discord_framework.modules.AbstractModule;
 import de.timmi6790.discord_framework.modules.command.CommandModule;
 import de.timmi6790.discord_framework.modules.config.ConfigModule;
-import de.timmi6790.discord_framework.utilities.UtilitiesData;
+import de.timmi6790.discord_framework.utilities.DataUtilities;
 import de.timmi6790.mineplex_stats.commands.bedrock.BedrockGamesCommand;
 import de.timmi6790.mineplex_stats.commands.bedrock.BedrockLeaderboardCommand;
 import de.timmi6790.mineplex_stats.commands.bedrock.BedrockPlayerCommand;
@@ -23,12 +22,14 @@ import de.timmi6790.mineplex_stats.statsapi.models.java.JavaGame;
 import de.timmi6790.mineplex_stats.statsapi.models.java.JavaGamesModel;
 import de.timmi6790.mineplex_stats.statsapi.models.java.JavaGroup;
 import de.timmi6790.mineplex_stats.statsapi.models.java.JavaGroupsGroups;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
+@EqualsAndHashCode(callSuper = true)
 public class MineplexStatsModule extends AbstractModule {
     @Getter
     private final Map<String, JavaGame> javaGames = new ConcurrentHashMap<>();
@@ -52,9 +53,8 @@ public class MineplexStatsModule extends AbstractModule {
     }
 
     @Override
-    public void onEnable() {
-        final Config statsConfig = DiscordBot.getModuleManager()
-                .getModuleOrThrow(ConfigModule.class)
+    public void onInitialize() {
+        final Config statsConfig = getModuleOrThrow(ConfigModule.class)
                 .registerAndGetConfig(this, new Config());
         this.mpStatsRestClient = new MpStatsRestApiClient(statsConfig.getApiName(), statsConfig.getApiPassword());
 
@@ -64,8 +64,7 @@ public class MineplexStatsModule extends AbstractModule {
 
         this.loadBedrockGames();
 
-        DiscordBot.getModuleManager()
-                .getModuleOrThrow(CommandModule.class)
+        getModuleOrThrow(CommandModule.class)
                 .registerCommands(
                         this,
                         new JavaGamesCommand(),
@@ -93,6 +92,10 @@ public class MineplexStatsModule extends AbstractModule {
                         new JavaUnfilteredLeaderboardCommand(),
                         new JavaUnfilteredPlayerStatsCommand()
                 );
+    }
+
+    @Override
+    public void onEnable() {
     }
 
     @Override
@@ -148,7 +151,7 @@ public class MineplexStatsModule extends AbstractModule {
     }
 
     public List<JavaGame> getSimilarJavaGames(final String name, final double similarity, final int limit) {
-        return UtilitiesData.getSimilarityList(name, this.javaGames.keySet(), similarity, limit)
+        return DataUtilities.getSimilarityList(name, this.javaGames.keySet(), similarity, limit)
                 .stream()
                 .map(this.javaGames::get)
                 .collect(Collectors.toList());
@@ -160,7 +163,7 @@ public class MineplexStatsModule extends AbstractModule {
     }
 
     public List<JavaGroup> getSimilarJavaGroups(final String name, final double similarity, final int limit) {
-        return UtilitiesData.getSimilarityList(name, this.javaGroups.keySet(), similarity, limit)
+        return DataUtilities.getSimilarityList(name, this.javaGroups.keySet(), similarity, limit)
                 .stream()
                 .map(this.javaGroups::get)
                 .collect(Collectors.toList());
@@ -171,7 +174,7 @@ public class MineplexStatsModule extends AbstractModule {
     }
 
     public List<BedrockGame> getSimilarBedrockGames(final String name, final double similarity, final int limit) {
-        return UtilitiesData.getSimilarityList(
+        return DataUtilities.getSimilarityList(
                 name,
                 this.bedrockGames.keySet(),
                 similarity,

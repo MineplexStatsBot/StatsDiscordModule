@@ -3,10 +3,10 @@ package de.timmi6790.mineplex_stats.commands.java;
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import de.timmi6790.discord_framework.DiscordBot;
-import de.timmi6790.discord_framework.exceptions.CommandReturnException;
 import de.timmi6790.discord_framework.modules.command.CommandModule;
 import de.timmi6790.discord_framework.modules.command.CommandParameters;
-import de.timmi6790.discord_framework.utilities.UtilitiesData;
+import de.timmi6790.discord_framework.modules.command.exceptions.CommandReturnException;
+import de.timmi6790.discord_framework.utilities.DataUtilities;
 import de.timmi6790.mineplex_stats.commands.AbstractStatsCommand;
 import de.timmi6790.mineplex_stats.statsapi.models.java.JavaBoard;
 import de.timmi6790.mineplex_stats.statsapi.models.java.JavaGame;
@@ -101,7 +101,7 @@ public abstract class AbstractJavaStatsCommand extends AbstractStatsCommand {
                 name,
                 argPos,
                 "game",
-                DiscordBot.getModuleManager().getModuleOrThrow(CommandModule.class)
+                getModule().getModuleOrThrow(CommandModule.class)
                         .getCommand(JavaGamesCommand.class)
                         .orElse(null),
                 new String[0],
@@ -129,7 +129,7 @@ public abstract class AbstractJavaStatsCommand extends AbstractStatsCommand {
                 name,
                 argPos,
                 "stat",
-                DiscordBot.getModuleManager().getModuleOrThrow(CommandModule.class)
+                getModule().getModuleOrThrow(CommandModule.class)
                         .getCommand(JavaGamesCommand.class)
                         .orElse(null),
                 new String[]{game.getName()},
@@ -183,7 +183,7 @@ public abstract class AbstractJavaStatsCommand extends AbstractStatsCommand {
             }
         }
 
-        final List<String> similarBoards = UtilitiesData.getSimilarityList(
+        final List<String> similarBoards = DataUtilities.getSimilarityList(
                 name,
                 game.getStats().values()
                         .stream()
@@ -209,7 +209,7 @@ public abstract class AbstractJavaStatsCommand extends AbstractStatsCommand {
                 name,
                 argPos,
                 "board",
-                DiscordBot.getModuleManager().getModuleOrThrow(CommandModule.class)
+                getModule().getModuleOrThrow(CommandModule.class)
                         .getCommand(JavaGamesCommand.class)
                         .orElse(null),
                 new String[]{game.getName(), game.getStats().values().stream().findFirst().map(JavaStat::getName).orElse("")},
@@ -235,7 +235,7 @@ public abstract class AbstractJavaStatsCommand extends AbstractStatsCommand {
                 name,
                 argPos,
                 "board",
-                DiscordBot.getModuleManager().getModuleOrThrow(CommandModule.class)
+                getModule().getModuleOrThrow(CommandModule.class)
                         .getCommand(JavaGamesCommand.class)
                         .orElse(null),
                 new String[]{game.getName(), stat.getName()},
@@ -308,7 +308,7 @@ public abstract class AbstractJavaStatsCommand extends AbstractStatsCommand {
                 name,
                 argPos,
                 "group",
-                DiscordBot.getModuleManager().getModuleOrThrow(CommandModule.class)
+                getModule().getModuleOrThrow(CommandModule.class)
                         .getCommand(JavaGroupsGroupsCommand.class)
                         .orElse(null),
                 new String[]{},
@@ -328,7 +328,7 @@ public abstract class AbstractJavaStatsCommand extends AbstractStatsCommand {
             }
         }
 
-        final List<JavaStat> similarStats = UtilitiesData.getSimilarityList(
+        final List<JavaStat> similarStats = DataUtilities.getSimilarityList(
                 JavaGame.getCleanStat(name),
                 group.getStats(),
                 JavaStat::getName,
@@ -344,7 +344,7 @@ public abstract class AbstractJavaStatsCommand extends AbstractStatsCommand {
                 name,
                 argPos,
                 "stat",
-                DiscordBot.getModuleManager().getModuleOrThrow(CommandModule.class)
+                getModule().getModuleOrThrow(CommandModule.class)
                         .getCommand(JavaGroupsGroupsCommand.class)
                         .orElse(null),
                 new String[]{group.getName()},

@@ -37,7 +37,7 @@ public class JavaGroupsGroupsCommand extends AbstractJavaStatsCommand {
                                             .sorted(Comparator.naturalOrder())
                                             .collect(Collectors.joining("\n")),
                                     false)
-                            .setFooter("TIP: Run " + DiscordBot.getModuleManager().getModuleOrThrow(CommandModule.class).getMainCommand() + " groups <group> to see more details"),
+                            .setFooter("TIP: Run " + getModule().getModuleOrThrow(CommandModule.class).getMainCommand() + " groups <group> to see more details"),
                     150
             );
             return CommandResult.SUCCESS;

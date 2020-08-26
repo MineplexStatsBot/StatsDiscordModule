@@ -1,6 +1,6 @@
 package de.timmi6790.mineplex_stats.statsapi.models.java;
 
-import de.timmi6790.discord_framework.utilities.UtilitiesData;
+import de.timmi6790.discord_framework.utilities.DataUtilities;
 import de.timmi6790.mineplex_stats.statsapi.utilities.StatsComparator;
 import lombok.Data;
 
@@ -63,7 +63,7 @@ public class JavaGame {
     }
 
     public List<JavaStat> getSimilarStats(final String name, final double similarity, final int limit) {
-        return UtilitiesData.getSimilarityList(name, this.stats.keySet(), similarity, limit)
+        return DataUtilities.getSimilarityList(name, this.stats.keySet(), similarity, limit)
                 .stream()
                 .map(this.stats::get)
                 .collect(Collectors.toList());

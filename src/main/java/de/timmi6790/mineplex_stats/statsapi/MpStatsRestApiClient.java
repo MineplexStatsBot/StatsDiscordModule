@@ -2,7 +2,7 @@ package de.timmi6790.mineplex_stats.statsapi;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import de.timmi6790.discord_framework.datatypes.MapBuilder;
+import de.timmi6790.discord_framework.datatypes.builders.MapBuilder;
 import de.timmi6790.mineplex_stats.statsapi.models.ResponseModel;
 import de.timmi6790.mineplex_stats.statsapi.models.bedrock.BedrockGames;
 import de.timmi6790.mineplex_stats.statsapi.models.bedrock.BedrockLeaderboard;

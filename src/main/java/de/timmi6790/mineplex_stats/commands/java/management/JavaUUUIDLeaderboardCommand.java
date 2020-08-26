@@ -1,7 +1,7 @@
 package de.timmi6790.mineplex_stats.commands.java.management;
 
 import de.timmi6790.discord_framework.DiscordBot;
-import de.timmi6790.discord_framework.datatypes.ListBuilder;
+import de.timmi6790.discord_framework.datatypes.builders.ListBuilder;
 import de.timmi6790.discord_framework.modules.command.CommandCause;
 import de.timmi6790.discord_framework.modules.command.CommandModule;
 import de.timmi6790.discord_framework.modules.command.CommandParameters;
@@ -77,7 +77,7 @@ public class JavaUUUIDLeaderboardCommand extends AbstractJavaStatsCommand {
         // Emotes
         final Map<String, AbstractEmoteReaction> emotes = new LinkedHashMap<>();
 
-        DiscordBot.getModuleManager().getModuleOrThrow(CommandModule.class)
+        getModule().getModuleOrThrow(CommandModule.class)
                 .getCommand(JavaPlayerFilterCommand.class)
                 .ifPresent(filterCommand -> {
                     final AtomicInteger emoteIndex = new AtomicInteger(1);

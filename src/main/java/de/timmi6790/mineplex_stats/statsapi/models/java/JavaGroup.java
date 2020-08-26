@@ -1,6 +1,8 @@
 package de.timmi6790.mineplex_stats.statsapi.models.java;
 
 import de.timmi6790.discord_framework.DiscordBot;
+import de.timmi6790.discord_framework.modules.GetModule;
+import de.timmi6790.mineplex_stats.MineplexStatsModule;
 import de.timmi6790.mineplex_stats.statsapi.utilities.StatsComparator;
 import lombok.Data;
 
@@ -11,7 +13,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 @Data
-public class JavaGroup {
+public class JavaGroup extends GetModule<MineplexStatsModule> {
     private final String group;
     private final String description;
     private final String[] aliasNames;
@@ -23,7 +25,7 @@ public class JavaGroup {
     }
 
     public List<JavaGame> getGames() {
-        final de.timmi6790.mineplex_stats.MineplexStatsModule module = DiscordBot.getModuleManager().getModuleOrThrow(de.timmi6790.mineplex_stats.MineplexStatsModule.class);
+        final MineplexStatsModule module = getModule().getModuleOrThrow(de.timmi6790.mineplex_stats.MineplexStatsModule.class);
         return this.games.stream()
                 .map(module::getJavaGame)
                 .filter(Optional::isPresent)
@@ -32,7 +34,7 @@ public class JavaGroup {
     }
 
     public List<JavaGame> getGames(final JavaStat stat) {
-        final de.timmi6790.mineplex_stats.MineplexStatsModule module = DiscordBot.getModuleManager().getModuleOrThrow(de.timmi6790.mineplex_stats.MineplexStatsModule.class);
+        final de.timmi6790.mineplex_stats.MineplexStatsModule module = getModule().getModuleOrThrow(de.timmi6790.mineplex_stats.MineplexStatsModule.class);
         return this.games.stream()
                 .map(module::getJavaGame)
                 .filter(gameOpt -> gameOpt.map(game -> game.getStat(stat.getName()).isPresent()).orElse(false))

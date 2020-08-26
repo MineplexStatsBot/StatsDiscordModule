@@ -19,7 +19,7 @@ public class ReloadDataCommand extends AbstractCommand<de.timmi6790.mineplex_sta
 
     @Override
     protected CommandResult onCommand(final CommandParameters commandParameters) {
-        final de.timmi6790.mineplex_stats.MineplexStatsModule module = DiscordBot.getModuleManager().getModuleOrThrow(de.timmi6790.mineplex_stats.MineplexStatsModule.class);
+        final de.timmi6790.mineplex_stats.MineplexStatsModule module = getModule().getModuleOrThrow(de.timmi6790.mineplex_stats.MineplexStatsModule.class);
         final ValidArgs0 arg0 = this.getFromEnumIgnoreCaseThrow(commandParameters, 0, ValidArgs0.values());
 
         switch (arg0) {

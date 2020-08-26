@@ -1,6 +1,6 @@
 package de.timmi6790.mineplex_stats.commands.java.management;
 
-import de.timmi6790.discord_framework.datatypes.MapBuilder;
+import de.timmi6790.discord_framework.datatypes.builders.MapBuilder;
 import de.timmi6790.discord_framework.modules.command.CommandParameters;
 import de.timmi6790.discord_framework.modules.command.CommandResult;
 import de.timmi6790.discord_framework.modules.command.properties.MinArgCommandProperty;
@@ -49,17 +49,14 @@ public class JavaPlayerFilterCommand extends AbstractJavaStatsCommand {
                 embedBuilder.setTitle("Filter Confirm")
                         .setDescription("Are you sure that you want to filter this person?"),
                 new MapBuilder<String, AbstractEmoteReaction>(() -> new LinkedHashMap<>(2))
-                        .put(DiscordEmotes.CHECK_MARK.getEmote(), new AbstractEmoteReaction() {
-                            @Override
-                            public void onEmote() {
-                                JavaPlayerFilterCommand.this.getStatsModule().getMpStatsRestClient().addJavaPlayerFilter(uuid, game.getName(), stat.getName(), board.getName());
+                        .put(DiscordEmotes.CHECK_MARK.getEmote(), () -> {
+                            JavaPlayerFilterCommand.this.getStatsModule().getMpStatsRestClient().addJavaPlayerFilter(uuid, game.getName(), stat.getName(), board.getName());
 
-                                JavaPlayerFilterCommand.this.sendTimedMessage(
-                                        commandParameters,
-                                        embedBuilder.setTitle("Successfully Filtered"),
-                                        90
-                                );
-                            }
+                            JavaPlayerFilterCommand.this.sendTimedMessage(
+                                    commandParameters,
+                                    embedBuilder.setTitle("Successfully Filtered"),
+                                    90
+                            );
                         })
                         .put(DiscordEmotes.RED_CROSS_MARK.getEmote(), new EmptyEmoteReaction())
                         .build()

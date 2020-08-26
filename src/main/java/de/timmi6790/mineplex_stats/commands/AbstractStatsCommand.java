@@ -1,15 +1,15 @@
 package de.timmi6790.mineplex_stats.commands;
 
 import de.timmi6790.discord_framework.DiscordBot;
-import de.timmi6790.discord_framework.exceptions.CommandReturnException;
 import de.timmi6790.discord_framework.modules.command.AbstractCommand;
 import de.timmi6790.discord_framework.modules.command.CommandParameters;
 import de.timmi6790.discord_framework.modules.command.CommandResult;
+import de.timmi6790.discord_framework.modules.command.exceptions.CommandReturnException;
 import de.timmi6790.discord_framework.modules.emote_reaction.EmoteReactionMessage;
 import de.timmi6790.discord_framework.modules.emote_reaction.EmoteReactionModule;
 import de.timmi6790.discord_framework.modules.emote_reaction.emotereactions.AbstractEmoteReaction;
 import de.timmi6790.discord_framework.modules.emote_reaction.emotereactions.CommandEmoteReaction;
-import de.timmi6790.discord_framework.utilities.UtilitiesData;
+import de.timmi6790.discord_framework.utilities.DataUtilities;
 import de.timmi6790.discord_framework.utilities.discord.DiscordEmotes;
 import de.timmi6790.mineplex_stats.MineplexStatsModule;
 import de.timmi6790.mineplex_stats.statsapi.models.ResponseModel;
@@ -64,7 +64,7 @@ public abstract class AbstractStatsCommand extends AbstractCommand<MineplexStats
     }
 
     protected MineplexStatsModule getStatsModule() {
-        return DiscordBot.getModuleManager().getModuleOrThrow(MineplexStatsModule.class);
+        return getModule().getModuleOrThrow(MineplexStatsModule.class);
     }
 
     protected String getFormattedTime(long time) {
@@ -121,6 +121,15 @@ public abstract class AbstractStatsCommand extends AbstractCommand<MineplexStats
         return FORMAT_DATE.format(Date.from(Instant.ofEpochSecond(unix)));
     }
 
+    public boolean isInt(String userInput) {
+        try {
+            Integer.parseInt(userInput);
+            return true;
+        } catch (NumberFormatException e) {
+            return false;
+        }
+    }
+
     public void checkApiResponse(final CommandParameters commandParameters, final ResponseModel response, final String arguments) {
         if (response instanceof ErrorModel) {
             // No stats found
@@ -147,7 +156,7 @@ public abstract class AbstractStatsCommand extends AbstractCommand<MineplexStats
 
     protected int getStartPosition(final CommandParameters commandParameters, final int argPos, final int upperLimit) {
         final String name = argPos >= commandParameters.getArgs().length ? "1" : commandParameters.getArgs()[argPos];
-        if (!UtilitiesData.isInt(name)) {
+        if (!isInt(name)) {
             throw new CommandReturnException(
                     this.getEmbedBuilder(commandParameters)
                             .setTitle("Invalid start position")
@@ -164,7 +173,7 @@ public abstract class AbstractStatsCommand extends AbstractCommand<MineplexStats
     }
 
     protected int getEndPosition(final int startPos, final CommandParameters commandParameters, final int argPos, final int upperLimit, final int maxDistance) {
-        if (commandParameters.getArgs().length > argPos && !UtilitiesData.isInt(commandParameters.getArgs()[argPos])) {
+        if (commandParameters.getArgs().length > argPos && !isInt(commandParameters.getArgs()[argPos])) {
             throw new CommandReturnException(
                     this.getEmbedBuilder(commandParameters)
                             .setTitle("Invalid end position")
@@ -263,7 +272,7 @@ public abstract class AbstractStatsCommand extends AbstractCommand<MineplexStats
                     .sendFile(inputStream, pictureName + ".png")
                     .queue(message -> {
                         if (emoteReactionMessage != null) {
-                            DiscordBot.getModuleManager().getModuleOrThrow(EmoteReactionModule.class).addEmoteReactionMessage(message, emoteReactionMessage);
+                            getModule().getModuleOrThrow(EmoteReactionModule.class).addEmoteReactionMessage(message, emoteReactionMessage);
                         }
                     });
             return CommandResult.SUCCESS;

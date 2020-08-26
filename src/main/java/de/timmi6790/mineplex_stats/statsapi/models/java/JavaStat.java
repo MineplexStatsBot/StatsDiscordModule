@@ -1,6 +1,6 @@
 package de.timmi6790.mineplex_stats.statsapi.models.java;
 
-import de.timmi6790.discord_framework.utilities.UtilitiesData;
+import de.timmi6790.discord_framework.utilities.DataUtilities;
 import lombok.Data;
 
 import java.util.*;
@@ -51,7 +51,7 @@ public class JavaStat {
     }
 
     public List<JavaBoard> getSimilarBoard(final String name, final double similarity, final int limit) {
-        return UtilitiesData.getSimilarityList(name, this.boards.keySet(), similarity, limit)
+        return DataUtilities.getSimilarityList(name, this.boards.keySet(), similarity, limit)
                 .stream()
                 .map(this.boards::get)
                 .collect(Collectors.toList());
