@@ -21,6 +21,13 @@ import java.util.Map;
 import java.util.UUID;
 
 public class MpStatsRestApiClient {
+    private static final String ALIAS = "alias";
+    private static final String PLAYER = "player";
+    private static final String BOARD = "board";
+    private static final String GAME = "game";
+    private static final String STAT = "stat";
+    private static final String DATE = "date";
+
     private static final String BASE_URL = "https://mpstats.timmi6790.de/";//  "http://127.0.0.1:8000/"
 
     private static final ErrorModel UNKNOWN_ERROR_RESPONSE_MODEL = new ErrorModel(-1, "Unknown Error");
@@ -79,10 +86,10 @@ public class MpStatsRestApiClient {
         return this.makeRequest(
                 "java/leaderboards/player",
                 new MapBuilder<String, Object>(() -> new HashMap<>(5))
-                        .put("player", player)
-                        .put("game", game)
-                        .put("board", board.toLowerCase())
-                        .put("date", unixTime)
+                        .put(PLAYER, player)
+                        .put(GAME, game)
+                        .put(BOARD, board.toLowerCase())
+                        .put(DATE, unixTime)
                         .put("filtering", filtering)
                         .build(),
                 JavaPlayerStats.class
@@ -94,12 +101,12 @@ public class MpStatsRestApiClient {
         return this.makeRequest(
                 "java/leaderboards/leaderboard",
                 new MapBuilder<String, Object>(() -> new HashMap<>(7))
-                        .put("game", game)
-                        .put("stat", stat)
-                        .put("board", board.toLowerCase())
+                        .put(GAME, game)
+                        .put(STAT, stat)
+                        .put(BOARD, board.toLowerCase())
                         .put("startPosition", startPos)
                         .put("endPosition", endPos)
-                        .put("date", unixTime)
+                        .put(DATE, unixTime)
                         .put("filtering", filtering)
                         .build(),
                 JavaLeaderboard.class
@@ -114,11 +121,11 @@ public class MpStatsRestApiClient {
         return this.makeRequest(
                 "java/leaderboards/group/player",
                 new MapBuilder<String, Object>(() -> new HashMap<>(5))
-                        .put("player", player)
+                        .put(PLAYER, player)
                         .put("group", group)
-                        .put("stat", stat)
-                        .put("board", board.toLowerCase())
-                        .put("date", unixTime)
+                        .put(STAT, stat)
+                        .put(BOARD, board.toLowerCase())
+                        .put(DATE, unixTime)
                         .build(),
                 JavaGroupsPlayer.class
         );
@@ -128,10 +135,10 @@ public class MpStatsRestApiClient {
         return this.makeRequest(
                 "java/leaderboards/ratio/player",
                 new MapBuilder<String, Object>(() -> new HashMap<>(4))
-                        .put("player", player)
-                        .put("stat", stat)
-                        .put("board", board.toLowerCase())
-                        .put("date", unixTime)
+                        .put(PLAYER, player)
+                        .put(STAT, stat)
+                        .put(BOARD, board.toLowerCase())
+                        .put(DATE, unixTime)
                         .build(),
                 JavaRatioPlayer.class
         );
@@ -146,10 +153,10 @@ public class MpStatsRestApiClient {
         return this.makeRequest(
                 "bedrock/leaderboards/leaderboard",
                 new MapBuilder<String, Object>(() -> new HashMap<>(4))
-                        .put("game", game)
+                        .put(GAME, game)
                         .put("startPosition", startPos)
                         .put("endPosition", endPos)
-                        .put("date", unixTime)
+                        .put(DATE, unixTime)
                         .build(),
                 BedrockLeaderboard.class
         );
@@ -173,9 +180,9 @@ public class MpStatsRestApiClient {
 
         Unirest.post("java/leaderboards/filter")
                 .basicAuth(this.authName, this.authPassword)
-                .queryString("game", game)
-                .queryString("stat", stat)
-                .queryString("board", board.toLowerCase())
+                .queryString(GAME, game)
+                .queryString(STAT, stat)
+                .queryString(BOARD, board.toLowerCase())
                 .queryString("uuid", uuid.toString())
                 .asEmpty();
     }
@@ -187,7 +194,7 @@ public class MpStatsRestApiClient {
 
         Unirest.post("bedrock/leaderboards/filter")
                 .basicAuth(this.authName, this.authPassword)
-                .queryString("game", game)
+                .queryString(GAME, game)
                 .queryString("name", player)
                 .asEmpty();
     }
@@ -199,8 +206,8 @@ public class MpStatsRestApiClient {
 
         Unirest.post("java/leaderboards/alias/board")
                 .basicAuth(this.authName, this.authPassword)
-                .queryString("board", board.toLowerCase())
-                .queryString("alias", alias)
+                .queryString(BOARD, board.toLowerCase())
+                .queryString(ALIAS, alias)
                 .asEmpty();
     }
 
@@ -211,8 +218,8 @@ public class MpStatsRestApiClient {
 
         Unirest.post("java/leaderboards/alias/game")
                 .basicAuth(this.authName, this.authPassword)
-                .queryString("game", game)
-                .queryString("alias", alias)
+                .queryString(GAME, game)
+                .queryString(ALIAS, alias)
                 .asEmpty();
     }
 
@@ -223,9 +230,9 @@ public class MpStatsRestApiClient {
 
         Unirest.post("java/leaderboards/alias/stat")
                 .basicAuth(this.authName, this.authPassword)
-                .queryString("game", game)
-                .queryString("stat", stat)
-                .queryString("alias", alias)
+                .queryString(GAME, game)
+                .queryString(STAT, stat)
+                .queryString(ALIAS, alias)
                 .asEmpty();
     }
 }

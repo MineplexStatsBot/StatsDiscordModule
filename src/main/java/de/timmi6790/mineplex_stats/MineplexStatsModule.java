@@ -124,13 +124,13 @@ public class MineplexStatsModule extends AbstractModule {
 
         this.javaGroups.clear();
         this.javaGroupsAlias.clear();
-        ((JavaGroupsGroups) responseModel).getGroups().values().forEach(javaGroup -> {
+        for (final JavaGroup javaGroup : ((JavaGroupsGroups) responseModel).getGroups().values()) {
             Arrays.sort(javaGroup.getAliasNames());
             javaGroup.getGameNames().sort(Comparator.naturalOrder());
 
             this.javaGroups.put(javaGroup.getName().toLowerCase(), javaGroup);
             Arrays.stream(javaGroup.getAliasNames()).forEach(alias -> this.javaGroupsAlias.put(alias.toLowerCase(), javaGroup.getName().toLowerCase()));
-        });
+        }
     }
 
     public void loadBedrockGames() {
