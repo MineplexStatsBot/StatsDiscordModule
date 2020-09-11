@@ -3,7 +3,6 @@ package de.timmi6790.minecraft.mojang_api.models;
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonDeserializer;
 import com.google.gson.JsonElement;
-import com.google.gson.JsonParseException;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
@@ -37,7 +36,7 @@ public class NameHistory {
 
     public static class NameHistoryDeserializer implements JsonDeserializer<NameHistory> {
         @Override
-        public NameHistory deserialize(final JsonElement jsonElement, final Type type, final JsonDeserializationContext jsonDeserializationContext) throws JsonParseException {
+        public NameHistory deserialize(final JsonElement jsonElement, final Type type, final JsonDeserializationContext jsonDeserializationContext) {
             final List<NameHistoryData> nameHistory = new ArrayList<>();
             for (final JsonElement object : jsonElement.getAsJsonArray()) {
                 nameHistory.add(

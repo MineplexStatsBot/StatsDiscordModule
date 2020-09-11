@@ -1,5 +1,8 @@
 package de.timmi6790.mineplex_stats.commands.java;
 
+import com.googlecode.charts4j.GCharts;
+import com.googlecode.charts4j.PieChart;
+import com.googlecode.charts4j.Slice;
 import de.timmi6790.discord_framework.modules.command.CommandParameters;
 import de.timmi6790.discord_framework.modules.command.CommandResult;
 import de.timmi6790.discord_framework.modules.command.properties.ExampleCommandsCommandProperty;
@@ -8,22 +11,15 @@ import de.timmi6790.mineplex_stats.statsapi.models.ResponseModel;
 import de.timmi6790.mineplex_stats.statsapi.models.java.JavaBoard;
 import de.timmi6790.mineplex_stats.statsapi.models.java.JavaRatioPlayer;
 import de.timmi6790.mineplex_stats.statsapi.models.java.JavaStat;
-import org.knowm.xchart.BitmapEncoder;
-import org.knowm.xchart.PieChart;
-import org.knowm.xchart.PieChartBuilder;
-import org.knowm.xchart.PieSeries;
-import org.knowm.xchart.style.PieStyler;
-import org.knowm.xchart.style.Styler;
+import net.dv8tion.jda.api.utils.MarkdownUtil;
 
-import javax.imageio.ImageIO;
-import java.awt.*;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.Optional;
+import java.util.List;
+import java.util.Locale;
 
 public class JavaPlayerStatsRatioCommand extends AbstractJavaStatsCommand {
     public JavaPlayerStatsRatioCommand() {
@@ -38,6 +34,24 @@ public class JavaPlayerStatsRatioCommand extends AbstractJavaStatsCommand {
                         "nwang888 wins yearly"
                 )
         );
+    }
+
+    private static String getPieUrl(final PieChart gCharts) {
+        gCharts.setSize(700, 300);
+
+        String url = gCharts.toURLString();
+        // Series colours | RED, YELLOW_GREEN, GREEN, BLUE, PURPLE
+        url += "&chco=FF0000,ADFF2F,00FF00,0000FF,a020f0";
+        // Legend colour and size
+        url += "&chdls=ffffff,15";
+        // Solid background
+        //url += "&chf=bg,s,36393f";
+        // Legend order
+        url += "&chdlp=r|a";
+        // Title colour, size and position
+        //url += "&chts=ffffff,17,c";
+
+        return url;
     }
 
     @Override
@@ -56,82 +70,47 @@ public class JavaPlayerStatsRatioCommand extends AbstractJavaStatsCommand {
         final JavaRatioPlayer javaRatioPlayer = (JavaRatioPlayer) responseModel;
 
         // Add to pie chart
-        // TODO: Write own piechart
-        // https://cdn.discordapp.com/attachments/677989190914408478/716754040352145518/unknown.png
+        final List<Slice> slices = new ArrayList<>();
 
-        final PieChart chart = new PieChartBuilder()
-                .width(1000)
-                .height(800)
-                .title(((JavaRatioPlayer) responseModel).getInfo().getName() + " " + stat.getPrintName() + " " + board.getName() + " " + this.getFormattedUnixTime(unixTime))
-                .theme(Styler.ChartTheme.GGPlot2)
-                .build();
-
-        final PieStyler styler = chart.getStyler();
-        styler.setLegendVisible(false);
-
-        styler.setPlotBackgroundColor(new Color(54, 57, 63));
-        styler.setChartBackgroundColor(new Color(54, 57, 63));
-        styler.setChartFontColor(Color.WHITE);
-        styler.setChartTitleFont(new Font("Arial", Font.PLAIN, 38));
-        styler.setChartTitleBoxVisible(false);
-
-        styler.setDefaultSeriesRenderStyle(PieSeries.PieSeriesRenderStyle.Pie);
-        styler.setStartAngleInDegrees(110);
-
-        styler.setShowTotalAnnotations(true);
-        styler.setDrawAllAnnotations(true);
-        styler.setAnnotationType(PieStyler.AnnotationType.LabelAndPercentage);
-        styler.setAnnotationsFont(new Font("Arial", Font.PLAIN, 22));
-        styler.setAnnotationsFontColor(Color.BLACK);
-
-        styler.setSumVisible(true);
-        styler.setSumFont(new Font("Arial", Font.PLAIN, 30));
-
-        styler.setCircular(false);
-
+        final long totalValue = javaRatioPlayer.getStats().values().stream().mapToLong(JavaRatioPlayer.Stat::getScore).sum();
+        final DecimalFormat decimalFormat = new DecimalFormat("#0.00");
+        decimalFormat.setDecimalFormatSymbols(DecimalFormatSymbols.getInstance(Locale.US));
         javaRatioPlayer.getStats().values()
                 .stream()
                 .sorted(Comparator.comparingLong(JavaRatioPlayer.Stat::getScore))
-                .forEach(value -> chart.addSeries(value.getGame(), value.getScore()));
+                .forEach(value -> slices.add(
+                        Slice.newSlice(
+                                value.getScore(),
+                                String.format("%s %s %s",
+                                        value.getGame(),
+                                        decimalFormat.format(Math.min(value.getScore(), totalValue) == 0 ? 0D : ((double) value.getScore() / (double) totalValue) * 100) + "%",
+                                        value.getScore()
+                                )
+                        )
+                ));
+
+        final PieChart gCharts = GCharts.newPieChart(slices);
+        gCharts.setTitle(javaRatioPlayer.getInfo().getName() + " " + stat.getPrintName() + " " + board.getName() + " " +
+                javaRatioPlayer.getInfo().getTotalNumber() + " " + this.getFormattedUnixTime(unixTime));
 
         // Send to server
-        Optional<InputStream> inputStream;
-        try (final ByteArrayOutputStream os = new ByteArrayOutputStream()) {
-            ImageIO.write(BitmapEncoder.getBufferedImage(chart), "png", os);
-            inputStream = Optional.of(new ByteArrayInputStream(os.toByteArray()));
-        } catch (final IOException e) {
-            e.printStackTrace();
-            inputStream = Optional.empty();
-        }
-
-         /*
-
-        final PicturePie picturePie = new PicturePie(
-                javaRatioPlayer.getStats().values()
-                        .stream()
-                        .sorted(Comparator.comparingLong(JavaRatioPlayer.Stat::getScore))
-                        .map(value -> new PicturePie.Slice(value.getGame(), value.getScore()))
-                        .toArray(PicturePie.Slice[]::new)
-        );
-        
-        final Optional<InputStream> inputStream = picturePie.getPie();
-
-          */
-
-        final CommandResult commandResult = this.sendPicture(
-                commandParameters,
-                inputStream,
-                ((JavaRatioPlayer) responseModel).getInfo().getName() + "-" + stat.getName() + "-" + board.getName() + "-" + unixTime
-        );
-
-
         commandParameters.getTextChannel()
-                .sendMessage(this.getEmbedBuilder(commandParameters)
-                        .setTitle("Prototype Command")
-                        .setDescription("Thx for using this prototype command. \n" +
-                                "This command is clearly not done and all the data is based on the leaderboards, but have fun with the limited version of this command.")
-                        .build())
+                .sendMessage(getPieUrl(gCharts))
                 .queue();
-        return commandResult;
+        this.sendMessage(
+                commandParameters,
+                this.getEmbedBuilder(commandParameters)
+                        .setTitle("Prototype Command")
+                        .setDescription(
+                                MarkdownUtil.bold("The data you see up there is not 100% correct.\n") +
+                                        "Everything you see is based on leaderboards, " +
+                                        "that means that for your data to show, you need to fulfill one of the 2 conditions: " +
+                                        "You either need to have that stat on mineplex.com/players/YourName or to be on the leaderboard for the specific stat." +
+                                        "\n\nThis is also the reason you sometimes see " + MarkdownUtil.bold("Unknown") + ". " +
+                                        "Unknown basically means that I know what your total value is, but I can't find all the sources of it." +
+                                        "\n\nI hope I don't really need to mention that this command is not even close to be done."
+                        )
+        );
+        return CommandResult.SUCCESS;
     }
 }

@@ -17,7 +17,7 @@ public class NamesCommand extends AbstractCommand<MinecraftModule> {
     private static final Pattern NAME_PATTERN = Pattern.compile("^\\w{1,16}$");
 
     public NamesCommand() {
-        super("names", "Minecraft", "Shows the players past names", "<playerName>");
+        super("names", "Minecraft", "Shows the players past names", "<playerName>", "n");
 
         this.addProperties(
                 new MinArgCommandProperty(1)
@@ -36,7 +36,7 @@ public class NamesCommand extends AbstractCommand<MinecraftModule> {
         final NameHistory nameHistory = user.getNameHistory();
         final StringJoiner descriptionBuilder = new StringJoiner("\n\n");
         for (final NameHistory.NameHistoryData nameHistoryData : nameHistory.getHistory()) {
-            descriptionBuilder.add(MarkdownUtil.bold(nameHistoryData.getName()) + " - " + nameHistoryData.getFormattedTime());
+            descriptionBuilder.add(MarkdownUtil.monospace(nameHistoryData.getName()) + " - " + nameHistoryData.getFormattedTime());
         }
 
         this.sendTimedMessage(

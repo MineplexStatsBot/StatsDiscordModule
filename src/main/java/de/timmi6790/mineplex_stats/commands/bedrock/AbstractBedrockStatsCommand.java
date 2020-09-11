@@ -35,7 +35,7 @@ public abstract class AbstractBedrockStatsCommand extends AbstractStatsCommand {
             return similarGames.get(0);
         }
 
-        final AbstractCommand<?> command = getModule(). getModuleOrThrow(CommandModule.class).getCommand(BedrockGamesCommand.class).orElse(null);
+        final AbstractCommand<?> command = getModule().getModuleOrThrow(CommandModule.class).getCommand(BedrockGamesCommand.class).orElse(null);
         this.sendHelpMessage(commandParameters, name, argPos, "game", command, new String[0], similarGames.stream().map(BedrockGame::getName).collect(Collectors.toList()));
 
         throw new CommandReturnException();

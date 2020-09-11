@@ -1,14 +1,14 @@
 package de.timmi6790.mineplex_stats.commands.debug;
 
-import de.timmi6790.discord_framework.DiscordBot;
 import de.timmi6790.discord_framework.modules.command.AbstractCommand;
 import de.timmi6790.discord_framework.modules.command.CommandParameters;
 import de.timmi6790.discord_framework.modules.command.CommandResult;
 import de.timmi6790.discord_framework.modules.command.properties.MinArgCommandProperty;
 import de.timmi6790.discord_framework.utilities.EnumUtilities;
+import de.timmi6790.mineplex_stats.MineplexStatsModule;
 import net.dv8tion.jda.api.utils.MarkdownUtil;
 
-public class ReloadDataCommand extends AbstractCommand<de.timmi6790.mineplex_stats.MineplexStatsModule> {
+public class ReloadDataCommand extends AbstractCommand<MineplexStatsModule> {
     public ReloadDataCommand() {
         super("sReload", "Debug", "", "<javaGame|javaGroup|bedrockGame>", "sr");
 
@@ -19,7 +19,7 @@ public class ReloadDataCommand extends AbstractCommand<de.timmi6790.mineplex_sta
 
     @Override
     protected CommandResult onCommand(final CommandParameters commandParameters) {
-        final de.timmi6790.mineplex_stats.MineplexStatsModule module = getModule().getModuleOrThrow(de.timmi6790.mineplex_stats.MineplexStatsModule.class);
+        final MineplexStatsModule module = this.getModule();
         final ValidArgs0 arg0 = this.getFromEnumIgnoreCaseThrow(commandParameters, 0, ValidArgs0.values());
 
         switch (arg0) {

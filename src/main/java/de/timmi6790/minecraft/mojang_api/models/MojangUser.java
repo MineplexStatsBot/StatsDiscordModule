@@ -3,7 +3,6 @@ package de.timmi6790.minecraft.mojang_api.models;
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonDeserializer;
 import com.google.gson.JsonElement;
-import com.google.gson.JsonParseException;
 import de.timmi6790.discord_framework.modules.GetModule;
 import de.timmi6790.minecraft.MinecraftModule;
 import lombok.AllArgsConstructor;
@@ -37,7 +36,7 @@ public class MojangUser extends GetModule<MinecraftModule> {
 
     public static class MojangUserDeserializer implements JsonDeserializer<MojangUser> {
         @Override
-        public MojangUser deserialize(final JsonElement jsonElement, final Type type, final JsonDeserializationContext jsonDeserializationContext) throws JsonParseException {
+        public MojangUser deserialize(final JsonElement jsonElement, final Type type, final JsonDeserializationContext jsonDeserializationContext) {
             return new MojangUser(
                     jsonElement.getAsJsonObject().get("name").getAsString(),
                     UUID.fromString(FULL_UUID_PATTERN.matcher(jsonElement.getAsJsonObject().get("id").getAsString()).replaceAll("$1-$2-$3-$4-$5"))

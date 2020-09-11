@@ -1,9 +1,9 @@
 package de.timmi6790.mineplex_stats.commands.bedrock;
 
+import de.timmi6790.discord_framework.datatypes.builders.MultiEmbedBuilder;
 import de.timmi6790.discord_framework.modules.command.CommandParameters;
 import de.timmi6790.discord_framework.modules.command.CommandResult;
 import de.timmi6790.mineplex_stats.statsapi.models.bedrock.BedrockGame;
-import net.dv8tion.jda.api.EmbedBuilder;
 
 import java.util.Comparator;
 import java.util.TreeMap;
@@ -16,7 +16,7 @@ public class BedrockGamesCommand extends AbstractBedrockStatsCommand {
 
     @Override
     protected CommandResult onCommand(final CommandParameters commandParameters) {
-        final EmbedBuilder message = this.getEmbedBuilder(commandParameters)
+        final MultiEmbedBuilder message = this.getEmbedBuilder(commandParameters)
                 .setTitle("Bedrock Games");
 
         this.getStatsModule().getBedrockGames().values()

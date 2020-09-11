@@ -27,7 +27,6 @@ import lombok.Getter;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.stream.Collectors;
 
 @EqualsAndHashCode(callSuper = true)
 public class MineplexStatsModule extends AbstractModule {
@@ -54,7 +53,7 @@ public class MineplexStatsModule extends AbstractModule {
 
     @Override
     public void onInitialize() {
-        final Config statsConfig = getModuleOrThrow(ConfigModule.class)
+        final Config statsConfig = this.getModuleOrThrow(ConfigModule.class)
                 .registerAndGetConfig(this, new Config());
         this.mpStatsRestClient = new MpStatsRestApiClient(statsConfig.getApiName(), statsConfig.getApiPassword());
 
@@ -64,7 +63,7 @@ public class MineplexStatsModule extends AbstractModule {
 
         this.loadBedrockGames();
 
-        getModuleOrThrow(CommandModule.class)
+        this.getModuleOrThrow(CommandModule.class)
                 .registerCommands(
                         this,
                         new JavaGamesCommand(),
@@ -151,10 +150,13 @@ public class MineplexStatsModule extends AbstractModule {
     }
 
     public List<JavaGame> getSimilarJavaGames(final String name, final double similarity, final int limit) {
-        return DataUtilities.getSimilarityList(name, this.javaGames.keySet(), similarity, limit)
-                .stream()
-                .map(this.javaGames::get)
-                .collect(Collectors.toList());
+        return DataUtilities.getSimilarityList(
+                name,
+                this.javaGames.values(),
+                JavaGame::getName,
+                similarity,
+                limit
+        );
     }
 
     public Optional<JavaGroup> getJavaGroup(String name) {
@@ -163,10 +165,13 @@ public class MineplexStatsModule extends AbstractModule {
     }
 
     public List<JavaGroup> getSimilarJavaGroups(final String name, final double similarity, final int limit) {
-        return DataUtilities.getSimilarityList(name, this.javaGroups.keySet(), similarity, limit)
-                .stream()
-                .map(this.javaGroups::get)
-                .collect(Collectors.toList());
+        return DataUtilities.getSimilarityList(
+                name,
+                this.javaGroups.values(),
+                JavaGroup::getName,
+                similarity,
+                limit
+        );
     }
 
     public Optional<BedrockGame> getBedrockGame(final String name) {
@@ -176,12 +181,11 @@ public class MineplexStatsModule extends AbstractModule {
     public List<BedrockGame> getSimilarBedrockGames(final String name, final double similarity, final int limit) {
         return DataUtilities.getSimilarityList(
                 name,
-                this.bedrockGames.keySet(),
+                this.bedrockGames.values(),
+                BedrockGame::getName,
                 similarity,
-                limit)
-                .stream()
-                .map(this.bedrockGames::get)
-                .collect(Collectors.toList());
+                limit
+        );
     }
 
 }

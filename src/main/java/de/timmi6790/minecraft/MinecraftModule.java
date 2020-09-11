@@ -9,7 +9,7 @@ import lombok.Getter;
 
 @Getter
 @EqualsAndHashCode(callSuper = true)
-public class MinecraftModule  extends AbstractModule {
+public class MinecraftModule extends AbstractModule {
     private final MojangApi mojangApi = new MojangApi();
 
     public MinecraftModule() {

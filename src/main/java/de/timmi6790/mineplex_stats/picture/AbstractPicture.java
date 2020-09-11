@@ -10,7 +10,7 @@ import java.io.InputStream;
 import java.util.Optional;
 
 public abstract class AbstractPicture {
-    protected static final Color COLOUR_DISCORD_DARK_MODE = new Color(54, 57, 63);
+    public static final Color COLOUR_DISCORD_DARK_MODE = new Color(54, 57, 63);
 
     protected static final Graphics2D GD_TEST = new BufferedImage(1, 1, BufferedImage.TYPE_4BYTE_ABGR).createGraphics();
 
