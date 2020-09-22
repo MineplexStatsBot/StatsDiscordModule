@@ -27,14 +27,5 @@ public class MinecraftModule extends AbstractModule {
                 new NamesCommand()
         );
     }
-
-    @Override
-    public void onEnable() {
-
-    }
-
-    @Override
-    public void onDisable() {
-
-    }
+    
 }

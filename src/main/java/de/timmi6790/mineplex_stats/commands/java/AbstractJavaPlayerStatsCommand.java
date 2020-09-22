@@ -15,6 +15,7 @@ import de.timmi6790.mineplex_stats.statsapi.models.java.JavaPlayerStats;
 import de.timmi6790.mineplex_stats.statsapi.models.java.JavaStat;
 import de.timmi6790.mineplex_stats.statsapi.utilities.BiggestLong;
 import lombok.EqualsAndHashCode;
+import lombok.SneakyThrows;
 import net.dv8tion.jda.api.Permission;
 
 import java.awt.image.BufferedImage;
@@ -45,6 +46,7 @@ public abstract class AbstractJavaPlayerStatsCommand extends AbstractJavaStatsCo
 
     protected abstract String[] getHeader(JavaPlayerStats.Info playerStatsInfo);
 
+    @SneakyThrows
     @Override
     protected CommandResult onCommand(final CommandParameters commandParameters) {
         // Parse args
@@ -91,7 +93,7 @@ public abstract class AbstractJavaPlayerStatsCommand extends AbstractJavaStatsCo
         BufferedImage skin;
         try {
             skin = skinFuture.get();
-        } catch (final InterruptedException | ExecutionException e) {
+        } catch (final ExecutionException e) {
             skin = null;
         }
 

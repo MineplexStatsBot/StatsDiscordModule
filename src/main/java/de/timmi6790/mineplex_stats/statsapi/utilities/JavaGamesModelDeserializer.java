@@ -11,8 +11,10 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class JavaGamesModelDeserializer implements JsonDeserializer<JavaGamesModel> {
+    private static final String ALIAS_NAME = "aliasNames";
+
     @Override
-    public JavaGamesModel deserialize(final JsonElement json, final Type typeOfT, final JsonDeserializationContext context) throws JsonParseException {
+    public JavaGamesModel deserialize(final JsonElement json, final Type typeOfT, final JsonDeserializationContext context) {
         final Gson gson = new Gson();
 
         final Map<String, JavaGame> parsedGames = new HashMap<>();
@@ -33,7 +35,7 @@ public class JavaGamesModelDeserializer implements JsonDeserializer<JavaGamesMod
                             boardName.toLowerCase(),
                             new JavaBoard(
                                     board.get("board").getAsString(),
-                                    gson.fromJson(board.getAsJsonArray("aliasNames").toString(), String[].class)
+                                    gson.fromJson(board.getAsJsonArray(ALIAS_NAME).toString(), String[].class)
                             )
                     );
                 }
@@ -42,7 +44,7 @@ public class JavaGamesModelDeserializer implements JsonDeserializer<JavaGamesMod
                         JavaGame.getCleanStat(statName).toLowerCase(),
                         new JavaStat(
                                 stat.get("stat").getAsString(),
-                                gson.fromJson(stat.getAsJsonArray("aliasNames").toString(), String[].class),
+                                gson.fromJson(stat.getAsJsonArray(ALIAS_NAME).toString(), String[].class),
                                 stat.get("achievement").getAsBoolean(),
                                 stat.get("description").getAsString(),
                                 boards
@@ -54,7 +56,7 @@ public class JavaGamesModelDeserializer implements JsonDeserializer<JavaGamesMod
                     gameName.toLowerCase(),
                     new JavaGame(
                             game.get("game").getAsString(),
-                            gson.fromJson(game.getAsJsonArray("aliasNames").toString(), String[].class),
+                            gson.fromJson(game.getAsJsonArray(ALIAS_NAME).toString(), String[].class),
                             game.get("category").getAsString(),
                             game.get("wikiUrl").getAsString(),
                             game.get("description").getAsString(),

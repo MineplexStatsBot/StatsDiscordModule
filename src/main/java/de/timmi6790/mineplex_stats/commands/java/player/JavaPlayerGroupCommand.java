@@ -10,6 +10,7 @@ import de.timmi6790.mineplex_stats.picture.PictureTable;
 import de.timmi6790.mineplex_stats.statsapi.models.ResponseModel;
 import de.timmi6790.mineplex_stats.statsapi.models.java.*;
 import de.timmi6790.mineplex_stats.statsapi.utilities.BiggestLong;
+import lombok.SneakyThrows;
 
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
@@ -34,6 +35,7 @@ public class JavaPlayerGroupCommand extends AbstractJavaStatsCommand {
         );
     }
 
+    @SneakyThrows
     @Override
     protected CommandResult onCommand(final CommandParameters commandParameters) {
         // Parse input
@@ -71,7 +73,7 @@ public class JavaPlayerGroupCommand extends AbstractJavaStatsCommand {
         BufferedImage skin;
         try {
             skin = skinFuture.get();
-        } catch (final InterruptedException | ExecutionException ignore) {
+        } catch (final ExecutionException ignore) {
             skin = null;
         }
 

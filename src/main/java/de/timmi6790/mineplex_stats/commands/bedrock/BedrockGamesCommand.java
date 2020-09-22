@@ -24,7 +24,7 @@ public class BedrockGamesCommand extends AbstractBedrockStatsCommand {
                 .collect(Collectors.groupingBy(BedrockGame::isRemoved, TreeMap::new, Collectors.toList()))
                 .forEach((key, value) ->
                         message.addField(
-                                key ? "Removed" : "Games",
+                                Boolean.TRUE.equals(key) ? "Removed" : "Games",
                                 value.stream()
                                         .map(BedrockGame::getName)
                                         .sorted(Comparator.naturalOrder())

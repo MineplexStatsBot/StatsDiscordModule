@@ -45,12 +45,8 @@ public class JavaPlayerStatsRatioCommand extends AbstractJavaStatsCommand {
         url += "&chco=FF0000,ADFF2F,00FF00,0000FF,a020f0";
         // Legend colour and size
         url += "&chdls=ffffff,15";
-        // Solid background
-        //url += "&chf=bg,s,36393f";
         // Legend order
         url += "&chdlp=r|a";
-        // Title colour, size and position
-        //url += "&chts=ffffff,17,c";
 
         return url;
     }

@@ -50,6 +50,7 @@ public abstract class AbstractLeaderboardCommand extends AbstractJavaStatsComman
     protected Map<String, AbstractEmoteReaction> getCustomEmotes(final CommandParameters commandParameters, final JavaLeaderboard javaLeaderboard) {
         return new HashMap<>();
     }
+    
 
     @Override
     protected CommandResult onCommand(final CommandParameters commandParameters) {
