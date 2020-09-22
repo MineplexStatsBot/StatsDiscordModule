@@ -8,7 +8,7 @@ import lombok.EqualsAndHashCode;
 import java.util.stream.Collectors;
 
 @EqualsAndHashCode(callSuper = true)
-public class JavaLeaderboardCommand extends AbstractLeaderboardCommand {
+public class JavaLeaderboardCommand extends AbstractJavaLeaderboardCommand {
     public JavaLeaderboardCommand() {
         super(true, "leaderboard", "Java Leaderboard", "<game> <stat> [board] [start] [end] [date]", "lb");
     }

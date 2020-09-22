@@ -31,8 +31,8 @@ public class BedrockPlayerCommand extends AbstractBedrockStatsCommand {
         // Arg parse
         final String player = this.getPlayer(commandParameters, 0);
 
-        final ResponseModel responseModel = this.getStatsModule().getMpStatsRestClient().getBedrockPlayerStats(player);
-        this.checkApiResponse(commandParameters, responseModel, "No stats available");
+        final ResponseModel responseModel = this.getModule().getMpStatsRestClient().getBedrockPlayerStats(player);
+        this.checkApiResponseThrow(commandParameters, responseModel, "No stats available");
 
         final BedrockPlayerStats bedrockStats = (BedrockPlayerStats) responseModel;
         final BedrockPlayerStats.Info playerStatsInfo = bedrockStats.getInfo();

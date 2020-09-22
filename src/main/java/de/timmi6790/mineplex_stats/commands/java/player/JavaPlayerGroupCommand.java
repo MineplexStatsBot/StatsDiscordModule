@@ -46,10 +46,10 @@ public class JavaPlayerGroupCommand extends AbstractJavaStatsCommand {
         // TODO: Fix me: Possible bug when not all game stats have the same boards
         final List<JavaGame> statSpecificGames = javaGroup.getGames(stat);
         final JavaBoard board = this.getBoard(statSpecificGames.get(0), stat, commandParameters, 3);
-        final long unixTime = this.getUnixTime(commandParameters, 4);
+        final long unixTime = this.getUnixTimeThrow(commandParameters, 4);
 
-        final ResponseModel responseModel = this.getStatsModule().getMpStatsRestClient().getPlayerGroup(player, javaGroup.getGroup(), stat.getName(), board.getName(), unixTime);
-        this.checkApiResponse(commandParameters, responseModel, "No stats available");
+        final ResponseModel responseModel = this.getModule().getMpStatsRestClient().getPlayerGroup(player, javaGroup.getGroup(), stat.getName(), board.getName(), unixTime);
+        this.checkApiResponseThrow(commandParameters, responseModel, "No stats available");
 
         // Parse data to image
         final JavaGroupsPlayer groupStats = (JavaGroupsPlayer) responseModel;

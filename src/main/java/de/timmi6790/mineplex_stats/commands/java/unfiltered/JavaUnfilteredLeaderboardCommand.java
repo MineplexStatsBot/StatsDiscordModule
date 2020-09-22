@@ -1,13 +1,13 @@
 package de.timmi6790.mineplex_stats.commands.java.unfiltered;
 
 import de.timmi6790.commons.builders.ListBuilder;
-import de.timmi6790.mineplex_stats.commands.java.AbstractLeaderboardCommand;
+import de.timmi6790.mineplex_stats.commands.java.AbstractJavaLeaderboardCommand;
 import de.timmi6790.mineplex_stats.statsapi.models.java.JavaLeaderboard;
 import de.timmi6790.mineplex_stats.statsapi.models.java.JavaStat;
 
 import java.util.stream.Collectors;
 
-public class JavaUnfilteredLeaderboardCommand extends AbstractLeaderboardCommand {
+public class JavaUnfilteredLeaderboardCommand extends AbstractJavaLeaderboardCommand {
     public JavaUnfilteredLeaderboardCommand() {
         super(false, "unfilteredLeaderboard", "Java Unfiltered Leaderboard", "<game> <stat> [board] [start] [end] [date]", "ulb");
     }

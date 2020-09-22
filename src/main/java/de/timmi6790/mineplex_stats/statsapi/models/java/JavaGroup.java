@@ -4,6 +4,7 @@ import de.timmi6790.discord_framework.modules.GetModule;
 import de.timmi6790.mineplex_stats.MineplexStatsModule;
 import de.timmi6790.mineplex_stats.statsapi.utilities.StatsComparator;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -11,6 +12,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+@EqualsAndHashCode(callSuper = true)
 @Data
 public class JavaGroup extends GetModule<MineplexStatsModule> {
     private final String group;
@@ -18,6 +20,18 @@ public class JavaGroup extends GetModule<MineplexStatsModule> {
     private final String[] aliasNames;
     private final List<String> games;
     private List<JavaStat> groupStats;
+
+    public JavaGroup(final String group, final String description, final String[] aliasNames, final List<String> games, final List<JavaStat> groupStats) {
+        this.group = group;
+        this.description = description;
+        this.aliasNames = aliasNames.clone();
+        this.games = games;
+        this.groupStats = groupStats;
+    }
+
+    public String[] getAliasNames() {
+        return this.aliasNames.clone();
+    }
 
     public String getName() {
         return this.group;

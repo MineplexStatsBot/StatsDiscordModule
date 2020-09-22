@@ -30,7 +30,7 @@ public class JavaPlayerStats extends ResponseModel {
     @Data
     @AllArgsConstructor
     public static class Stat {
-        private final String stat;
+        private final String statName;
         private final int position;
         private final int score;
         private final int unix;

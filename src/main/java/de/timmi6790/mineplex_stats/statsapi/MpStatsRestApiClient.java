@@ -3,6 +3,7 @@ package de.timmi6790.mineplex_stats.statsapi;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import de.timmi6790.commons.builders.MapBuilder;
+import de.timmi6790.discord_framework.DiscordBot;
 import de.timmi6790.mineplex_stats.statsapi.models.ResponseModel;
 import de.timmi6790.mineplex_stats.statsapi.models.bedrock.BedrockGames;
 import de.timmi6790.mineplex_stats.statsapi.models.bedrock.BedrockLeaderboard;
@@ -39,18 +40,18 @@ public class MpStatsRestApiClient {
     private final String authPassword;
 
     public MpStatsRestApiClient(final String authName, final String authPassword) {
-        final GsonBuilder gsonBuilder = new GsonBuilder();
-        gsonBuilder.registerTypeAdapter(JavaGamesModel.class, new JavaGamesModelDeserializer());
-        this.gson = gsonBuilder.create();
-
-        Unirest.config().defaultBaseUrl(BASE_URL);
-        Unirest.config().connectTimeout(6_000);
-        Unirest.config().addDefaultHeader("User-Agent", "MpStatsRestApiClient-Java");
+        this.gson = new GsonBuilder()
+                .registerTypeAdapter(JavaGamesModel.class, new JavaGamesModelDeserializer())
+                .create();
 
         this.authName = authName;
         this.authPassword = authPassword;
 
-        Unirest.config().setDefaultBasicAuth(this.authName, this.authPassword);
+        Unirest.config()
+                .defaultBaseUrl(BASE_URL)
+                .connectTimeout(6_000)
+                .addDefaultHeader("User-Agent", "MpStatsRestApiClient-Java")
+                .setDefaultBasicAuth(this.authName, this.authPassword);
     }
 
     private ResponseModel makeRequest(final String url, final Map<String, Object> params, final Class<? extends ResponseModel> wantedClazz) {
@@ -70,10 +71,10 @@ public class MpStatsRestApiClient {
             return this.gson.fromJson(jsonObject.toString(), wantedClazz);
 
         } catch (final UnirestException e) {
-            e.printStackTrace();
+            DiscordBot.getLogger().error(e);
             return TIMEOUT_ERROR_RESPONSE_MODEL;
         } catch (final Exception e) {
-            e.printStackTrace();
+            DiscordBot.getLogger().error(e);
             return UNKNOWN_ERROR_RESPONSE_MODEL;
         }
     }

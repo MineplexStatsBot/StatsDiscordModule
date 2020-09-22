@@ -5,6 +5,7 @@ import de.timmi6790.discord_framework.modules.command.CommandModule;
 import de.timmi6790.discord_framework.modules.command.CommandParameters;
 import de.timmi6790.discord_framework.modules.command.exceptions.CommandReturnException;
 import de.timmi6790.mineplex_stats.commands.AbstractStatsCommand;
+import de.timmi6790.mineplex_stats.commands.bedrock.info.BedrockGamesCommand;
 import de.timmi6790.mineplex_stats.statsapi.models.bedrock.BedrockGame;
 import net.dv8tion.jda.api.utils.MarkdownUtil;
 
@@ -24,12 +25,12 @@ public abstract class AbstractBedrockStatsCommand extends AbstractStatsCommand {
 
     protected BedrockGame getGame(final CommandParameters commandParameters, final int argPos) {
         final String name = commandParameters.getArgs()[argPos];
-        final Optional<BedrockGame> game = this.getStatsModule().getBedrockGame(name);
+        final Optional<BedrockGame> game = this.getModule().getBedrockGame(name);
         if (game.isPresent()) {
             return game.get();
         }
 
-        final List<BedrockGame> similarGames = new ArrayList<>(this.getStatsModule().getSimilarBedrockGames(name, 0.6, 3));
+        final List<BedrockGame> similarGames = new ArrayList<>(this.getModule().getSimilarBedrockGames(name, 0.6, 3));
         if (!similarGames.isEmpty() && commandParameters.getUserDb().hasAutoCorrection()) {
             return similarGames.get(0);
         }

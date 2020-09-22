@@ -1,10 +1,11 @@
-package de.timmi6790.mineplex_stats.commands.java;
+package de.timmi6790.mineplex_stats.commands.java.info;
 
 import de.timmi6790.discord_framework.datatypes.builders.MultiEmbedBuilder;
 import de.timmi6790.discord_framework.modules.command.CommandModule;
 import de.timmi6790.discord_framework.modules.command.CommandParameters;
 import de.timmi6790.discord_framework.modules.command.CommandResult;
 import de.timmi6790.discord_framework.modules.command.properties.ExampleCommandsCommandProperty;
+import de.timmi6790.mineplex_stats.commands.java.AbstractJavaStatsCommand;
 import de.timmi6790.mineplex_stats.statsapi.models.java.JavaGame;
 import de.timmi6790.mineplex_stats.statsapi.models.java.JavaStat;
 import lombok.EqualsAndHashCode;
@@ -34,7 +35,7 @@ public class JavaGamesCommand extends AbstractJavaStatsCommand {
                     .setTitle("Java Games")
                     .setFooter("TIP: Run " + this.getModule().getModuleOrThrow(CommandModule.class).getMainCommand() + " games <game> to see more details");
 
-            this.getStatsModule().getJavaGames().values().stream()
+            this.getModule().getJavaGames().values().stream()
                     .collect(Collectors.groupingBy(JavaGame::getCategory, TreeMap::new, Collectors.toList()))
                     .forEach((key, value) ->
                             message.addField(

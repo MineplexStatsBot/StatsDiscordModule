@@ -1,8 +1,9 @@
-package de.timmi6790.mineplex_stats.commands.bedrock;
+package de.timmi6790.mineplex_stats.commands.bedrock.info;
 
 import de.timmi6790.discord_framework.datatypes.builders.MultiEmbedBuilder;
 import de.timmi6790.discord_framework.modules.command.CommandParameters;
 import de.timmi6790.discord_framework.modules.command.CommandResult;
+import de.timmi6790.mineplex_stats.commands.bedrock.AbstractBedrockStatsCommand;
 import de.timmi6790.mineplex_stats.statsapi.models.bedrock.BedrockGame;
 
 import java.util.Comparator;
@@ -19,7 +20,7 @@ public class BedrockGamesCommand extends AbstractBedrockStatsCommand {
         final MultiEmbedBuilder message = getEmbedBuilder(commandParameters)
                 .setTitle("Bedrock Games");
 
-        this.getStatsModule().getBedrockGames().values()
+        this.getModule().getBedrockGames().values()
                 .stream()
                 .collect(Collectors.groupingBy(BedrockGame::isRemoved, TreeMap::new, Collectors.toList()))
                 .forEach((key, value) ->

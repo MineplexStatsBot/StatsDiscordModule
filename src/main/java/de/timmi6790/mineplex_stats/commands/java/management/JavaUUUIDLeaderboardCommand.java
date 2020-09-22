@@ -4,31 +4,24 @@ import de.timmi6790.commons.builders.ListBuilder;
 import de.timmi6790.discord_framework.modules.command.CommandCause;
 import de.timmi6790.discord_framework.modules.command.CommandModule;
 import de.timmi6790.discord_framework.modules.command.CommandParameters;
-import de.timmi6790.discord_framework.modules.command.properties.MinArgCommandProperty;
-import de.timmi6790.discord_framework.modules.command.properties.RequiredDiscordBotPermsCommandProperty;
 import de.timmi6790.discord_framework.modules.emote_reaction.emotereactions.AbstractEmoteReaction;
 import de.timmi6790.discord_framework.modules.emote_reaction.emotereactions.CommandEmoteReaction;
 import de.timmi6790.discord_framework.utilities.discord.DiscordEmotes;
-import de.timmi6790.mineplex_stats.commands.java.AbstractLeaderboardCommand;
+import de.timmi6790.mineplex_stats.commands.java.AbstractJavaLeaderboardCommand;
 import de.timmi6790.mineplex_stats.statsapi.models.java.JavaLeaderboard;
 import de.timmi6790.mineplex_stats.statsapi.models.java.JavaStat;
-import net.dv8tion.jda.api.Permission;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class JavaUUUIDLeaderboardCommand extends AbstractLeaderboardCommand {
+public class JavaUUUIDLeaderboardCommand extends AbstractJavaLeaderboardCommand {
     public JavaUUUIDLeaderboardCommand() {
         super(true, "uuidLeaderboard", "Java UUID Leaderboard", "<game> <stat> [board] [start] [end] [date]", "ul");
 
+        this.setLeaderboardRowDistance(5);
+
         this.setCategory("MineplexStats - Java - Management");
-        this.addProperties(
-                new MinArgCommandProperty(2),
-                new RequiredDiscordBotPermsCommandProperty(
-                        Permission.MESSAGE_ADD_REACTION
-                )
-        );
     }
 
     @Override

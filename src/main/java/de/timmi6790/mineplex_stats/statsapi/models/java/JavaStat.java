@@ -29,6 +29,10 @@ public class JavaStat {
         });
     }
 
+    public String[] getAliasNames() {
+        return this.aliasNames.clone();
+    }
+
     public String getPrintName() {
         if (this.achievement) {
             return "Achievement " + this.name;

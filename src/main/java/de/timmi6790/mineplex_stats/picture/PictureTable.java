@@ -7,7 +7,6 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.InputStream;
 import java.util.Arrays;
-import java.util.Optional;
 
 @ToString
 @EqualsAndHashCode(callSuper = true)
@@ -67,7 +66,7 @@ public class PictureTable extends AbstractPicture {
         this.currentHeightY += rowHeight;
     }
 
-    public Optional<InputStream> getPlayerPicture() {
+    public InputStream getPlayerPicture() {
         this.calculateImageDimension();
 
         final BufferedImage image = new BufferedImage(this.maxWidth, this.maxHeight, BufferedImage.TYPE_4BYTE_ABGR);

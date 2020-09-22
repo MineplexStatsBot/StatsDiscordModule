@@ -2,6 +2,7 @@ package de.timmi6790.minecraft.mojang_api;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import de.timmi6790.discord_framework.DiscordBot;
 import de.timmi6790.minecraft.mojang_api.models.MojangUser;
 import de.timmi6790.minecraft.mojang_api.models.NameHistory;
 import kong.unirest.GetRequest;
@@ -26,7 +27,7 @@ public class MojangApi {
         try {
             response = getRequest.asString();
         } catch (final Exception e) {
-            e.printStackTrace();
+            DiscordBot.getLogger().error(e);
             return Optional.empty();
         }
 

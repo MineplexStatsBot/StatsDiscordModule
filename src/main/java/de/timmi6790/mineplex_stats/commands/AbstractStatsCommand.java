@@ -13,6 +13,7 @@ import de.timmi6790.mineplex_stats.MineplexStatsModule;
 import de.timmi6790.mineplex_stats.statsapi.models.ResponseModel;
 import de.timmi6790.mineplex_stats.statsapi.models.errors.ErrorModel;
 import net.dv8tion.jda.api.utils.MarkdownUtil;
+import org.checkerframework.checker.nullness.qual.Nullable;
 import org.ocpsoft.prettytime.nlp.PrettyTimeParser;
 
 import java.io.InputStream;
@@ -28,8 +29,6 @@ public abstract class AbstractStatsCommand extends AbstractCommand<MineplexStats
     protected static final String UNKNOWN_POSITION = ">1000";
     protected static final String UNKNOWN_SCORE = "Unknown";
 
-    private static final int MAX_LEADERBOARD_POSITION_DISTANCE = 15;
-
     private static final DecimalFormat FORMAT_NUMBER = (DecimalFormat) NumberFormat.getInstance(Locale.US);
 
     private static final DecimalFormat FORMAT_DECIMAL_POINT = new DecimalFormat(".##");
@@ -44,22 +43,17 @@ public abstract class AbstractStatsCommand extends AbstractCommand<MineplexStats
         FORMAT_NUMBER.setDecimalFormatSymbols(numberSymbol);
     }
 
-
     public AbstractStatsCommand(final String name, final String category, final String description, final String syntax, final String... aliasNames) {
         super(name, category, description, syntax, aliasNames);
     }
 
-    private CommandParameters getLeaderboardNewCommandParameters(final CommandParameters commandParameters, final int argPosStart, final int argPosEnd, final int newStart,
-                                                                 final int rowDistance) {
-        final String[] newArgs = Arrays.copyOf(commandParameters.getArgs(), Math.max(commandParameters.getArgs().length, Math.max(argPosEnd, argPosStart) + 1));
-        newArgs[argPosStart] = String.valueOf(newStart);
-        newArgs[argPosEnd] = String.valueOf(newStart + rowDistance);
-
-        return new CommandParameters(commandParameters, newArgs);
-    }
-
-    protected MineplexStatsModule getStatsModule() {
-        return this.getModule().getModuleOrThrow(MineplexStatsModule.class);
+    private boolean isInt(final String userInput) {
+        try {
+            Integer.parseInt(userInput);
+            return true;
+        } catch (final NumberFormatException e) {
+            return false;
+        }
     }
 
     protected String getFormattedTime(long time) {
@@ -103,15 +97,6 @@ public abstract class AbstractStatsCommand extends AbstractCommand<MineplexStats
         return FORMAT_NUMBER.format(number);
     }
 
-
-    /**
-     * Gets formatted unix time.
-     * <p>
-     * Required to run synchronized, because SimpleDateFormat is not thread safe
-     *
-     * @param unix the unix
-     * @return the formatted unix time
-     */
     protected String getFormattedUnixTime(final long unix) {
         final SimpleDateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss z");
         dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
@@ -119,16 +104,7 @@ public abstract class AbstractStatsCommand extends AbstractCommand<MineplexStats
         return dateFormat.format(Date.from(Instant.ofEpochSecond(unix)));
     }
 
-    public boolean isInt(final String userInput) {
-        try {
-            Integer.parseInt(userInput);
-            return true;
-        } catch (final NumberFormatException e) {
-            return false;
-        }
-    }
-
-    public void checkApiResponse(final CommandParameters commandParameters, final ResponseModel response, final String arguments) {
+    public void checkApiResponseThrow(final CommandParameters commandParameters, final ResponseModel response, final String arguments) {
         if (response instanceof ErrorModel) {
             // No stats found
             if (((ErrorModel) response).getErrorCode() == 1) {
@@ -152,7 +128,7 @@ public abstract class AbstractStatsCommand extends AbstractCommand<MineplexStats
         }
     }
 
-    protected int getStartPosition(final CommandParameters commandParameters, final int argPos, final int upperLimit) {
+    protected int getStartPositionThrow(final CommandParameters commandParameters, final int argPos, final int upperLimit) {
         final String name = argPos >= commandParameters.getArgs().length ? "1" : commandParameters.getArgs()[argPos];
         if (!this.isInt(name)) {
             throw new CommandReturnException(
@@ -166,11 +142,7 @@ public abstract class AbstractStatsCommand extends AbstractCommand<MineplexStats
         return Math.min(Math.max(1, Integer.parseInt(name)), upperLimit);
     }
 
-    protected int getEndPosition(final int startPos, final CommandParameters commandParameters, final int argPos, final int upperLimit) {
-        return this.getEndPosition(startPos, commandParameters, argPos, upperLimit, MAX_LEADERBOARD_POSITION_DISTANCE);
-    }
-
-    protected int getEndPosition(final int startPos, final CommandParameters commandParameters, final int argPos, final int upperLimit, final int maxDistance) {
+    protected int getEndPositionThrow(final int startPos, final CommandParameters commandParameters, final int argPos, final int upperLimit, final int maxDistance) {
         if (commandParameters.getArgs().length > argPos && !this.isInt(commandParameters.getArgs()[argPos])) {
             throw new CommandReturnException(
                     getEmbedBuilder(commandParameters)
@@ -188,7 +160,7 @@ public abstract class AbstractStatsCommand extends AbstractCommand<MineplexStats
         return Math.min(Math.max(1, endPos), upperLimit);
     }
 
-    protected long getUnixTime(final CommandParameters commandParameters, final int startArgPos) {
+    protected long getUnixTimeThrow(final CommandParameters commandParameters, final int startArgPos) {
         if (startArgPos >= commandParameters.getArgs().length) {
             return Instant.now().getEpochSecond();
         }
@@ -210,7 +182,7 @@ public abstract class AbstractStatsCommand extends AbstractCommand<MineplexStats
         );
     }
 
-    protected UUID getUUID(final CommandParameters commandParameters, final int argPos) {
+    protected UUID getUUIDThrow(final CommandParameters commandParameters, final int argPos) {
         try {
             return UUID.fromString(commandParameters.getArgs()[argPos]);
         } catch (final IllegalArgumentException ignore) {
@@ -220,6 +192,15 @@ public abstract class AbstractStatsCommand extends AbstractCommand<MineplexStats
                             .setDescription(MarkdownUtil.monospace(commandParameters.getArgs()[argPos]) + " is not a valid UUID")
             );
         }
+    }
+
+    private CommandParameters getLeaderboardNewCommandParameters(final CommandParameters commandParameters, final int argPosStart, final int argPosEnd, final int newStart,
+                                                                 final int rowDistance) {
+        final String[] newArgs = Arrays.copyOf(commandParameters.getArgs(), Math.max(commandParameters.getArgs().length, Math.max(argPosEnd, argPosStart) + 1));
+        newArgs[argPosStart] = String.valueOf(newStart);
+        newArgs[argPosEnd] = String.valueOf(newStart + rowDistance);
+
+        return new CommandParameters(commandParameters, newArgs);
     }
 
     protected Map<String, AbstractEmoteReaction> getLeaderboardEmotes(final CommandParameters commandParameters, final int rowDistance, final int fastRowDistance,
@@ -257,15 +238,13 @@ public abstract class AbstractStatsCommand extends AbstractCommand<MineplexStats
         return emotes;
     }
 
-    @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
-    protected CommandResult sendPicture(final CommandParameters commandParameters, final Optional<InputStream> inputStreamOpt, final String pictureName) {
-        return this.sendPicture(commandParameters, inputStreamOpt, pictureName, null);
+    protected CommandResult sendPicture(final CommandParameters commandParameters, @Nullable final InputStream inputStream, final String pictureName) {
+        return this.sendPicture(commandParameters, inputStream, pictureName, null);
     }
 
-    @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
-    protected CommandResult sendPicture(final CommandParameters commandParameters, final Optional<InputStream> inputStreamOpt, final String pictureName,
-                                        final EmoteReactionMessage emoteReactionMessage) {
-        return inputStreamOpt.map(inputStream -> {
+    protected CommandResult sendPicture(final CommandParameters commandParameters, @Nullable final InputStream inputStream, final String pictureName,
+                                        final @Nullable EmoteReactionMessage emoteReactionMessage) {
+        if (inputStream != null) {
             commandParameters.getLowestMessageChannel()
                     .sendFile(inputStream, pictureName + ".png")
                     .queue(message -> {
@@ -274,9 +253,9 @@ public abstract class AbstractStatsCommand extends AbstractCommand<MineplexStats
                         }
                     });
             return CommandResult.SUCCESS;
-        }).orElseGet(() -> {
+        } else {
             this.sendErrorMessage(commandParameters, "Error while creating picture.");
             return CommandResult.ERROR;
-        });
+        }
     }
 }

@@ -33,7 +33,7 @@ public class JavaPlayerFilterCommand extends AbstractJavaStatsCommand {
 
     @Override
     protected CommandResult onCommand(final CommandParameters commandParameters) {
-        final UUID uuid = this.getUUID(commandParameters, 0);
+        final UUID uuid = this.getUUIDThrow(commandParameters, 0);
         final JavaGame game = this.getGame(commandParameters, 1);
         final JavaStat stat = this.getStat(game, commandParameters, 2);
         final JavaBoard board = this.getBoard(game, stat, commandParameters, 3);
@@ -50,7 +50,7 @@ public class JavaPlayerFilterCommand extends AbstractJavaStatsCommand {
                         .setDescription("Are you sure that you want to filter this person?"),
                 new MapBuilder<String, AbstractEmoteReaction>(() -> new LinkedHashMap<>(2))
                         .put(DiscordEmotes.CHECK_MARK.getEmote(), () -> {
-                            JavaPlayerFilterCommand.this.getStatsModule().getMpStatsRestClient().addJavaPlayerFilter(uuid, game.getName(), stat.getName(), board.getName());
+                            this.getModule().getMpStatsRestClient().addJavaPlayerFilter(uuid, game.getName(), stat.getName(), board.getName());
 
                             sendTimedMessage(
                                     commandParameters,

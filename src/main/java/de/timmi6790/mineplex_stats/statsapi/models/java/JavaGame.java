@@ -42,6 +42,10 @@ public class JavaGame {
         return ILLEGAL_STAT_CHARACTERS.matcher(name).replaceAll("");
     }
 
+    public String[] getAliasNames() {
+        return this.aliasNames.clone();
+    }
+
     public Optional<JavaStat> getStat(String name) {
         name = JavaGame.getCleanStat(name);
         name = this.statAlias.getOrDefault(name.toLowerCase(), name.toLowerCase());

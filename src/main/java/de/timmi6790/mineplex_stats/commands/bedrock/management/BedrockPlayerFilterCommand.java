@@ -41,7 +41,7 @@ public class BedrockPlayerFilterCommand extends AbstractBedrockStatsCommand {
                         .setDescription("Are you sure that you want to filter this person?"),
                 new MapBuilder<String, AbstractEmoteReaction>(() -> new LinkedHashMap<>(2))
                         .put(DiscordEmotes.CHECK_MARK.getEmote(), () -> {
-                            BedrockPlayerFilterCommand.this.getStatsModule().getMpStatsRestClient().addBedrockPlayerFilter(player, game.getName());
+                            this.getModule().getMpStatsRestClient().addBedrockPlayerFilter(player, game.getName());
 
                             sendTimedMessage(
                                     commandParameters,

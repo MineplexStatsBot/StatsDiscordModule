@@ -61,8 +61,8 @@ public class JavaPlayerStatsRatioCommand extends AbstractJavaStatsCommand {
         final long unixTime = Instant.now().getEpochSecond();// this.getUnixTime(commandParameters, 3);
 
         // Web request
-        final ResponseModel responseModel = this.getStatsModule().getMpStatsRestClient().getPlayerStatsRatio(player, stat.getPrintName(), board.getName(), unixTime);
-        this.checkApiResponse(commandParameters, responseModel, "No stats available");
+        final ResponseModel responseModel = this.getModule().getMpStatsRestClient().getPlayerStatsRatio(player, stat.getPrintName(), board.getName(), unixTime);
+        this.checkApiResponseThrow(commandParameters, responseModel, "No stats available");
 
         final JavaRatioPlayer javaRatioPlayer = (JavaRatioPlayer) responseModel;
 

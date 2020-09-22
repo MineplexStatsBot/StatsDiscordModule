@@ -23,8 +23,8 @@ public class JavaStatAliasCommand extends AbstractJavaStatsCommand {
         final JavaGame game = this.getGame(commandParameters, 0);
         final JavaStat stat = this.getStat(game, commandParameters, 1);
 
-        this.getStatsModule().getMpStatsRestClient().addJavaStatAlias(game.getName(), stat.getName(), commandParameters.getArgs()[2]);
-        this.getStatsModule().loadJavaGames();
+        this.getModule().getMpStatsRestClient().addJavaStatAlias(game.getName(), stat.getName(), commandParameters.getArgs()[2]);
+        this.getModule().loadJavaGames();
         sendTimedMessage(
                 commandParameters,
                 getEmbedBuilder(commandParameters)

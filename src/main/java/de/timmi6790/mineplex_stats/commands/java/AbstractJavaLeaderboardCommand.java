@@ -13,12 +13,14 @@ import de.timmi6790.mineplex_stats.statsapi.models.java.JavaGame;
 import de.timmi6790.mineplex_stats.statsapi.models.java.JavaLeaderboard;
 import de.timmi6790.mineplex_stats.statsapi.models.java.JavaStat;
 import lombok.EqualsAndHashCode;
+import lombok.Setter;
 
 import java.util.HashMap;
 import java.util.Map;
 
 @EqualsAndHashCode(callSuper = true)
-public abstract class AbstractLeaderboardCommand extends AbstractJavaStatsCommand {
+@Setter
+public abstract class AbstractJavaLeaderboardCommand extends AbstractJavaStatsCommand {
     private static final int ARG_POS_BOARD_POS = 2;
     private static final int ARG_POS_START_POS = 3;
     private static final int ARG_POS_END_POS = 4;
@@ -26,8 +28,9 @@ public abstract class AbstractLeaderboardCommand extends AbstractJavaStatsComman
     private static final int LEADERBOARD_UPPER_LIMIT = 1_000;
 
     private final boolean filteredStats;
+    private int leaderboardRowDistance = 15;
 
-    public AbstractLeaderboardCommand(final boolean filteredStats, final String name, final String description, final String syntax, final String... aliasNames) {
+    public AbstractJavaLeaderboardCommand(final boolean filteredStats, final String name, final String description, final String syntax, final String... aliasNames) {
         super(name, description, syntax, aliasNames);
 
         this.filteredStats = filteredStats;
@@ -50,7 +53,6 @@ public abstract class AbstractLeaderboardCommand extends AbstractJavaStatsComman
     protected Map<String, AbstractEmoteReaction> getCustomEmotes(final CommandParameters commandParameters, final JavaLeaderboard javaLeaderboard) {
         return new HashMap<>();
     }
-    
 
     @Override
     protected CommandResult onCommand(final CommandParameters commandParameters) {
@@ -58,12 +60,12 @@ public abstract class AbstractLeaderboardCommand extends AbstractJavaStatsComman
         final JavaGame game = this.getGame(commandParameters, 0);
         final JavaStat stat = this.getStat(game, commandParameters, 1);
         final JavaBoard board = this.getBoard(game, commandParameters, ARG_POS_BOARD_POS);
-        final int startPos = this.getStartPosition(commandParameters, ARG_POS_START_POS, LEADERBOARD_UPPER_LIMIT);
-        final int endPos = this.getEndPosition(startPos, commandParameters, ARG_POS_END_POS, LEADERBOARD_UPPER_LIMIT);
-        final long unixTime = this.getUnixTime(commandParameters, 5);
+        final int startPos = this.getStartPositionThrow(commandParameters, ARG_POS_START_POS, LEADERBOARD_UPPER_LIMIT);
+        final int endPos = this.getEndPositionThrow(startPos, commandParameters, ARG_POS_END_POS, LEADERBOARD_UPPER_LIMIT, this.leaderboardRowDistance);
+        final long unixTime = this.getUnixTimeThrow(commandParameters, 5);
 
-        final ResponseModel responseModel = this.getStatsModule().getMpStatsRestClient().getJavaLeaderboard(game.getName(), stat.getName(), board.getName(), startPos, endPos, unixTime, this.filteredStats);
-        this.checkApiResponse(commandParameters, responseModel, "No stats available");
+        final ResponseModel responseModel = this.getModule().getMpStatsRestClient().getJavaLeaderboard(game.getName(), stat.getName(), board.getName(), startPos, endPos, unixTime, this.filteredStats);
+        this.checkApiResponseThrow(commandParameters, responseModel, "No stats available");
 
         // Parse data to image generator
         final JavaLeaderboard leaderboardResponse = (JavaLeaderboard) responseModel;

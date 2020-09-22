@@ -1,9 +1,10 @@
-package de.timmi6790.mineplex_stats.commands.java;
+package de.timmi6790.mineplex_stats.commands.java.info;
 
 import de.timmi6790.discord_framework.modules.command.CommandModule;
 import de.timmi6790.discord_framework.modules.command.CommandParameters;
 import de.timmi6790.discord_framework.modules.command.CommandResult;
 import de.timmi6790.discord_framework.modules.command.properties.ExampleCommandsCommandProperty;
+import de.timmi6790.mineplex_stats.commands.java.AbstractJavaStatsCommand;
 import de.timmi6790.mineplex_stats.statsapi.models.java.JavaGroup;
 import lombok.EqualsAndHashCode;
 
@@ -32,7 +33,7 @@ public class JavaGroupsGroupsCommand extends AbstractJavaStatsCommand {
                     getEmbedBuilder(commandParameters)
                             .setTitle("Java Groups")
                             .addField("Groups",
-                                    this.getStatsModule().getJavaGroups().values()
+                                    this.getModule().getJavaGroups().values()
                                             .stream()
                                             .map(JavaGroup::getName)
                                             .sorted(Comparator.naturalOrder())

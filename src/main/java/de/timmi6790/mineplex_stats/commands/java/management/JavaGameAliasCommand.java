@@ -20,8 +20,8 @@ public class JavaGameAliasCommand extends AbstractJavaStatsCommand {
     @Override
     protected CommandResult onCommand(final CommandParameters commandParameters) {
         final JavaGame game = this.getGame(commandParameters, 0);
-        this.getStatsModule().getMpStatsRestClient().addJavaGameAlias(game.getName(), commandParameters.getArgs()[1]);
-        this.getStatsModule().loadJavaGames();
+        this.getModule().getMpStatsRestClient().addJavaGameAlias(game.getName(), commandParameters.getArgs()[1]);
+        this.getModule().loadJavaGames();
         sendTimedMessage(
                 commandParameters,
                 getEmbedBuilder(commandParameters)

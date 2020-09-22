@@ -8,6 +8,8 @@ import de.timmi6790.discord_framework.modules.command.CommandParameters;
 import de.timmi6790.discord_framework.modules.command.exceptions.CommandReturnException;
 import de.timmi6790.discord_framework.utilities.DataUtilities;
 import de.timmi6790.mineplex_stats.commands.AbstractStatsCommand;
+import de.timmi6790.mineplex_stats.commands.java.info.JavaGamesCommand;
+import de.timmi6790.mineplex_stats.commands.java.info.JavaGroupsGroupsCommand;
 import de.timmi6790.mineplex_stats.statsapi.models.java.JavaBoard;
 import de.timmi6790.mineplex_stats.statsapi.models.java.JavaGame;
 import de.timmi6790.mineplex_stats.statsapi.models.java.JavaGroup;
@@ -77,12 +79,12 @@ public abstract class AbstractJavaStatsCommand extends AbstractStatsCommand {
     // Arg Parsing
     protected JavaGame getGame(final CommandParameters commandParameters, final int argPos) {
         final String name = commandParameters.getArgs()[argPos];
-        final Optional<JavaGame> game = this.getStatsModule().getJavaGame(name);
+        final Optional<JavaGame> game = this.getModule().getJavaGame(name);
         if (game.isPresent()) {
             return game.get();
         }
 
-        final List<JavaGame> similarGames = this.getStatsModule().getSimilarJavaGames(name, 0.6, 3);
+        final List<JavaGame> similarGames = this.getModule().getSimilarJavaGames(name, 0.6, 3);
         if (!similarGames.isEmpty() && commandParameters.getUserDb().hasAutoCorrection()) {
             return similarGames.get(0);
         }
@@ -133,7 +135,7 @@ public abstract class AbstractJavaStatsCommand extends AbstractStatsCommand {
 
     protected JavaStat getStat(final CommandParameters commandParameters, final int argPos) {
         final String name = commandParameters.getArgs()[argPos];
-        final Optional<JavaStat> stat = this.getStatsModule().getJavaGames().values()
+        final Optional<JavaStat> stat = this.getModule().getJavaGames().values()
                 .stream()
                 .map(game -> game.getStat(name))
                 .filter(Optional::isPresent)
@@ -143,7 +145,6 @@ public abstract class AbstractJavaStatsCommand extends AbstractStatsCommand {
             return stat.get();
         }
 
-        // TODO: Add error message
         sendTimedMessage(
                 commandParameters,
                 getEmbedBuilder(commandParameters)
@@ -153,7 +154,7 @@ public abstract class AbstractJavaStatsCommand extends AbstractStatsCommand {
                                 "\n In the meantime just use any valid stat name, if that is not working scream at me."),
                 90
         );
-        
+
         throw new CommandReturnException();
     }
 
@@ -265,12 +266,12 @@ public abstract class AbstractJavaStatsCommand extends AbstractStatsCommand {
 
     public JavaGroup getJavaGroup(final CommandParameters commandParameters, final int argPos) {
         final String name = commandParameters.getArgs()[argPos];
-        final Optional<JavaGroup> group = this.getStatsModule().getJavaGroup(name);
+        final Optional<JavaGroup> group = this.getModule().getJavaGroup(name);
         if (group.isPresent()) {
             return group.get();
         }
 
-        final List<JavaGroup> similarGroup = this.getStatsModule().getSimilarJavaGroups(name, 0.6, 3);
+        final List<JavaGroup> similarGroup = this.getModule().getSimilarJavaGroups(name, 0.6, 3);
         if (!similarGroup.isEmpty() && commandParameters.getUserDb().hasAutoCorrection()) {
             return similarGroup.get(0);
         }

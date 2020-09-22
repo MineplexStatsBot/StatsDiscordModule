@@ -1,5 +1,6 @@
 package de.timmi6790.mineplex_stats.picture;
 
+import de.timmi6790.discord_framework.DiscordBot;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
@@ -10,7 +11,6 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Optional;
 
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public abstract class AbstractPicture {
@@ -43,14 +43,14 @@ public abstract class AbstractPicture {
         return gd;
     }
 
-    protected static Optional<InputStream> convertToInputStream(final BufferedImage image) {
+    protected static InputStream convertToInputStream(final BufferedImage image) {
         try (final ByteArrayOutputStream os = new ByteArrayOutputStream()) {
             ImageIO.write(image, "png", os);
-            return Optional.of(new ByteArrayInputStream(os.toByteArray()));
+            return new ByteArrayInputStream(os.toByteArray());
         } catch (final IOException e) {
-            e.printStackTrace();
+            DiscordBot.getLogger().error(e);
         }
 
-        return Optional.empty();
+        return null;
     }
 }

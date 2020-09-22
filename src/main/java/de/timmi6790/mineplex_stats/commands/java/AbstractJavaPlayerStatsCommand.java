@@ -53,11 +53,11 @@ public abstract class AbstractJavaPlayerStatsCommand extends AbstractJavaStatsCo
         final String player = this.getPlayer(commandParameters, 0);
         final JavaGame javaGame = this.getGame(commandParameters, 1);
         final JavaBoard board = this.getBoard(javaGame, commandParameters, 2);
-        final long unixTime = this.getUnixTime(commandParameters, 3);
+        final long unixTime = this.getUnixTimeThrow(commandParameters, 3);
 
         // Web Requests
-        final ResponseModel responseModel = this.getStatsModule().getMpStatsRestClient().getJavaPlayerStats(player, javaGame.getName(), board.getName(), unixTime, this.filteredStats);
-        this.checkApiResponse(commandParameters, responseModel, "No stats available");
+        final ResponseModel responseModel = this.getModule().getMpStatsRestClient().getJavaPlayerStats(player, javaGame.getName(), board.getName(), unixTime, this.filteredStats);
+        this.checkApiResponseThrow(commandParameters, responseModel, "No stats available");
 
         final JavaPlayerStats playerStats = (JavaPlayerStats) responseModel;
         final JavaPlayerStats.Info playerStatsInfo = playerStats.getInfo();
@@ -65,7 +65,7 @@ public abstract class AbstractJavaPlayerStatsCommand extends AbstractJavaStatsCo
         final CompletableFuture<BufferedImage> skinFuture = this.getPlayerSkin(playerStatsInfo.getUuid());
 
         // Parse data into image generator
-        final JavaGame game = this.getStatsModule().getJavaGame(playerStatsInfo.getGame()).orElseThrow(RuntimeException::new);
+        final JavaGame game = this.getModule().getJavaGame(playerStatsInfo.getGame()).orElseThrow(RuntimeException::new);
         final BiggestLong highestUnixTime = new BiggestLong(0);
         final String[][] leaderboard = new ListBuilder<String[]>(() -> new ArrayList<>(playerStats.getWebsiteStats().size() + game.getStats().size() + 1))
                 .add(new String[]{"Category", "Score", "Position"})

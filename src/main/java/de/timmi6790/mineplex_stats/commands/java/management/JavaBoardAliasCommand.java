@@ -23,8 +23,8 @@ public class JavaBoardAliasCommand extends AbstractJavaStatsCommand {
     @Override
     protected CommandResult onCommand(final CommandParameters commandParameters) {
         final String board = this.getFromListIgnoreCaseThrow(commandParameters, 0, Arrays.asList(JAVA_BOARDS));
-        this.getStatsModule().getMpStatsRestClient().addJavaBoardAlias(board, commandParameters.getArgs()[1]);
-        this.getStatsModule().loadJavaGames();
+        this.getModule().getMpStatsRestClient().addJavaBoardAlias(board, commandParameters.getArgs()[1]);
+        this.getModule().loadJavaGames();
         sendTimedMessage(
                 commandParameters,
                 getEmbedBuilder(commandParameters)
