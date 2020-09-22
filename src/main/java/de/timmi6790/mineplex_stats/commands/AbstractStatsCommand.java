@@ -203,8 +203,9 @@ public abstract class AbstractStatsCommand extends AbstractCommand<MineplexStats
         return new CommandParameters(commandParameters, newArgs);
     }
 
-    protected Map<String, AbstractEmoteReaction> getLeaderboardEmotes(final CommandParameters commandParameters, final int rowDistance, final int fastRowDistance,
+    protected Map<String, AbstractEmoteReaction> getLeaderboardEmotes(final CommandParameters commandParameters, final int fastRowDistance,
                                                                       final int startPos, final int endPos, final int totalLength, final int argPosStart, final int argPosEnd) {
+        final int rowDistance = endPos - startPos;
         final Map<String, AbstractEmoteReaction> emotes = new LinkedHashMap<>(4);
 
         // Far Left Arrow
@@ -236,6 +237,18 @@ public abstract class AbstractStatsCommand extends AbstractCommand<MineplexStats
         }
 
         return emotes;
+    }
+
+    protected CommandParameters getLeaderboardFixedCommandParameter(final CommandParameters commandParameters, final int startPosPosition, final int endPosPosition) {
+        // Create a new args array if the old array has no positions
+        final int minSize = Math.max(startPosPosition, endPosPosition) + 1;
+        if (minSize > commandParameters.getArgs().length) {
+            final String[] newArgs = new String[minSize];
+            System.arraycopy(commandParameters.getArgs(), 0, newArgs, 0, commandParameters.getArgs().length);
+            return new CommandParameters(commandParameters, newArgs);
+        } else {
+            return commandParameters;
+        }
     }
 
     protected CommandResult sendPicture(final CommandParameters commandParameters, @Nullable final InputStream inputStream, final String pictureName) {

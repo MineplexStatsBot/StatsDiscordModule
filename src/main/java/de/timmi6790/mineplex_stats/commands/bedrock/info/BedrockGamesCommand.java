@@ -7,6 +7,8 @@ import de.timmi6790.mineplex_stats.commands.bedrock.AbstractBedrockStatsCommand;
 import de.timmi6790.mineplex_stats.statsapi.models.bedrock.BedrockGame;
 
 import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
 
@@ -20,18 +22,20 @@ public class BedrockGamesCommand extends AbstractBedrockStatsCommand {
         final MultiEmbedBuilder message = getEmbedBuilder(commandParameters)
                 .setTitle("Bedrock Games");
 
-        this.getModule().getBedrockGames().values()
+        final Map<String, List<BedrockGame>> sortedMap = this.getModule().getBedrockGames().values()
                 .stream()
-                .collect(Collectors.groupingBy(BedrockGame::isRemoved, TreeMap::new, Collectors.toList()))
-                .forEach((key, value) ->
-                        message.addField(
-                                Boolean.TRUE.equals(key) ? "Removed" : "Games",
-                                value.stream()
-                                        .map(BedrockGame::getName)
-                                        .sorted(Comparator.naturalOrder())
-                                        .collect(Collectors.joining("\n ")),
-                                false
-                        ));
+                .collect(Collectors.groupingBy(k -> k.isRemoved() ? "Removed" : "Games", TreeMap::new, Collectors.toList()));
+
+        for (final Map.Entry<String, List<BedrockGame>> entry : sortedMap.entrySet()) {
+            message.addField(
+                    entry.getKey(),
+                    entry.getValue().stream()
+                            .map(BedrockGame::getName)
+                            .sorted(Comparator.naturalOrder())
+                            .collect(Collectors.joining("\n")),
+                    false
+            );
+        }
 
         sendTimedMessage(commandParameters, message, 150);
         return CommandResult.SUCCESS;

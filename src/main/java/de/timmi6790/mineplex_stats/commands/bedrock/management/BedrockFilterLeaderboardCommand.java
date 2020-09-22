@@ -34,12 +34,7 @@ public class BedrockFilterLeaderboardCommand extends AbstractBedrockLeaderboardC
     }
 
     @Override
-    protected String[] getHeader(final BedrockLeaderboard.Info leaderboardInfo) {
-        return new String[]{"Bedrock " + leaderboardInfo.getGame()};
-    }
-
-    @Override
-    protected Map<String, AbstractEmoteReaction> getCustomEmotes(final CommandParameters commandParameters, final BedrockLeaderboard leaderboard) {
+    protected Map<String, AbstractEmoteReaction> getEmotes(final CommandParameters commandParameters, final BedrockLeaderboard leaderboard, final int startPos, final int endPos) {
         final Map<String, AbstractEmoteReaction> emotes = new LinkedHashMap<>();
 
         this.getModule().getModuleOrThrow(CommandModule.class).getCommand(BedrockPlayerFilterCommand.class).ifPresent(filterCommand -> {
@@ -50,6 +45,7 @@ public class BedrockFilterLeaderboardCommand extends AbstractBedrockLeaderboardC
             }
         });
 
+        emotes.putAll(super.getEmotes(commandParameters, leaderboard, startPos, endPos));
         return emotes;
     }
 }

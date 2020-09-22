@@ -44,7 +44,13 @@ public abstract class AbstractJavaPlayerStatsCommand extends AbstractJavaStatsCo
         );
     }
 
-    protected abstract String[] getHeader(JavaPlayerStats.Info playerStatsInfo);
+    protected String[] getHeader(final JavaPlayerStats.Info playerStatsInfo) {
+        if (this.filteredStats) {
+            return new String[]{playerStatsInfo.getName(), playerStatsInfo.getGame(), playerStatsInfo.getBoard()};
+        } else {
+            return new String[]{playerStatsInfo.getName(), playerStatsInfo.getGame(), playerStatsInfo.getBoard(), "UNFILTERED"};
+        }
+    }
 
     @SneakyThrows
     @Override

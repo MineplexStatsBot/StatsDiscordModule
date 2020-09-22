@@ -11,7 +11,6 @@ import de.timmi6790.mineplex_stats.statsapi.models.bedrock.BedrockLeaderboard;
 import lombok.EqualsAndHashCode;
 import lombok.Setter;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -31,10 +30,15 @@ public abstract class AbstractBedrockLeaderboardCommand extends AbstractBedrockS
 
     protected abstract String[][] parseLeaderboard(List<BedrockLeaderboard.Leaderboard> leaderboardResponse);
 
-    protected abstract String[] getHeader(BedrockLeaderboard.Info leaderboardInfo);
+    protected String[] getHeader(final BedrockLeaderboard.Info leaderboardInfo) {
+        return new String[]{"Bedrock " + leaderboardInfo.getGame()};
+    }
 
-    protected Map<String, AbstractEmoteReaction> getCustomEmotes(final CommandParameters commandParameters, final BedrockLeaderboard leaderboard) {
-        return new HashMap<>();
+    protected Map<String, AbstractEmoteReaction> getEmotes(final CommandParameters commandParameters, final BedrockLeaderboard leaderboard, final int startPos, final int endPos) {
+        final int fastRowDistance = leaderboard.getInfo().getTotalLength() * 50 / 100;
+
+        return this.getLeaderboardEmotes(commandParameters, fastRowDistance, startPos, endPos, leaderboard.getInfo().getTotalLength(),
+                ARG_POS_START_POS, ARG_POS_END_POS);
     }
 
     @Override
@@ -55,30 +59,12 @@ public abstract class AbstractBedrockLeaderboardCommand extends AbstractBedrockS
         final BedrockLeaderboard.Info leaderboardInfo = bedrockLeaderboard.getInfo();
 
         final String[] header = this.getHeader(leaderboardInfo);
-
-        // Emotes
-        final int rowDistance = endPos - startPos;
-        final int fastRowDistance = leaderboardInfo.getTotalLength() * 50 / 100;
-
-        final CommandParameters newCommandParameters;
-        if (Math.max(ARG_POS_END_POS, ARG_POS_START_POS) + 1 > commandParameters.getArgs().length) {
-            final String[] newArgs = new String[Math.max(ARG_POS_END_POS, ARG_POS_START_POS) + 1];
-            System.arraycopy(commandParameters.getArgs(), 0, newArgs, 0, commandParameters.getArgs().length);
-            newCommandParameters = new CommandParameters(commandParameters, newArgs);
-        } else {
-            newCommandParameters = commandParameters;
-        }
-
-        final Map<String, AbstractEmoteReaction> emotes = this.getCustomEmotes(commandParameters, bedrockLeaderboard);
-        emotes.putAll(this.getLeaderboardEmotes(commandParameters, rowDistance, fastRowDistance, startPos, endPos, leaderboardInfo.getTotalLength(),
-                ARG_POS_START_POS, ARG_POS_END_POS));
-
         return this.sendPicture(
-                newCommandParameters,
+                this.getLeaderboardFixedCommandParameter(commandParameters, ARG_POS_END_POS, ARG_POS_START_POS),
                 new PictureTable(header, this.getFormattedUnixTime(leaderboardInfo.getUnix()), leaderboard).getPlayerPicture(),
                 String.format("%s-%s", String.join("-", header), leaderboardInfo.getUnix()),
                 new EmoteReactionMessage(
-                        emotes,
+                        this.getEmotes(commandParameters, bedrockLeaderboard, startPos, endPos),
                         commandParameters.getUser().getIdLong(),
                         commandParameters.getLowestMessageChannel().getIdLong()
                 )

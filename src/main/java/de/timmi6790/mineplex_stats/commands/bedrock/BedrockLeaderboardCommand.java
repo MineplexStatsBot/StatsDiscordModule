@@ -20,10 +20,5 @@ public class BedrockLeaderboardCommand extends AbstractBedrockLeaderboardCommand
                 .build()
                 .toArray(new String[0][3]);
     }
-
-    @Override
-    protected String[] getHeader(final BedrockLeaderboard.Info leaderboardInfo) {
-        return new String[]{"Bedrock " + leaderboardInfo.getGame()};
-    }
 }
 

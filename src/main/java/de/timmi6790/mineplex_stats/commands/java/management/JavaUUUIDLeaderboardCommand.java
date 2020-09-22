@@ -17,7 +17,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class JavaUUUIDLeaderboardCommand extends AbstractJavaLeaderboardCommand {
     public JavaUUUIDLeaderboardCommand() {
-        super(true, "uuidLeaderboard", "Java UUID Leaderboard", "<game> <stat> [board] [start] [end] [date]", "ul");
+        super("uuidLeaderboard", "Java UUID Leaderboard", "<game> <stat> [board] [start] [end] [date]", "ul");
 
         this.setLeaderboardRowDistance(5);
 
@@ -44,7 +44,8 @@ public class JavaUUUIDLeaderboardCommand extends AbstractJavaLeaderboardCommand 
 
 
     @Override
-    protected Map<String, AbstractEmoteReaction> getCustomEmotes(final CommandParameters commandParameters, final JavaLeaderboard javaLeaderboard) {
+    protected Map<String, AbstractEmoteReaction> getCustomEmotes(final CommandParameters commandParameters, final JavaLeaderboard javaLeaderboard,
+                                                                 final int startPos, final int endPos) {
         final Map<String, AbstractEmoteReaction> emotes = new LinkedHashMap<>();
 
         final JavaLeaderboard.Info leaderboardInfo = javaLeaderboard.getInfo();
@@ -64,6 +65,8 @@ public class JavaUUUIDLeaderboardCommand extends AbstractJavaLeaderboardCommand 
                         emotes.put(DiscordEmotes.getNumberEmote(emoteIndex.getAndIncrement()).getEmote(), new CommandEmoteReaction(filterCommand, newParameters));
                     });
                 });
+
+        emotes.putAll(super.getCustomEmotes(commandParameters, javaLeaderboard, startPos, endPos));
         return emotes;
     }
 }
