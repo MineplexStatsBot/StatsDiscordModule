@@ -2,7 +2,6 @@ package de.timmi6790.mineplex_stats.commands.java;
 
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
-import de.timmi6790.discord_framework.DiscordBot;
 import de.timmi6790.discord_framework.modules.command.CommandModule;
 import de.timmi6790.discord_framework.modules.command.CommandParameters;
 import de.timmi6790.discord_framework.modules.command.exceptions.CommandReturnException;
@@ -14,6 +13,7 @@ import de.timmi6790.mineplex_stats.statsapi.models.java.JavaGroup;
 import de.timmi6790.mineplex_stats.statsapi.models.java.JavaStat;
 import kong.unirest.HttpResponse;
 import kong.unirest.Unirest;
+import lombok.EqualsAndHashCode;
 import net.dv8tion.jda.api.utils.MarkdownUtil;
 
 import javax.imageio.ImageIO;
@@ -28,13 +28,15 @@ import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+@EqualsAndHashCode(callSuper = true)
 public abstract class AbstractJavaStatsCommand extends AbstractStatsCommand {
     private static final Pattern NAME_PATTERN = Pattern.compile("^\\w{1,16}$");
     private static final List<String> STATS_TIME = new ArrayList<>(Arrays.asList("Ingame Time", "Hub Time", "Time Playing"));
 
+
     private static final Cache<UUID, BufferedImage> SKIN_CACHE = Caffeine.newBuilder()
             .maximumSize(10_000)
-            .expireAfterWrite(2, TimeUnit.MINUTES)
+            .expireAfterWrite(10, TimeUnit.MINUTES)
             .expireAfterAccess(2, TimeUnit.MINUTES)
             .build();
 
@@ -101,7 +103,7 @@ public abstract class AbstractJavaStatsCommand extends AbstractStatsCommand {
                 name,
                 argPos,
                 "game",
-                getModule().getModuleOrThrow(CommandModule.class)
+                this.getModule().getModuleOrThrow(CommandModule.class)
                         .getCommand(JavaGamesCommand.class)
                         .orElse(null),
                 new String[0],
@@ -129,7 +131,7 @@ public abstract class AbstractJavaStatsCommand extends AbstractStatsCommand {
                 name,
                 argPos,
                 "stat",
-                getModule().getModuleOrThrow(CommandModule.class)
+                this.getModule().getModuleOrThrow(CommandModule.class)
                         .getCommand(JavaGamesCommand.class)
                         .orElse(null),
                 new String[]{game.getName()},
@@ -153,9 +155,9 @@ public abstract class AbstractJavaStatsCommand extends AbstractStatsCommand {
         }
 
         // TODO: Add error message
-        this.sendTimedMessage(
+        sendTimedMessage(
                 commandParameters,
-                this.getEmbedBuilder(commandParameters)
+                getEmbedBuilder(commandParameters)
                         .setTitle("Invalid Stat")
                         .setDescription(MarkdownUtil.monospace(name) + " is not a valid stat. " +
                                 "\nTODO: Add help emotes." +
@@ -209,7 +211,7 @@ public abstract class AbstractJavaStatsCommand extends AbstractStatsCommand {
                 name,
                 argPos,
                 "board",
-                getModule().getModuleOrThrow(CommandModule.class)
+                this.getModule().getModuleOrThrow(CommandModule.class)
                         .getCommand(JavaGamesCommand.class)
                         .orElse(null),
                 new String[]{game.getName(), game.getStats().values().stream().findFirst().map(JavaStat::getName).orElse("")},
@@ -235,7 +237,7 @@ public abstract class AbstractJavaStatsCommand extends AbstractStatsCommand {
                 name,
                 argPos,
                 "board",
-                getModule().getModuleOrThrow(CommandModule.class)
+                this.getModule().getModuleOrThrow(CommandModule.class)
                         .getCommand(JavaGamesCommand.class)
                         .orElse(null),
                 new String[]{game.getName(), stat.getName()},
@@ -254,9 +256,9 @@ public abstract class AbstractJavaStatsCommand extends AbstractStatsCommand {
         }
 
         // TODO: Add error message
-        this.sendTimedMessage(
+        sendTimedMessage(
                 commandParameters,
-                this.getEmbedBuilder(commandParameters)
+                getEmbedBuilder(commandParameters)
                         .setTitle("Invalid Board")
                         .setDescription(MarkdownUtil.monospace(name) + " is not a valid board. " +
                                 "\nTODO: Add help emotes." +
@@ -285,7 +287,7 @@ public abstract class AbstractJavaStatsCommand extends AbstractStatsCommand {
         }
 
         throw new CommandReturnException(
-                this.getEmbedBuilder(commandParameters)
+                getEmbedBuilder(commandParameters)
                         .setTitle("Invalid Name")
                         .setDescription(MarkdownUtil.monospace(name) + " is not a minecraft name.")
         );
@@ -308,7 +310,7 @@ public abstract class AbstractJavaStatsCommand extends AbstractStatsCommand {
                 name,
                 argPos,
                 "group",
-                getModule().getModuleOrThrow(CommandModule.class)
+                this.getModule().getModuleOrThrow(CommandModule.class)
                         .getCommand(JavaGroupsGroupsCommand.class)
                         .orElse(null),
                 new String[]{},
@@ -323,8 +325,9 @@ public abstract class AbstractJavaStatsCommand extends AbstractStatsCommand {
         final String name = commandParameters.getArgs()[argPos];
 
         for (final JavaGame game : group.getGames()) {
-            if (game.getStat(name).isPresent()) {
-                return game.getStat(name).get();
+            final Optional<JavaStat> statOpt = game.getStat(name);
+            if (statOpt.isPresent()) {
+                return statOpt.get();
             }
         }
 
@@ -344,7 +347,7 @@ public abstract class AbstractJavaStatsCommand extends AbstractStatsCommand {
                 name,
                 argPos,
                 "stat",
-                getModule().getModuleOrThrow(CommandModule.class)
+                this.getModule().getModuleOrThrow(CommandModule.class)
                         .getCommand(JavaGroupsGroupsCommand.class)
                         .orElse(null),
                 new String[]{group.getName()},

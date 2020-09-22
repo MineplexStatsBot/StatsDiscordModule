@@ -1,6 +1,5 @@
 package de.timmi6790.mineplex_stats.statsapi.models.java;
 
-import de.timmi6790.discord_framework.DiscordBot;
 import de.timmi6790.discord_framework.modules.GetModule;
 import de.timmi6790.mineplex_stats.MineplexStatsModule;
 import de.timmi6790.mineplex_stats.statsapi.utilities.StatsComparator;
@@ -25,7 +24,7 @@ public class JavaGroup extends GetModule<MineplexStatsModule> {
     }
 
     public List<JavaGame> getGames() {
-        final MineplexStatsModule module = getModule().getModuleOrThrow(de.timmi6790.mineplex_stats.MineplexStatsModule.class);
+        final MineplexStatsModule module = this.getModule().getModuleOrThrow(de.timmi6790.mineplex_stats.MineplexStatsModule.class);
         return this.games.stream()
                 .map(module::getJavaGame)
                 .filter(Optional::isPresent)
@@ -34,7 +33,7 @@ public class JavaGroup extends GetModule<MineplexStatsModule> {
     }
 
     public List<JavaGame> getGames(final JavaStat stat) {
-        final de.timmi6790.mineplex_stats.MineplexStatsModule module = getModule().getModuleOrThrow(de.timmi6790.mineplex_stats.MineplexStatsModule.class);
+        final de.timmi6790.mineplex_stats.MineplexStatsModule module = this.getModule().getModuleOrThrow(de.timmi6790.mineplex_stats.MineplexStatsModule.class);
         return this.games.stream()
                 .map(module::getJavaGame)
                 .filter(gameOpt -> gameOpt.map(game -> game.getStat(stat.getName()).isPresent()).orElse(false))

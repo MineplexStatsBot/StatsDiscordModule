@@ -1,14 +1,15 @@
-package de.timmi6790.mineplex_stats.commands.java;
+package de.timmi6790.mineplex_stats.commands.java.player;
 
-import de.timmi6790.discord_framework.datatypes.BiggestLong;
-import de.timmi6790.discord_framework.datatypes.builders.ListBuilder;
+import de.timmi6790.commons.builders.ListBuilder;
 import de.timmi6790.discord_framework.modules.command.CommandParameters;
 import de.timmi6790.discord_framework.modules.command.CommandResult;
 import de.timmi6790.discord_framework.modules.command.properties.ExampleCommandsCommandProperty;
 import de.timmi6790.discord_framework.modules.command.properties.MinArgCommandProperty;
+import de.timmi6790.mineplex_stats.commands.java.AbstractJavaStatsCommand;
 import de.timmi6790.mineplex_stats.picture.PictureTable;
 import de.timmi6790.mineplex_stats.statsapi.models.ResponseModel;
 import de.timmi6790.mineplex_stats.statsapi.models.java.*;
+import de.timmi6790.mineplex_stats.statsapi.utilities.BiggestLong;
 
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;

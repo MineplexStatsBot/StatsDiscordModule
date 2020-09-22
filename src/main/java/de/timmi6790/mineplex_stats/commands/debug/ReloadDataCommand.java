@@ -1,10 +1,10 @@
 package de.timmi6790.mineplex_stats.commands.debug;
 
+import de.timmi6790.commons.utilities.EnumUtilities;
 import de.timmi6790.discord_framework.modules.command.AbstractCommand;
 import de.timmi6790.discord_framework.modules.command.CommandParameters;
 import de.timmi6790.discord_framework.modules.command.CommandResult;
 import de.timmi6790.discord_framework.modules.command.properties.MinArgCommandProperty;
-import de.timmi6790.discord_framework.utilities.EnumUtilities;
 import de.timmi6790.mineplex_stats.MineplexStatsModule;
 import net.dv8tion.jda.api.utils.MarkdownUtil;
 
@@ -36,9 +36,9 @@ public class ReloadDataCommand extends AbstractCommand<MineplexStatsModule> {
                 break;
         }
 
-        this.sendTimedMessage(
+        sendTimedMessage(
                 commandParameters,
-                this.getEmbedBuilder(commandParameters)
+                getEmbedBuilder(commandParameters)
                         .setTitle("Reloaded data")
                         .setDescription("Reloaded " + MarkdownUtil.monospace(EnumUtilities.getPrettyName(arg0))),
                 90

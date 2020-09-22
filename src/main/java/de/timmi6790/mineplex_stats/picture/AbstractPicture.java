@@ -1,5 +1,8 @@
 package de.timmi6790.mineplex_stats.picture;
 
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
+
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
@@ -9,6 +12,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Optional;
 
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public abstract class AbstractPicture {
     public static final Color COLOUR_DISCORD_DARK_MODE = new Color(54, 57, 63);
 

@@ -1,6 +1,6 @@
 package de.timmi6790.mineplex_stats.commands.java.management;
 
-import de.timmi6790.discord_framework.datatypes.builders.MapBuilder;
+import de.timmi6790.commons.builders.MapBuilder;
 import de.timmi6790.discord_framework.datatypes.builders.MultiEmbedBuilder;
 import de.timmi6790.discord_framework.modules.command.CommandParameters;
 import de.timmi6790.discord_framework.modules.command.CommandResult;
@@ -38,13 +38,13 @@ public class JavaPlayerFilterCommand extends AbstractJavaStatsCommand {
         final JavaStat stat = this.getStat(game, commandParameters, 2);
         final JavaBoard board = this.getBoard(game, stat, commandParameters, 3);
 
-        final MultiEmbedBuilder embedBuilder = this.getEmbedBuilder(commandParameters)
+        final MultiEmbedBuilder embedBuilder = getEmbedBuilder(commandParameters)
                 .addField("Player UUID", uuid.toString(), false)
                 .addField("Game", game.getName(), false)
                 .addField("Stat", stat.getName(), false)
                 .addField("Board", board.getName(), false);
 
-        this.sendEmoteMessage(
+        sendEmoteMessage(
                 commandParameters,
                 embedBuilder.setTitle("Filter Confirm")
                         .setDescription("Are you sure that you want to filter this person?"),
@@ -52,7 +52,7 @@ public class JavaPlayerFilterCommand extends AbstractJavaStatsCommand {
                         .put(DiscordEmotes.CHECK_MARK.getEmote(), () -> {
                             JavaPlayerFilterCommand.this.getStatsModule().getMpStatsRestClient().addJavaPlayerFilter(uuid, game.getName(), stat.getName(), board.getName());
 
-                            JavaPlayerFilterCommand.this.sendTimedMessage(
+                            sendTimedMessage(
                                     commandParameters,
                                     embedBuilder.setTitle("Successfully Filtered"),
                                     90

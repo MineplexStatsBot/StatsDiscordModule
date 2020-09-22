@@ -1,15 +1,16 @@
 package de.timmi6790.mineplex_stats.commands.java;
 
-import de.timmi6790.discord_framework.DiscordBot;
 import de.timmi6790.discord_framework.modules.command.CommandModule;
 import de.timmi6790.discord_framework.modules.command.CommandParameters;
 import de.timmi6790.discord_framework.modules.command.CommandResult;
 import de.timmi6790.discord_framework.modules.command.properties.ExampleCommandsCommandProperty;
 import de.timmi6790.mineplex_stats.statsapi.models.java.JavaGroup;
+import lombok.EqualsAndHashCode;
 
 import java.util.Comparator;
 import java.util.stream.Collectors;
 
+@EqualsAndHashCode(callSuper = true)
 public class JavaGroupsGroupsCommand extends AbstractJavaStatsCommand {
     public JavaGroupsGroupsCommand() {
         super("groups", "Java Groups", "[group]");
@@ -26,9 +27,9 @@ public class JavaGroupsGroupsCommand extends AbstractJavaStatsCommand {
     protected CommandResult onCommand(final CommandParameters commandParameters) {
         // Show all groups
         if (commandParameters.getArgs().length == 0) {
-            this.sendTimedMessage(
+            sendTimedMessage(
                     commandParameters,
-                    this.getEmbedBuilder(commandParameters)
+                    getEmbedBuilder(commandParameters)
                             .setTitle("Java Groups")
                             .addField("Groups",
                                     this.getStatsModule().getJavaGroups().values()
@@ -37,7 +38,7 @@ public class JavaGroupsGroupsCommand extends AbstractJavaStatsCommand {
                                             .sorted(Comparator.naturalOrder())
                                             .collect(Collectors.joining("\n")),
                                     false)
-                            .setFooter("TIP: Run " + getModule().getModuleOrThrow(CommandModule.class).getMainCommand() + " groups <group> to see more details"),
+                            .setFooter("TIP: Run " + this.getModule().getModuleOrThrow(CommandModule.class).getMainCommand() + " groups <group> to see more details"),
                     150
             );
             return CommandResult.SUCCESS;
@@ -51,9 +52,9 @@ public class JavaGroupsGroupsCommand extends AbstractJavaStatsCommand {
                 .map(stat -> stat.replace(" ", "").replace("Achievement", ""))
                 .collect(Collectors.joining(", "));
 
-        this.sendTimedMessage(
+        sendTimedMessage(
                 commandParameters,
-                this.getEmbedBuilder(commandParameters)
+                getEmbedBuilder(commandParameters)
                         .setTitle("Java Groups - " + group.getName())
                         .addField("Description", group.getDescription(), false, !group.getDescription().isEmpty())
                         .addField("Alias names", String.join(", ", group.getAliasNames()), false, group.getAliasNames().length > 0)

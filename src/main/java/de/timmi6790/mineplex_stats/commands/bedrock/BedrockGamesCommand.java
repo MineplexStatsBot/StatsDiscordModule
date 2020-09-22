@@ -16,7 +16,7 @@ public class BedrockGamesCommand extends AbstractBedrockStatsCommand {
 
     @Override
     protected CommandResult onCommand(final CommandParameters commandParameters) {
-        final MultiEmbedBuilder message = this.getEmbedBuilder(commandParameters)
+        final MultiEmbedBuilder message = getEmbedBuilder(commandParameters)
                 .setTitle("Bedrock Games");
 
         this.getStatsModule().getBedrockGames().values()
@@ -32,7 +32,7 @@ public class BedrockGamesCommand extends AbstractBedrockStatsCommand {
                                 false
                         ));
 
-        this.sendTimedMessage(commandParameters, message, 150);
+        sendTimedMessage(commandParameters, message, 150);
         return CommandResult.SUCCESS;
     }
 }

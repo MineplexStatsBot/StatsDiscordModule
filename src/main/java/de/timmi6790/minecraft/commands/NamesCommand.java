@@ -29,7 +29,7 @@ public class NamesCommand extends AbstractCommand<MinecraftModule> {
         final String playerName = this.getPlayer(commandParameters, 0);
         final MojangUser user = this.getModule().getMojangApi().getUser(playerName)
                 .orElseThrow(() -> {
-                    this.throwInvalidArg(commandParameters, 0, "Minecraft Name");
+                    throwInvalidArg(commandParameters, 0, "Minecraft Name");
                     return new CommandReturnException();
                 });
 
@@ -39,9 +39,9 @@ public class NamesCommand extends AbstractCommand<MinecraftModule> {
             descriptionBuilder.add(MarkdownUtil.monospace(nameHistoryData.getName()) + " - " + nameHistoryData.getFormattedTime());
         }
 
-        this.sendTimedMessage(
+        sendTimedMessage(
                 commandParameters,
-                this.getEmbedBuilder(commandParameters)
+                getEmbedBuilder(commandParameters)
                         .setTitle(String.format("%s - Names", user.getName()))
                         .setThumbnail(user.getHeadUrl())
                         .setDescription(descriptionBuilder.toString()),
@@ -57,7 +57,7 @@ public class NamesCommand extends AbstractCommand<MinecraftModule> {
             return name;
         }
 
-        this.throwInvalidArg(commandParameters, 0, "Minecraft Name");
+        throwInvalidArg(commandParameters, 0, "Minecraft Name");
         throw new CommandReturnException();
     }
 }

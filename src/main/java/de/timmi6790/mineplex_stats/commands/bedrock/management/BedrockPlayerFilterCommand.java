@@ -1,6 +1,6 @@
 package de.timmi6790.mineplex_stats.commands.bedrock.management;
 
-import de.timmi6790.discord_framework.datatypes.builders.MapBuilder;
+import de.timmi6790.commons.builders.MapBuilder;
 import de.timmi6790.discord_framework.datatypes.builders.MultiEmbedBuilder;
 import de.timmi6790.discord_framework.modules.command.CommandParameters;
 import de.timmi6790.discord_framework.modules.command.CommandResult;
@@ -31,11 +31,11 @@ public class BedrockPlayerFilterCommand extends AbstractBedrockStatsCommand {
         final String player = this.getPlayer(commandParameters, 1);
 
 
-        final MultiEmbedBuilder embedBuilder = this.getEmbedBuilder(commandParameters)
+        final MultiEmbedBuilder embedBuilder = getEmbedBuilder(commandParameters)
                 .addField("Player", player, false)
                 .addField("Game", game.getName(), false);
 
-        this.sendEmoteMessage(
+        sendEmoteMessage(
                 commandParameters,
                 embedBuilder.setTitle("Filter Confirm")
                         .setDescription("Are you sure that you want to filter this person?"),
@@ -43,7 +43,7 @@ public class BedrockPlayerFilterCommand extends AbstractBedrockStatsCommand {
                         .put(DiscordEmotes.CHECK_MARK.getEmote(), () -> {
                             BedrockPlayerFilterCommand.this.getStatsModule().getMpStatsRestClient().addBedrockPlayerFilter(player, game.getName());
 
-                            BedrockPlayerFilterCommand.this.sendTimedMessage(
+                            sendTimedMessage(
                                     commandParameters,
                                     embedBuilder.setTitle("Successfully Filtered"),
                                     90

@@ -1,6 +1,5 @@
 package de.timmi6790.mineplex_stats.commands.bedrock;
 
-import de.timmi6790.discord_framework.DiscordBot;
 import de.timmi6790.discord_framework.modules.command.AbstractCommand;
 import de.timmi6790.discord_framework.modules.command.CommandModule;
 import de.timmi6790.discord_framework.modules.command.CommandParameters;
@@ -35,7 +34,7 @@ public abstract class AbstractBedrockStatsCommand extends AbstractStatsCommand {
             return similarGames.get(0);
         }
 
-        final AbstractCommand<?> command = getModule().getModuleOrThrow(CommandModule.class).getCommand(BedrockGamesCommand.class).orElse(null);
+        final AbstractCommand<?> command = this.getModule().getModuleOrThrow(CommandModule.class).getCommand(BedrockGamesCommand.class).orElse(null);
         this.sendHelpMessage(commandParameters, name, argPos, "game", command, new String[0], similarGames.stream().map(BedrockGame::getName).collect(Collectors.toList()));
 
         throw new CommandReturnException();
@@ -48,7 +47,7 @@ public abstract class AbstractBedrockStatsCommand extends AbstractStatsCommand {
         }
 
         throw new CommandReturnException(
-                this.getEmbedBuilder(commandParameters)
+                getEmbedBuilder(commandParameters)
                         .setTitle("Invalid Name")
                         .setDescription(MarkdownUtil.monospace(name) + " is not a minecraft name.")
         );

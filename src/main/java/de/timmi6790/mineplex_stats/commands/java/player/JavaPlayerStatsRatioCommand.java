@@ -1,4 +1,4 @@
-package de.timmi6790.mineplex_stats.commands.java;
+package de.timmi6790.mineplex_stats.commands.java.player;
 
 import com.googlecode.charts4j.GCharts;
 import com.googlecode.charts4j.PieChart;
@@ -7,6 +7,7 @@ import de.timmi6790.discord_framework.modules.command.CommandParameters;
 import de.timmi6790.discord_framework.modules.command.CommandResult;
 import de.timmi6790.discord_framework.modules.command.properties.ExampleCommandsCommandProperty;
 import de.timmi6790.discord_framework.modules.command.properties.MinArgCommandProperty;
+import de.timmi6790.mineplex_stats.commands.java.AbstractJavaStatsCommand;
 import de.timmi6790.mineplex_stats.statsapi.models.ResponseModel;
 import de.timmi6790.mineplex_stats.statsapi.models.java.JavaBoard;
 import de.timmi6790.mineplex_stats.statsapi.models.java.JavaRatioPlayer;
@@ -37,7 +38,7 @@ public class JavaPlayerStatsRatioCommand extends AbstractJavaStatsCommand {
     }
 
     private static String getPieUrl(final PieChart gCharts) {
-        gCharts.setSize(700, 300);
+        gCharts.setSize(750, 400);
 
         String url = gCharts.toURLString();
         // Series colours | RED, YELLOW_GREEN, GREEN, BLUE, PURPLE
@@ -84,22 +85,22 @@ public class JavaPlayerStatsRatioCommand extends AbstractJavaStatsCommand {
                                 String.format("%s %s %s",
                                         value.getGame(),
                                         decimalFormat.format(Math.min(value.getScore(), totalValue) == 0 ? 0D : ((double) value.getScore() / (double) totalValue) * 100) + "%",
-                                        value.getScore()
+                                        this.getFormattedNumber(value.getScore())
                                 )
                         )
                 ));
 
         final PieChart gCharts = GCharts.newPieChart(slices);
         gCharts.setTitle(javaRatioPlayer.getInfo().getName() + " " + stat.getPrintName() + " " + board.getName() + " " +
-                javaRatioPlayer.getInfo().getTotalNumber() + " " + this.getFormattedUnixTime(unixTime));
+                this.getFormattedNumber(javaRatioPlayer.getInfo().getTotalNumber()) + " " + this.getFormattedUnixTime(unixTime));
 
         // Send to server
-        commandParameters.getTextChannel()
+        commandParameters.getLowestMessageChannel()
                 .sendMessage(getPieUrl(gCharts))
                 .queue();
-        this.sendMessage(
+        sendMessage(
                 commandParameters,
-                this.getEmbedBuilder(commandParameters)
+                getEmbedBuilder(commandParameters)
                         .setTitle("Prototype Command")
                         .setDescription(
                                 MarkdownUtil.bold("The data you see up there is not 100% correct.\n") +

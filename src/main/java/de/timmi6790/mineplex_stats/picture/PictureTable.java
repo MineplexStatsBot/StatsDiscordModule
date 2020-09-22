@@ -12,11 +12,12 @@ import java.util.Optional;
 @ToString
 @EqualsAndHashCode(callSuper = true)
 public class PictureTable extends AbstractPicture {
-    private static final Font FONT_HEADER = new Font("Arial", Font.PLAIN, 42);
-    private static final Font FONT_SUB_HEADER = new Font("Arial", Font.PLAIN, 33);
+    private static final String ARIAL = "Arial";
+    private static final Font FONT_HEADER = new Font(ARIAL, Font.PLAIN, 42);
+    private static final Font FONT_SUB_HEADER = new Font(ARIAL, Font.PLAIN, 33);
 
-    private static final Font FONT_LEADERBOARD_HEADER = new Font("Arial", Font.PLAIN, 38);
-    private static final Font FONT_LEADERBOARD = new Font("Arial", Font.PLAIN, 30);
+    private static final Font FONT_LEADERBOARD_HEADER = new Font(ARIAL, Font.PLAIN, 38);
+    private static final Font FONT_LEADERBOARD = new Font(ARIAL, Font.PLAIN, 30);
 
     private static final int GAP_X_BORDER = 10;
     private static final int GAP_Y_ROW = 15;

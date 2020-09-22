@@ -7,11 +7,13 @@ import de.timmi6790.discord_framework.modules.command.CommandResult;
 import de.timmi6790.discord_framework.modules.command.properties.ExampleCommandsCommandProperty;
 import de.timmi6790.mineplex_stats.statsapi.models.java.JavaGame;
 import de.timmi6790.mineplex_stats.statsapi.models.java.JavaStat;
+import lombok.EqualsAndHashCode;
 
 import java.util.Comparator;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
 
+@EqualsAndHashCode(callSuper = true)
 public class JavaGamesCommand extends AbstractJavaStatsCommand {
     public JavaGamesCommand() {
         super("games", "Java Games", "[game] [stat]", "g");
@@ -28,7 +30,7 @@ public class JavaGamesCommand extends AbstractJavaStatsCommand {
     protected CommandResult onCommand(final CommandParameters commandParameters) {
         // Show all games
         if (commandParameters.getArgs().length == 0) {
-            final MultiEmbedBuilder message = this.getEmbedBuilder(commandParameters)
+            final MultiEmbedBuilder message = getEmbedBuilder(commandParameters)
                     .setTitle("Java Games")
                     .setFooter("TIP: Run " + this.getModule().getModuleOrThrow(CommandModule.class).getMainCommand() + " games <game> to see more details");
 
@@ -44,7 +46,7 @@ public class JavaGamesCommand extends AbstractJavaStatsCommand {
                                     false
                             ));
 
-            this.sendTimedMessage(commandParameters, message, 150);
+            sendTimedMessage(commandParameters, message, 150);
             return CommandResult.SUCCESS;
         }
 
@@ -55,9 +57,9 @@ public class JavaGamesCommand extends AbstractJavaStatsCommand {
                     .stream()
                     .map(stat -> stat.replace(" ", ""))
                     .collect(Collectors.joining(", "));
-            this.sendTimedMessage(
+            sendTimedMessage(
                     commandParameters,
-                    this.getEmbedBuilder(commandParameters)
+                    getEmbedBuilder(commandParameters)
                             .setTitle("Java Games - " + game.getName())
                             .addField("Wiki", "[" + game.getName() + "](" + game.getWikiUrl() + ")", false, !game.getWikiUrl().isEmpty())
                             .addField("Description", game.getDescription(), false, !game.getDescription().isEmpty())
@@ -72,9 +74,9 @@ public class JavaGamesCommand extends AbstractJavaStatsCommand {
 
         // Stat info
         final JavaStat stat = this.getStat(game, commandParameters, 1);
-        this.sendTimedMessage(
+        sendTimedMessage(
                 commandParameters,
-                this.getEmbedBuilder(commandParameters)
+                getEmbedBuilder(commandParameters)
                         .setTitle("Java Games - " + game.getName() + " - " + stat.getPrintName())
                         .addField("Description", stat.getDescription(), false, !stat.getDescription().isEmpty())
                         .addField("Alias names", String.join(", ", stat.getAliasNames()), false, stat.getAliasNames().length > 0)

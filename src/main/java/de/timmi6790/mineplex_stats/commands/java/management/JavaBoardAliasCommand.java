@@ -25,9 +25,9 @@ public class JavaBoardAliasCommand extends AbstractJavaStatsCommand {
         final String board = this.getFromListIgnoreCaseThrow(commandParameters, 0, Arrays.asList(JAVA_BOARDS));
         this.getStatsModule().getMpStatsRestClient().addJavaBoardAlias(board, commandParameters.getArgs()[1]);
         this.getStatsModule().loadJavaGames();
-        this.sendTimedMessage(
+        sendTimedMessage(
                 commandParameters,
-                this.getEmbedBuilder(commandParameters)
+                getEmbedBuilder(commandParameters)
                         .setTitle("Added Board Alias")
                         .setDescription("Added new board alias " + MarkdownUtil.monospace(commandParameters.getArgs()[0])),
                 90

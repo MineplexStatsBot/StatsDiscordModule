@@ -10,8 +10,13 @@ import de.timmi6790.mineplex_stats.commands.bedrock.BedrockPlayerCommand;
 import de.timmi6790.mineplex_stats.commands.bedrock.management.BedrockFilterLeaderboardCommand;
 import de.timmi6790.mineplex_stats.commands.bedrock.management.BedrockPlayerFilterCommand;
 import de.timmi6790.mineplex_stats.commands.debug.ReloadDataCommand;
-import de.timmi6790.mineplex_stats.commands.java.*;
+import de.timmi6790.mineplex_stats.commands.java.JavaGamesCommand;
+import de.timmi6790.mineplex_stats.commands.java.JavaGroupsGroupsCommand;
+import de.timmi6790.mineplex_stats.commands.java.JavaLeaderboardCommand;
 import de.timmi6790.mineplex_stats.commands.java.management.*;
+import de.timmi6790.mineplex_stats.commands.java.player.JavaPlayerGroupCommand;
+import de.timmi6790.mineplex_stats.commands.java.player.JavaPlayerStatsCommand;
+import de.timmi6790.mineplex_stats.commands.java.player.JavaPlayerStatsRatioCommand;
 import de.timmi6790.mineplex_stats.commands.java.unfiltered.JavaUnfilteredLeaderboardCommand;
 import de.timmi6790.mineplex_stats.commands.java.unfiltered.JavaUnfilteredPlayerStatsCommand;
 import de.timmi6790.mineplex_stats.statsapi.MpStatsRestApiClient;
@@ -44,7 +49,6 @@ public class MineplexStatsModule extends AbstractModule {
     public MineplexStatsModule() {
         super("MineplexStats");
 
-        //noinspection unchecked
         this.addDependenciesAndLoadAfter(
                 ConfigModule.class,
                 CommandModule.class
@@ -91,15 +95,6 @@ public class MineplexStatsModule extends AbstractModule {
                         new JavaUnfilteredLeaderboardCommand(),
                         new JavaUnfilteredPlayerStatsCommand()
                 );
-    }
-
-    @Override
-    public void onEnable() {
-    }
-
-    @Override
-    public void onDisable() {
-
     }
 
     public void loadJavaGames() {

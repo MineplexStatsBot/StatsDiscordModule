@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>de.timmi6790</groupId>
-    <artifactId>MineplexStatsModule</artifactId>
+    <artifactId>MineplexStatsDiscordModule</artifactId>
     <version>1.0.0</version>
 
     <properties>
@@ -28,7 +28,7 @@
         <dependency>
             <groupId>com.github.Timmi6790</groupId>
             <artifactId>StatsBotDiscord</artifactId>
-            <version>ef8d21e</version>
+            <version>e3182d1ae4</version>
             <scope>provided</scope>
         </dependency>
         <dependency>

@@ -1,7 +1,6 @@
 package de.timmi6790.mineplex_stats.commands.java;
 
-import de.timmi6790.discord_framework.datatypes.BiggestLong;
-import de.timmi6790.discord_framework.datatypes.builders.ListBuilder;
+import de.timmi6790.commons.builders.ListBuilder;
 import de.timmi6790.discord_framework.modules.command.CommandParameters;
 import de.timmi6790.discord_framework.modules.command.CommandResult;
 import de.timmi6790.discord_framework.modules.command.properties.ExampleCommandsCommandProperty;
@@ -14,6 +13,8 @@ import de.timmi6790.mineplex_stats.statsapi.models.java.JavaBoard;
 import de.timmi6790.mineplex_stats.statsapi.models.java.JavaGame;
 import de.timmi6790.mineplex_stats.statsapi.models.java.JavaPlayerStats;
 import de.timmi6790.mineplex_stats.statsapi.models.java.JavaStat;
+import de.timmi6790.mineplex_stats.statsapi.utilities.BiggestLong;
+import lombok.EqualsAndHashCode;
 import net.dv8tion.jda.api.Permission;
 
 import java.awt.image.BufferedImage;
@@ -22,10 +23,14 @@ import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
+@EqualsAndHashCode(callSuper = true)
+public abstract class AbstractJavaPlayerStatsCommand extends AbstractJavaStatsCommand {
+    private final boolean filteredStats;
 
-public class JavaPlayerStatsCommand extends AbstractJavaStatsCommand {
-    public JavaPlayerStatsCommand() {
-        super("player", "Java player stats", "<player> <game> [board] [date]", "pl");
+    public AbstractJavaPlayerStatsCommand(final boolean filteredStats, final String name, final String description, final String syntax, final String... aliasNames) {
+        super(name, description, syntax, aliasNames);
+
+        this.filteredStats = filteredStats;
 
         this.addProperties(
                 new MinArgCommandProperty(2),
@@ -38,6 +43,8 @@ public class JavaPlayerStatsCommand extends AbstractJavaStatsCommand {
         );
     }
 
+    protected abstract String[] getHeader(JavaPlayerStats.Info playerStatsInfo);
+
     @Override
     protected CommandResult onCommand(final CommandParameters commandParameters) {
         // Parse args
@@ -47,7 +54,7 @@ public class JavaPlayerStatsCommand extends AbstractJavaStatsCommand {
         final long unixTime = this.getUnixTime(commandParameters, 3);
 
         // Web Requests
-        final ResponseModel responseModel = this.getStatsModule().getMpStatsRestClient().getJavaPlayerStats(player, javaGame.getName(), board.getName(), unixTime, true);
+        final ResponseModel responseModel = this.getStatsModule().getMpStatsRestClient().getJavaPlayerStats(player, javaGame.getName(), board.getName(), unixTime, this.filteredStats);
         this.checkApiResponse(commandParameters, responseModel, "No stats available");
 
         final JavaPlayerStats playerStats = (JavaPlayerStats) responseModel;
@@ -88,7 +95,7 @@ public class JavaPlayerStatsCommand extends AbstractJavaStatsCommand {
             skin = null;
         }
 
-        final String[] header = {playerStatsInfo.getName(), playerStatsInfo.getGame(), playerStatsInfo.getBoard()};
+        final String[] header = this.getHeader(playerStatsInfo);
         return this.sendPicture(
                 commandParameters,
                 new PictureTable(header, this.getFormattedUnixTime(highestUnixTime.get()), leaderboard, skin).getPlayerPicture(),

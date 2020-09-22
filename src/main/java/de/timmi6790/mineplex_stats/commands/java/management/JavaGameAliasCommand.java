@@ -22,9 +22,9 @@ public class JavaGameAliasCommand extends AbstractJavaStatsCommand {
         final JavaGame game = this.getGame(commandParameters, 0);
         this.getStatsModule().getMpStatsRestClient().addJavaGameAlias(game.getName(), commandParameters.getArgs()[1]);
         this.getStatsModule().loadJavaGames();
-        this.sendTimedMessage(
+        sendTimedMessage(
                 commandParameters,
-                this.getEmbedBuilder(commandParameters)
+                getEmbedBuilder(commandParameters)
                         .setTitle("Added Game Alias")
                         .setDescription("Added new game alias " + MarkdownUtil.monospace(commandParameters.getArgs()[0])),
                 90

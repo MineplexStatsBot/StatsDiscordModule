@@ -1,6 +1,6 @@
 package de.timmi6790.mineplex_stats.commands.bedrock;
 
-import de.timmi6790.discord_framework.datatypes.builders.ListBuilder;
+import de.timmi6790.commons.builders.ListBuilder;
 import de.timmi6790.discord_framework.modules.command.CommandParameters;
 import de.timmi6790.discord_framework.modules.command.CommandResult;
 import de.timmi6790.discord_framework.modules.command.properties.ExampleCommandsCommandProperty;
@@ -74,7 +74,7 @@ public class BedrockLeaderboardCommand extends AbstractBedrockStatsCommand {
                         this.getLeaderboardEmotes(commandParameters, rowDistance, fastRowDistance, startPos, endPos,
                                 leaderboardInfo.getTotalLength(), ARG_POS_START_POS, ARG_POS_END_POS),
                         commandParameters.getUser().getIdLong(),
-                        commandParameters.getTextChannel().getIdLong()
+                        commandParameters.getLowestMessageChannel().getIdLong()
                 )
         );
     }
