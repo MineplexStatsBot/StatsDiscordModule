@@ -4,12 +4,14 @@ import de.timmi6790.discord_framework.modules.AbstractModule;
 import de.timmi6790.discord_framework.modules.command.CommandModule;
 import de.timmi6790.discord_framework.modules.config.ConfigModule;
 import de.timmi6790.discord_framework.utilities.DataUtilities;
+import de.timmi6790.minecraft.MinecraftModule;
 import de.timmi6790.mineplex_stats.commands.bedrock.BedrockLeaderboardCommand;
 import de.timmi6790.mineplex_stats.commands.bedrock.BedrockPlayerCommand;
 import de.timmi6790.mineplex_stats.commands.bedrock.info.BedrockGamesCommand;
 import de.timmi6790.mineplex_stats.commands.bedrock.management.BedrockFilterLeaderboardCommand;
 import de.timmi6790.mineplex_stats.commands.bedrock.management.BedrockPlayerFilterCommand;
 import de.timmi6790.mineplex_stats.commands.debug.ReloadDataCommand;
+import de.timmi6790.mineplex_stats.commands.info.AboutCommand;
 import de.timmi6790.mineplex_stats.commands.java.JavaLeaderboardCommand;
 import de.timmi6790.mineplex_stats.commands.java.info.JavaGamesCommand;
 import de.timmi6790.mineplex_stats.commands.java.info.JavaGroupsGroupsCommand;
@@ -51,7 +53,8 @@ public class MineplexStatsModule extends AbstractModule {
 
         this.addDependenciesAndLoadAfter(
                 ConfigModule.class,
-                CommandModule.class
+                CommandModule.class,
+                MinecraftModule.class
         );
     }
 
@@ -93,7 +96,9 @@ public class MineplexStatsModule extends AbstractModule {
                         new BedrockFilterLeaderboardCommand(),
 
                         new JavaUnfilteredLeaderboardCommand(),
-                        new JavaUnfilteredPlayerStatsCommand()
+                        new JavaUnfilteredPlayerStatsCommand(),
+
+                        new AboutCommand()
                 );
     }
 

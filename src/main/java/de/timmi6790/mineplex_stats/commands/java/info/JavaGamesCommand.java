@@ -11,6 +11,8 @@ import de.timmi6790.mineplex_stats.statsapi.models.java.JavaStat;
 import lombok.EqualsAndHashCode;
 
 import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
 
@@ -35,17 +37,21 @@ public class JavaGamesCommand extends AbstractJavaStatsCommand {
                     .setTitle("Java Games")
                     .setFooter("TIP: Run " + this.getModule().getModuleOrThrow(CommandModule.class).getMainCommand() + " games <game> to see more details");
 
-            this.getModule().getJavaGames().values().stream()
-                    .collect(Collectors.groupingBy(JavaGame::getCategory, TreeMap::new, Collectors.toList()))
-                    .forEach((key, value) ->
-                            message.addField(
-                                    key,
-                                    value.stream()
-                                            .map(JavaGame::getName)
-                                            .sorted(Comparator.naturalOrder())
-                                            .collect(Collectors.joining(", ")),
-                                    false
-                            ));
+            final Map<String, List<JavaGame>> sortedMap = this.getModule()
+                    .getJavaGames()
+                    .values()
+                    .stream()
+                    .collect(Collectors.groupingBy(JavaGame::getCategory, TreeMap::new, Collectors.toList()));
+
+            for (final Map.Entry<String, List<JavaGame>> entry : sortedMap.entrySet()) {
+                message.addField(
+                        entry.getKey(),
+                        entry.getValue().stream()
+                                .map(JavaGame::getName)
+                                .sorted(Comparator.naturalOrder())
+                                .collect(Collectors.joining(", "))
+                );
+            }
 
             sendTimedMessage(commandParameters, message, 150);
             return CommandResult.SUCCESS;

@@ -5,6 +5,7 @@ import com.google.gson.JsonDeserializer;
 import com.google.gson.JsonElement;
 import de.timmi6790.discord_framework.modules.GetModule;
 import de.timmi6790.minecraft.MinecraftModule;
+import de.timmi6790.minecraft.mojang_api.MojangApi;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -27,7 +28,7 @@ public class MojangUser extends GetModule<MinecraftModule> {
     private final UUID uuid;
 
     public NameHistory getNameHistory() {
-        return this.getModule().getMojangApi().getUserNames(this.uuid).orElseThrow(RuntimeException::new);
+        return MojangApi.getUserNames(this.uuid).orElseThrow(RuntimeException::new);
     }
 
     public String getHeadUrl() {

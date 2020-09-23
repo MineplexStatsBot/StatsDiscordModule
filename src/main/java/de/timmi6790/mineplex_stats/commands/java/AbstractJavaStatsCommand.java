@@ -7,6 +7,8 @@ import de.timmi6790.discord_framework.modules.command.CommandModule;
 import de.timmi6790.discord_framework.modules.command.CommandParameters;
 import de.timmi6790.discord_framework.modules.command.exceptions.CommandReturnException;
 import de.timmi6790.discord_framework.utilities.DataUtilities;
+import de.timmi6790.minecraft.mojang_api.MojangApi;
+import de.timmi6790.minecraft.mojang_api.models.MojangUser;
 import de.timmi6790.mineplex_stats.commands.AbstractStatsCommand;
 import de.timmi6790.mineplex_stats.commands.java.info.JavaGamesCommand;
 import de.timmi6790.mineplex_stats.commands.java.info.JavaGroupsGroupsCommand;
@@ -35,7 +37,6 @@ import java.util.stream.Collectors;
 public abstract class AbstractJavaStatsCommand extends AbstractStatsCommand {
     private static final Pattern NAME_PATTERN = Pattern.compile("^\\w{1,16}$");
     private static final List<String> STATS_TIME = new ArrayList<>(Arrays.asList("Ingame Time", "Hub Time", "Time Playing"));
-
 
     private static final AsyncLoadingCache<UUID, BufferedImage> SKIN_CACHE = Caffeine.newBuilder()
             .maximumSize(10_000)
@@ -74,6 +75,24 @@ public abstract class AbstractJavaStatsCommand extends AbstractStatsCommand {
 
     protected CompletableFuture<BufferedImage> getPlayerSkin(@NonNull final UUID uuid) {
         return SKIN_CACHE.get(uuid);
+    }
+
+    protected UUID getPlayerUUIDFromName(final CommandParameters commandParameters, final int argPos) {
+        final String playerName = this.getPlayer(commandParameters, argPos);
+        final Optional<MojangUser> mojangUser = MojangApi.getUser(playerName);
+        if (mojangUser.isPresent()) {
+            return mojangUser.get().getUuid();
+        }
+
+        throw new CommandReturnException(
+                getEmbedBuilder(commandParameters)
+                        .setTitle("Invalid User")
+                        .appendDescription(
+                                "The user %s does not exist.\n" +
+                                        "Are you sure that you typed his name correctly?",
+                                MarkdownUtil.monospace(playerName)
+                        )
+        );
     }
 
     // Arg Parsing

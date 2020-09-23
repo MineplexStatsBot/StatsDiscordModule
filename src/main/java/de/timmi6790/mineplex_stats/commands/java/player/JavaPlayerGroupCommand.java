@@ -16,6 +16,7 @@ import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
@@ -39,7 +40,7 @@ public class JavaPlayerGroupCommand extends AbstractJavaStatsCommand {
     @Override
     protected CommandResult onCommand(final CommandParameters commandParameters) {
         // Parse input
-        final String player = this.getPlayer(commandParameters, 0);
+        final UUID playerUUID = this.getPlayerUUIDFromName(commandParameters, 0);
         final JavaGroup javaGroup = this.getJavaGroup(commandParameters, 1);
         final JavaStat stat = this.getJavaStat(javaGroup, commandParameters, 2);
 
@@ -48,7 +49,7 @@ public class JavaPlayerGroupCommand extends AbstractJavaStatsCommand {
         final JavaBoard board = this.getBoard(statSpecificGames.get(0), stat, commandParameters, 3);
         final long unixTime = this.getUnixTimeThrow(commandParameters, 4);
 
-        final ResponseModel responseModel = this.getModule().getMpStatsRestClient().getPlayerGroup(player, javaGroup.getGroup(), stat.getName(), board.getName(), unixTime);
+        final ResponseModel responseModel = this.getModule().getMpStatsRestClient().getPlayerGroup(playerUUID, javaGroup.getGroup(), stat.getName(), board.getName(), unixTime);
         this.checkApiResponseThrow(commandParameters, responseModel, "No stats available");
 
         // Parse data to image

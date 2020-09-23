@@ -6,6 +6,7 @@ import de.timmi6790.discord_framework.modules.command.CommandResult;
 import de.timmi6790.discord_framework.modules.command.exceptions.CommandReturnException;
 import de.timmi6790.discord_framework.modules.command.properties.MinArgCommandProperty;
 import de.timmi6790.minecraft.MinecraftModule;
+import de.timmi6790.minecraft.mojang_api.MojangApi;
 import de.timmi6790.minecraft.mojang_api.models.MojangUser;
 import de.timmi6790.minecraft.mojang_api.models.NameHistory;
 import net.dv8tion.jda.api.utils.MarkdownUtil;
@@ -27,7 +28,7 @@ public class NamesCommand extends AbstractCommand<MinecraftModule> {
     @Override
     protected CommandResult onCommand(final CommandParameters commandParameters) {
         final String playerName = this.getPlayer(commandParameters, 0);
-        final MojangUser user = this.getModule().getMojangApi().getUser(playerName)
+        final MojangUser user = MojangApi.getUser(playerName)
                 .orElseThrow(() -> {
                     throwInvalidArg(commandParameters, 0, "Minecraft Name");
                     return new CommandReturnException();

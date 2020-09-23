@@ -11,10 +11,7 @@ import de.timmi6790.mineplex_stats.statsapi.models.bedrock.BedrockPlayerStats;
 import de.timmi6790.mineplex_stats.statsapi.models.errors.ErrorModel;
 import de.timmi6790.mineplex_stats.statsapi.models.java.*;
 import de.timmi6790.mineplex_stats.statsapi.utilities.JavaGamesModelDeserializer;
-import kong.unirest.HttpResponse;
-import kong.unirest.JsonNode;
-import kong.unirest.Unirest;
-import kong.unirest.UnirestException;
+import kong.unirest.*;
 import kong.unirest.json.JSONObject;
 
 import java.util.HashMap;
@@ -34,20 +31,21 @@ public class MpStatsRestApiClient {
     private static final ErrorModel UNKNOWN_ERROR_RESPONSE_MODEL = new ErrorModel(-1, "Unknown Error");
     private static final ErrorModel TIMEOUT_ERROR_RESPONSE_MODEL = new ErrorModel(-1, "API Timeout Exception");
 
-    private final Gson gson;
+    private final Gson gson = new GsonBuilder()
+            .registerTypeAdapter(JavaGamesModel.class, new JavaGamesModelDeserializer())
+            .create();
 
     private final String authName;
     private final String authPassword;
 
-    public MpStatsRestApiClient(final String authName, final String authPassword) {
-        this.gson = new GsonBuilder()
-                .registerTypeAdapter(JavaGamesModel.class, new JavaGamesModelDeserializer())
-                .create();
+    private final UnirestInstance unirest;
 
+    public MpStatsRestApiClient(final String authName, final String authPassword) {
         this.authName = authName;
         this.authPassword = authPassword;
 
-        Unirest.config()
+        this.unirest = Unirest.spawnInstance();
+        this.unirest.config()
                 .defaultBaseUrl(BASE_URL)
                 .connectTimeout(6_000)
                 .addDefaultHeader("User-Agent", "MpStatsRestApiClient-Java")
@@ -56,7 +54,7 @@ public class MpStatsRestApiClient {
 
     private ResponseModel makeRequest(final String url, final Map<String, Object> params, final Class<? extends ResponseModel> wantedClazz) {
         try {
-            final HttpResponse<JsonNode> response = Unirest.get(url)
+            final HttpResponse<JsonNode> response = this.unirest.get(url)
                     .queryString(params)
                     .asJson();
 
@@ -86,8 +84,22 @@ public class MpStatsRestApiClient {
     public ResponseModel getJavaPlayerStats(final String player, final String game, final String board, final long unixTime, final boolean filtering) {
         return this.makeRequest(
                 "java/leaderboards/player",
-                new MapBuilder<String, Object>(() -> new HashMap<>(5))
+                MapBuilder.<String, Object>ofHashMap(5)
                         .put(PLAYER, player)
+                        .put(GAME, game)
+                        .put(BOARD, board.toLowerCase())
+                        .put(DATE, unixTime)
+                        .put("filtering", filtering)
+                        .build(),
+                JavaPlayerStats.class
+        );
+    }
+
+    public ResponseModel getJavaPlayerStats(final UUID playerUUId, final String game, final String board, final long unixTime, final boolean filtering) {
+        return this.makeRequest(
+                "java/leaderboards/playerUUID",
+                MapBuilder.<String, Object>ofHashMap(5)
+                        .put("uuid", playerUUId.toString())
                         .put(GAME, game)
                         .put(BOARD, board.toLowerCase())
                         .put(DATE, unixTime)
@@ -101,7 +113,7 @@ public class MpStatsRestApiClient {
                                             final long unixTime, final boolean filtering) {
         return this.makeRequest(
                 "java/leaderboards/leaderboard",
-                new MapBuilder<String, Object>(() -> new HashMap<>(7))
+                MapBuilder.<String, Object>ofHashMap(7)
                         .put(GAME, game)
                         .put(STAT, stat)
                         .put(BOARD, board.toLowerCase())
@@ -121,8 +133,22 @@ public class MpStatsRestApiClient {
     public ResponseModel getPlayerGroup(final String player, final String group, final String stat, final String board, final long unixTime) {
         return this.makeRequest(
                 "java/leaderboards/group/player",
-                new MapBuilder<String, Object>(() -> new HashMap<>(5))
+                MapBuilder.<String, Object>ofHashMap(5)
                         .put(PLAYER, player)
+                        .put("group", group)
+                        .put(STAT, stat)
+                        .put(BOARD, board.toLowerCase())
+                        .put(DATE, unixTime)
+                        .build(),
+                JavaGroupsPlayer.class
+        );
+    }
+
+    public ResponseModel getPlayerGroup(final UUID playerUUID, final String group, final String stat, final String board, final long unixTime) {
+        return this.makeRequest(
+                "/java/leaderboards/group/playerUUID",
+                MapBuilder.<String, Object>ofHashMap(5)
+                        .put("uuid", playerUUID.toString())
                         .put("group", group)
                         .put(STAT, stat)
                         .put(BOARD, board.toLowerCase())
@@ -135,7 +161,7 @@ public class MpStatsRestApiClient {
     public ResponseModel getPlayerStatsRatio(final String player, final String stat, final String board, final long unixTime) {
         return this.makeRequest(
                 "java/leaderboards/ratio/player",
-                new MapBuilder<String, Object>(() -> new HashMap<>(4))
+                MapBuilder.<String, Object>ofHashMap(4)
                         .put(PLAYER, player)
                         .put(STAT, stat)
                         .put(BOARD, board.toLowerCase())
@@ -153,7 +179,7 @@ public class MpStatsRestApiClient {
     public ResponseModel getBedrockLeaderboard(final String game, final int startPos, final int endPos, final long unixTime) {
         return this.makeRequest(
                 "bedrock/leaderboards/leaderboard",
-                new MapBuilder<String, Object>(() -> new HashMap<>(4))
+                MapBuilder.<String, Object>ofHashMap(4)
                         .put(GAME, game)
                         .put("startPosition", startPos)
                         .put("endPosition", endPos)
@@ -166,7 +192,7 @@ public class MpStatsRestApiClient {
     public ResponseModel getBedrockPlayerStats(final String player) {
         return this.makeRequest(
                 "bedrock/leaderboards/player",
-                new MapBuilder<String, Object>(() -> new HashMap<>(1))
+                MapBuilder.<String, Object>ofHashMap(1)
                         .put("name", player)
                         .build(),
                 BedrockPlayerStats.class
@@ -179,8 +205,7 @@ public class MpStatsRestApiClient {
             return;
         }
 
-        Unirest.post("java/leaderboards/filter")
-                .basicAuth(this.authName, this.authPassword)
+        this.unirest.post("java/leaderboards/filter")
                 .queryString(GAME, game)
                 .queryString(STAT, stat)
                 .queryString(BOARD, board.toLowerCase())
@@ -193,8 +218,7 @@ public class MpStatsRestApiClient {
             return;
         }
 
-        Unirest.post("bedrock/leaderboards/filter")
-                .basicAuth(this.authName, this.authPassword)
+        this.unirest.post("bedrock/leaderboards/filter")
                 .queryString(GAME, game)
                 .queryString("name", player)
                 .asEmpty();
@@ -205,8 +229,7 @@ public class MpStatsRestApiClient {
             return;
         }
 
-        Unirest.post("java/leaderboards/alias/board")
-                .basicAuth(this.authName, this.authPassword)
+        this.unirest.post("java/leaderboards/alias/board")
                 .queryString(BOARD, board.toLowerCase())
                 .queryString(ALIAS, alias)
                 .asEmpty();
@@ -217,8 +240,7 @@ public class MpStatsRestApiClient {
             return;
         }
 
-        Unirest.post("java/leaderboards/alias/game")
-                .basicAuth(this.authName, this.authPassword)
+        this.unirest.post("java/leaderboards/alias/game")
                 .queryString(GAME, game)
                 .queryString(ALIAS, alias)
                 .asEmpty();
@@ -229,8 +251,7 @@ public class MpStatsRestApiClient {
             return;
         }
 
-        Unirest.post("java/leaderboards/alias/stat")
-                .basicAuth(this.authName, this.authPassword)
+        this.unirest.post("java/leaderboards/alias/stat")
                 .queryString(GAME, game)
                 .queryString(STAT, stat)
                 .queryString(ALIAS, alias)

@@ -28,17 +28,17 @@ public class JavaGroupsGroupsCommand extends AbstractJavaStatsCommand {
     protected CommandResult onCommand(final CommandParameters commandParameters) {
         // Show all groups
         if (commandParameters.getArgs().length == 0) {
+            final String groupNames = this.getModule().getJavaGroups().values()
+                    .stream()
+                    .map(JavaGroup::getName)
+                    .sorted(Comparator.naturalOrder())
+                    .collect(Collectors.joining("\n"));
+
             sendTimedMessage(
                     commandParameters,
                     getEmbedBuilder(commandParameters)
                             .setTitle("Java Groups")
-                            .addField("Groups",
-                                    this.getModule().getJavaGroups().values()
-                                            .stream()
-                                            .map(JavaGroup::getName)
-                                            .sorted(Comparator.naturalOrder())
-                                            .collect(Collectors.joining("\n")),
-                                    false)
+                            .addField("Groups", groupNames)
                             .setFooter("TIP: Run " + this.getModule().getModuleOrThrow(CommandModule.class).getMainCommand() + " groups <group> to see more details"),
                     150
             );
