@@ -5,6 +5,6 @@ import lombok.EqualsAndHashCode;
 @EqualsAndHashCode(callSuper = true)
 public class JavaLeaderboardCommand extends AbstractJavaLeaderboardCommand {
     public JavaLeaderboardCommand() {
-        super("leaderboard", "Java Leaderboard", "<game> <stat> [board] [start] [end] [date]", "lb");
+        super("leaderboard", "Java Leaderboard", "lb");
     }
 }

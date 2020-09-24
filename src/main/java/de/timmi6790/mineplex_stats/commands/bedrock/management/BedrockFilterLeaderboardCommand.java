@@ -16,7 +16,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class BedrockFilterLeaderboardCommand extends AbstractBedrockLeaderboardCommand {
     public BedrockFilterLeaderboardCommand() {
-        super("bfleaderboard", "Bedrock Filter Leaderboard", "<game> [start] [end] [date]", "bfl", "bflb");
+        super("bfleaderboard", "Bedrock Filter Leaderboard", "bfl", "bflb");
 
         this.setLeaderboardRowDistance(5);
     }

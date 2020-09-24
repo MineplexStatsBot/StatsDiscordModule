@@ -31,8 +31,8 @@ public abstract class AbstractJavaLeaderboardCommand extends AbstractJavaStatsCo
     private boolean filteredStats = true;
     private int leaderboardRowDistance = 15;
 
-    public AbstractJavaLeaderboardCommand(final String name, final String description, final String syntax, final String... aliasNames) {
-        super(name, description, syntax, aliasNames);
+    public AbstractJavaLeaderboardCommand(final String name, final String description, final String... aliasNames) {
+        super(name, description, "<game> <stat> [board] [start] [end] [date]", aliasNames);
 
         this.addProperties(
                 new MinArgCommandProperty(2),

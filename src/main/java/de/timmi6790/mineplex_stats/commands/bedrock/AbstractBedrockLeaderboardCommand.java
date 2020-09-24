@@ -2,6 +2,8 @@ package de.timmi6790.mineplex_stats.commands.bedrock;
 
 import de.timmi6790.discord_framework.modules.command.CommandParameters;
 import de.timmi6790.discord_framework.modules.command.CommandResult;
+import de.timmi6790.discord_framework.modules.command.properties.ExampleCommandsCommandProperty;
+import de.timmi6790.discord_framework.modules.command.properties.MinArgCommandProperty;
 import de.timmi6790.discord_framework.modules.emote_reaction.EmoteReactionMessage;
 import de.timmi6790.discord_framework.modules.emote_reaction.emotereactions.AbstractEmoteReaction;
 import de.timmi6790.mineplex_stats.picture.PictureTable;
@@ -24,8 +26,18 @@ public abstract class AbstractBedrockLeaderboardCommand extends AbstractBedrockS
 
     private int leaderboardRowDistance = 15;
 
-    public AbstractBedrockLeaderboardCommand(final String name, final String description, final String syntax, final String... aliasNames) {
-        super(name, description, syntax, aliasNames);
+    public AbstractBedrockLeaderboardCommand(final String name, final String description, final String... aliasNames) {
+        super(name, description, "<game> [start] [end] [date]", aliasNames);
+
+        this.addProperties(
+                new MinArgCommandProperty(1),
+                new ExampleCommandsCommandProperty(
+                        "CakeWars",
+                        "CakeWars daily",
+                        "CakeWars global 20 40",
+                        "CakeWars global 20 40 1/30/2020"
+                )
+        );
     }
 
     protected abstract String[][] parseLeaderboard(List<BedrockLeaderboard.Leaderboard> leaderboardResponse);

@@ -95,11 +95,12 @@ public class MpStatsRestApiClient {
         );
     }
 
-    public ResponseModel getJavaPlayerStats(final UUID playerUUId, final String game, final String board, final long unixTime, final boolean filtering) {
+    public ResponseModel getJavaPlayerStats(final UUID playerUUId, final String player, final String game, final String board, final long unixTime, final boolean filtering) {
         return this.makeRequest(
                 "java/leaderboards/playerUUID",
                 MapBuilder.<String, Object>ofHashMap(5)
                         .put("uuid", playerUUId.toString())
+                        .put(PLAYER, player)
                         .put(GAME, game)
                         .put(BOARD, board.toLowerCase())
                         .put(DATE, unixTime)
@@ -146,7 +147,7 @@ public class MpStatsRestApiClient {
 
     public ResponseModel getPlayerGroup(final UUID playerUUID, final String group, final String stat, final String board, final long unixTime) {
         return this.makeRequest(
-                "/java/leaderboards/group/playerUUID",
+                "java/leaderboards/group/playerUUID",
                 MapBuilder.<String, Object>ofHashMap(5)
                         .put("uuid", playerUUID.toString())
                         .put("group", group)
