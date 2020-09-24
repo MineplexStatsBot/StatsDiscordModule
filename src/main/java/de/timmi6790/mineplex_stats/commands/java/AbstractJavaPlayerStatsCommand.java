@@ -29,8 +29,8 @@ import java.util.concurrent.ExecutionException;
 public abstract class AbstractJavaPlayerStatsCommand extends AbstractJavaStatsCommand {
     private final boolean filteredStats;
 
-    public AbstractJavaPlayerStatsCommand(final boolean filteredStats, final String name, final String description, final String syntax, final String... aliasNames) {
-        super(name, description, syntax, aliasNames);
+    public AbstractJavaPlayerStatsCommand(final boolean filteredStats, final String name, final String description, final String... aliasNames) {
+        super(name, description, "<player> <game> [board] [date]", aliasNames);
 
         this.filteredStats = filteredStats;
 
@@ -57,13 +57,15 @@ public abstract class AbstractJavaPlayerStatsCommand extends AbstractJavaStatsCo
     @Override
     protected CommandResult onCommand(final CommandParameters commandParameters) {
         // Parse args
+        final String playerName = this.getPlayer(commandParameters, 0);
         final UUID playerUUID = this.getPlayerUUIDFromName(commandParameters, 0);
         final JavaGame javaGame = this.getGame(commandParameters, 1);
         final JavaBoard board = this.getBoard(javaGame, commandParameters, 2);
         final long unixTime = this.getUnixTimeThrow(commandParameters, 3);
 
         // Web Requests
-        final ResponseModel responseModel = this.getModule().getMpStatsRestClient().getJavaPlayerStats(playerUUID, javaGame.getName(), board.getName(), unixTime, this.filteredStats);
+        final ResponseModel responseModel = this.getModule().getMpStatsRestClient().getJavaPlayerStats(playerUUID, playerName, javaGame.getName(),
+                board.getName(), unixTime, this.filteredStats);
         this.checkApiResponseThrow(commandParameters, responseModel, "No stats available");
 
         final JavaPlayerStats playerStats = (JavaPlayerStats) responseModel;

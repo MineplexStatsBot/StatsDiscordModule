@@ -8,7 +8,7 @@ import java.util.List;
 
 public class BedrockLeaderboardCommand extends AbstractBedrockLeaderboardCommand {
     public BedrockLeaderboardCommand() {
-        super("bleaderboard", "Bedrock Leaderboard", "<game> [start] [end] [date]", "bl", "blb");
+        super("bleaderboard", "Bedrock Leaderboard", "bl", "blb");
     }
 
     @Override

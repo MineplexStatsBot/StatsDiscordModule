@@ -17,7 +17,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class JavaUUUIDLeaderboardCommand extends AbstractJavaLeaderboardCommand {
     public JavaUUUIDLeaderboardCommand() {
-        super("uuidLeaderboard", "Java UUID Leaderboard", "<game> <stat> [board] [start] [end] [date]", "ul");
+        super("uuidLeaderboard", "Java UUID Leaderboard", "ul");
 
         this.setLeaderboardRowDistance(5);
 
