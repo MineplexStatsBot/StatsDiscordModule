@@ -12,6 +12,7 @@ import de.timmi6790.minecraft.mojang_api.models.MojangUser;
 import de.timmi6790.mineplex_stats.commands.AbstractStatsCommand;
 import de.timmi6790.mineplex_stats.commands.java.info.JavaGamesCommand;
 import de.timmi6790.mineplex_stats.commands.java.info.JavaGroupsGroupsCommand;
+import de.timmi6790.mineplex_stats.settings.JavaNameReplacementSetting;
 import de.timmi6790.mineplex_stats.statsapi.models.java.JavaBoard;
 import de.timmi6790.mineplex_stats.statsapi.models.java.JavaGame;
 import de.timmi6790.mineplex_stats.statsapi.models.java.JavaGroup;
@@ -86,7 +87,7 @@ public abstract class AbstractJavaStatsCommand extends AbstractStatsCommand {
         }
 
         throw new CommandReturnException(
-                getEmbedBuilder(commandParameters)
+                this.getEmbedBuilder(commandParameters)
                         .setTitle("Invalid User")
                         .appendDescription(
                                 "The user %s does not exist.\n" +
@@ -165,9 +166,9 @@ public abstract class AbstractJavaStatsCommand extends AbstractStatsCommand {
             return stat.get();
         }
 
-        sendTimedMessage(
+        this.sendTimedMessage(
                 commandParameters,
-                getEmbedBuilder(commandParameters)
+                this.getEmbedBuilder(commandParameters)
                         .setTitle("Invalid Stat")
                         .setDescription(MarkdownUtil.monospace(name) + " is not a valid stat. " +
                                 "\nTODO: Add help emotes." +
@@ -258,9 +259,9 @@ public abstract class AbstractJavaStatsCommand extends AbstractStatsCommand {
             return board.get();
         }
 
-        sendTimedMessage(
+        this.sendTimedMessage(
                 commandParameters,
-                getEmbedBuilder(commandParameters)
+                this.getEmbedBuilder(commandParameters)
                         .setTitle("Invalid Board")
                         .setDescription(MarkdownUtil.monospace(name) + " is not a valid board. " +
                                 "\nTODO: Add help emotes." +
@@ -272,13 +273,22 @@ public abstract class AbstractJavaStatsCommand extends AbstractStatsCommand {
     }
 
     protected String getPlayer(final CommandParameters commandParameters, final int argPos) {
-        final String name = commandParameters.getArgs()[argPos];
+        String name = commandParameters.getArgs()[argPos];
+
+        // Check for setting
+        if (name.equalsIgnoreCase(JavaNameReplacementSetting.getKEYWORD())) {
+            final String settingName = commandParameters.getUserDb().getSettingOrDefault(JavaNameReplacementSetting.class, "");
+            if (!settingName.isEmpty()) {
+                name = settingName;
+            }
+        }
+
         if (NAME_PATTERN.matcher(name).find()) {
             return name;
         }
 
         throw new CommandReturnException(
-                getEmbedBuilder(commandParameters)
+                this.getEmbedBuilder(commandParameters)
                         .setTitle("Invalid Name")
                         .setDescription(MarkdownUtil.monospace(name) + " is not a minecraft name.")
         );

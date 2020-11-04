@@ -50,7 +50,7 @@ public abstract class AbstractStatsCommand extends AbstractCommand {
     private final MineplexStatsModule mineplexStatsModule;
     private final EmoteReactionModule emoteReactionModule;
 
-    public AbstractStatsCommand(final String name, final String category, final String description, final String syntax, final String... aliasNames) {
+    protected AbstractStatsCommand(final String name, final String category, final String description, final String syntax, final String... aliasNames) {
         super(name, category, description, syntax, aliasNames);
 
         this.mineplexStatsModule = getModuleManager().getModuleOrThrow(MineplexStatsModule.class);

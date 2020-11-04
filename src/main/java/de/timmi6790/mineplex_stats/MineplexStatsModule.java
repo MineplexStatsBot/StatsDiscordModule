@@ -3,6 +3,7 @@ package de.timmi6790.mineplex_stats;
 import de.timmi6790.discord_framework.modules.AbstractModule;
 import de.timmi6790.discord_framework.modules.command.CommandModule;
 import de.timmi6790.discord_framework.modules.config.ConfigModule;
+import de.timmi6790.discord_framework.modules.setting.SettingModule;
 import de.timmi6790.discord_framework.utilities.DataUtilities;
 import de.timmi6790.minecraft.MinecraftModule;
 import de.timmi6790.mineplex_stats.commands.bedrock.BedrockLeaderboardCommand;
@@ -21,6 +22,8 @@ import de.timmi6790.mineplex_stats.commands.java.player.JavaPlayerStatsCommand;
 import de.timmi6790.mineplex_stats.commands.java.player.JavaPlayerStatsRatioCommand;
 import de.timmi6790.mineplex_stats.commands.java.unfiltered.JavaUnfilteredLeaderboardCommand;
 import de.timmi6790.mineplex_stats.commands.java.unfiltered.JavaUnfilteredPlayerStatsCommand;
+import de.timmi6790.mineplex_stats.settings.BedrockNameReplacementSetting;
+import de.timmi6790.mineplex_stats.settings.JavaNameReplacementSetting;
 import de.timmi6790.mineplex_stats.statsapi.MpStatsRestApiClient;
 import de.timmi6790.mineplex_stats.statsapi.models.ResponseModel;
 import de.timmi6790.mineplex_stats.statsapi.models.bedrock.BedrockGame;
@@ -54,7 +57,8 @@ public class MineplexStatsModule extends AbstractModule {
         this.addDependenciesAndLoadAfter(
                 ConfigModule.class,
                 CommandModule.class,
-                MinecraftModule.class
+                MinecraftModule.class,
+                SettingModule.class
         );
     }
 
@@ -70,36 +74,41 @@ public class MineplexStatsModule extends AbstractModule {
 
         this.loadBedrockGames();
 
-        this.getModuleOrThrow(CommandModule.class)
-                .registerCommands(
-                        this,
-                        new JavaGamesCommand(),
-                        new JavaPlayerStatsCommand(),
-                        new JavaPlayerGroupCommand(),
-                        new JavaGroupsGroupsCommand(),
-                        new JavaLeaderboardCommand(),
-                        new JavaPlayerStatsRatioCommand(),
+        this.getModuleOrThrow(SettingModule.class).registerSettings(
+                this,
+                new JavaNameReplacementSetting(),
+                new BedrockNameReplacementSetting()
+        );
 
-                        new BedrockGamesCommand(),
-                        new BedrockPlayerCommand(),
-                        new BedrockLeaderboardCommand(),
+        this.getModuleOrThrow(CommandModule.class).registerCommands(
+                this,
+                new JavaGamesCommand(),
+                new JavaPlayerStatsCommand(),
+                new JavaPlayerGroupCommand(),
+                new JavaGroupsGroupsCommand(),
+                new JavaLeaderboardCommand(),
+                new JavaPlayerStatsRatioCommand(),
 
-                        new ReloadDataCommand(),
+                new BedrockGamesCommand(),
+                new BedrockPlayerCommand(),
+                new BedrockLeaderboardCommand(),
 
-                        new JavaUUUIDLeaderboardCommand(),
-                        new JavaPlayerFilterCommand(),
-                        new JavaGameAliasCommand(),
-                        new JavaBoardAliasCommand(),
-                        new JavaStatAliasCommand(),
+                new ReloadDataCommand(),
 
-                        new BedrockPlayerFilterCommand(),
-                        new BedrockFilterLeaderboardCommand(),
+                new JavaUUUIDLeaderboardCommand(),
+                new JavaPlayerFilterCommand(),
+                new JavaGameAliasCommand(),
+                new JavaBoardAliasCommand(),
+                new JavaStatAliasCommand(),
 
-                        new JavaUnfilteredLeaderboardCommand(),
-                        new JavaUnfilteredPlayerStatsCommand(),
+                new BedrockPlayerFilterCommand(),
+                new BedrockFilterLeaderboardCommand(),
 
-                        new AboutCommand()
-                );
+                new JavaUnfilteredLeaderboardCommand(),
+                new JavaUnfilteredPlayerStatsCommand(),
+
+                new AboutCommand()
+        );
     }
 
     public void loadJavaGames() {

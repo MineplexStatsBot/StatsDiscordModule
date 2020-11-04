@@ -6,6 +6,7 @@ import de.timmi6790.discord_framework.modules.command.CommandParameters;
 import de.timmi6790.discord_framework.modules.command.exceptions.CommandReturnException;
 import de.timmi6790.mineplex_stats.commands.AbstractStatsCommand;
 import de.timmi6790.mineplex_stats.commands.bedrock.info.BedrockGamesCommand;
+import de.timmi6790.mineplex_stats.settings.BedrockNameReplacementSetting;
 import de.timmi6790.mineplex_stats.statsapi.models.bedrock.BedrockGame;
 import net.dv8tion.jda.api.utils.MarkdownUtil;
 
@@ -19,7 +20,7 @@ import java.util.stream.Collectors;
 public abstract class AbstractBedrockStatsCommand extends AbstractStatsCommand {
     private static final Pattern NAME_PATTERN = Pattern.compile("^.{3,32}$");
 
-    public AbstractBedrockStatsCommand(final String name, final String description, final String syntax, final String... aliasNames) {
+    protected AbstractBedrockStatsCommand(final String name, final String description, final String syntax, final String... aliasNames) {
         super(name, "MineplexStats - Bedrock", description, syntax, aliasNames);
     }
 
@@ -42,13 +43,22 @@ public abstract class AbstractBedrockStatsCommand extends AbstractStatsCommand {
     }
 
     protected String getPlayer(final CommandParameters commandParameters, final int startPos) {
-        final String name = String.join(" ", Arrays.copyOfRange(commandParameters.getArgs(), startPos, commandParameters.getArgs().length));
+        String name = String.join(" ", Arrays.copyOfRange(commandParameters.getArgs(), startPos, commandParameters.getArgs().length));
+
+        // Check for setting
+        if (name.equalsIgnoreCase(BedrockNameReplacementSetting.getKEYWORD())) {
+            final String settingName = commandParameters.getUserDb().getSettingOrDefault(BedrockNameReplacementSetting.class, "");
+            if (!settingName.isEmpty()) {
+                name = settingName;
+            }
+        }
+
         if (NAME_PATTERN.matcher(name).find()) {
             return name;
         }
 
         throw new CommandReturnException(
-                getEmbedBuilder(commandParameters)
+                this.getEmbedBuilder(commandParameters)
                         .setTitle("Invalid Name")
                         .setDescription(MarkdownUtil.monospace(name) + " is not a minecraft name.")
         );
