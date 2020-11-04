@@ -2,7 +2,7 @@ package de.timmi6790.mineplex_stats.commands.java.management;
 
 import de.timmi6790.discord_framework.modules.command.CommandParameters;
 import de.timmi6790.discord_framework.modules.command.CommandResult;
-import de.timmi6790.discord_framework.modules.command.properties.MinArgCommandProperty;
+import de.timmi6790.discord_framework.modules.command.property.properties.MinArgCommandProperty;
 import de.timmi6790.mineplex_stats.commands.java.AbstractJavaStatsCommand;
 import net.dv8tion.jda.api.utils.MarkdownUtil;
 
@@ -23,8 +23,8 @@ public class JavaBoardAliasCommand extends AbstractJavaStatsCommand {
     @Override
     protected CommandResult onCommand(final CommandParameters commandParameters) {
         final String board = this.getFromListIgnoreCaseThrow(commandParameters, 0, Arrays.asList(JAVA_BOARDS));
-        this.getModule().getMpStatsRestClient().addJavaBoardAlias(board, commandParameters.getArgs()[1]);
-        this.getModule().loadJavaGames();
+        this.getMineplexStatsModule().getMpStatsRestClient().addJavaBoardAlias(board, commandParameters.getArgs()[1]);
+        this.getMineplexStatsModule().loadJavaGames();
         sendTimedMessage(
                 commandParameters,
                 getEmbedBuilder(commandParameters)

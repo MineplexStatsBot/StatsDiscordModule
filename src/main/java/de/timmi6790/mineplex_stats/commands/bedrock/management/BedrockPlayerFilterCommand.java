@@ -1,13 +1,13 @@
 package de.timmi6790.mineplex_stats.commands.bedrock.management;
 
 import de.timmi6790.commons.builders.MapBuilder;
-import de.timmi6790.discord_framework.datatypes.builders.MultiEmbedBuilder;
 import de.timmi6790.discord_framework.modules.command.CommandParameters;
 import de.timmi6790.discord_framework.modules.command.CommandResult;
-import de.timmi6790.discord_framework.modules.command.properties.MinArgCommandProperty;
-import de.timmi6790.discord_framework.modules.command.properties.RequiredDiscordBotPermsCommandProperty;
+import de.timmi6790.discord_framework.modules.command.property.properties.MinArgCommandProperty;
+import de.timmi6790.discord_framework.modules.command.property.properties.RequiredDiscordBotPermsCommandProperty;
 import de.timmi6790.discord_framework.modules.emote_reaction.emotereactions.AbstractEmoteReaction;
 import de.timmi6790.discord_framework.modules.emote_reaction.emotereactions.EmptyEmoteReaction;
+import de.timmi6790.discord_framework.utilities.MultiEmbedBuilder;
 import de.timmi6790.discord_framework.utilities.discord.DiscordEmotes;
 import de.timmi6790.mineplex_stats.commands.bedrock.AbstractBedrockStatsCommand;
 import de.timmi6790.mineplex_stats.statsapi.models.bedrock.BedrockGame;
@@ -31,7 +31,7 @@ public class BedrockPlayerFilterCommand extends AbstractBedrockStatsCommand {
         final String player = this.getPlayer(commandParameters, 1);
 
 
-        final MultiEmbedBuilder embedBuilder = getEmbedBuilder(commandParameters)
+        final MultiEmbedBuilder embedBuilder = this.getEmbedBuilder(commandParameters)
                 .addField("Player", player, false)
                 .addField("Game", game.getName(), false);
 
@@ -41,9 +41,9 @@ public class BedrockPlayerFilterCommand extends AbstractBedrockStatsCommand {
                         .setDescription("Are you sure that you want to filter this person?"),
                 new MapBuilder<String, AbstractEmoteReaction>(() -> new LinkedHashMap<>(2))
                         .put(DiscordEmotes.CHECK_MARK.getEmote(), () -> {
-                            this.getModule().getMpStatsRestClient().addBedrockPlayerFilter(player, game.getName());
+                            this.getMineplexStatsModule().getMpStatsRestClient().addBedrockPlayerFilter(player, game.getName());
 
-                            sendTimedMessage(
+                            this.sendTimedMessage(
                                     commandParameters,
                                     embedBuilder.setTitle("Successfully Filtered"),
                                     90

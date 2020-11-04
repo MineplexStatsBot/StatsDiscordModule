@@ -5,8 +5,8 @@ import com.googlecode.charts4j.PieChart;
 import com.googlecode.charts4j.Slice;
 import de.timmi6790.discord_framework.modules.command.CommandParameters;
 import de.timmi6790.discord_framework.modules.command.CommandResult;
-import de.timmi6790.discord_framework.modules.command.properties.ExampleCommandsCommandProperty;
-import de.timmi6790.discord_framework.modules.command.properties.MinArgCommandProperty;
+import de.timmi6790.discord_framework.modules.command.property.properties.ExampleCommandsCommandProperty;
+import de.timmi6790.discord_framework.modules.command.property.properties.MinArgCommandProperty;
 import de.timmi6790.mineplex_stats.commands.java.AbstractJavaStatsCommand;
 import de.timmi6790.mineplex_stats.statsapi.models.ResponseModel;
 import de.timmi6790.mineplex_stats.statsapi.models.java.JavaBoard;
@@ -61,7 +61,7 @@ public class JavaPlayerStatsRatioCommand extends AbstractJavaStatsCommand {
         final long unixTime = Instant.now().getEpochSecond();// this.getUnixTime(commandParameters, 3);
 
         // Web request
-        final ResponseModel responseModel = this.getModule().getMpStatsRestClient().getPlayerStatsRatio(player, stat.getPrintName(), board.getName(), unixTime);
+        final ResponseModel responseModel = this.getMineplexStatsModule().getMpStatsRestClient().getPlayerStatsRatio(player, stat.getPrintName(), board.getName(), unixTime);
         this.checkApiResponseThrow(commandParameters, responseModel, "No stats available");
 
         final JavaRatioPlayer javaRatioPlayer = (JavaRatioPlayer) responseModel;

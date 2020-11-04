@@ -2,7 +2,6 @@ package de.timmi6790.mineplex_stats.commands.java.management;
 
 import de.timmi6790.commons.builders.ListBuilder;
 import de.timmi6790.discord_framework.modules.command.CommandCause;
-import de.timmi6790.discord_framework.modules.command.CommandModule;
 import de.timmi6790.discord_framework.modules.command.CommandParameters;
 import de.timmi6790.discord_framework.modules.emote_reaction.emotereactions.AbstractEmoteReaction;
 import de.timmi6790.discord_framework.modules.emote_reaction.emotereactions.CommandEmoteReaction;
@@ -49,12 +48,12 @@ public class JavaUUUIDLeaderboardCommand extends AbstractJavaLeaderboardCommand 
         final Map<String, AbstractEmoteReaction> emotes = new LinkedHashMap<>();
 
         final JavaLeaderboard.Info leaderboardInfo = javaLeaderboard.getInfo();
-        this.getModule().getModuleOrThrow(CommandModule.class)
+        this.getCommandModule()
                 .getCommand(JavaPlayerFilterCommand.class)
                 .ifPresent(filterCommand -> {
                     final AtomicInteger emoteIndex = new AtomicInteger(1);
                     javaLeaderboard.getLeaderboard().forEach(data -> {
-                        final CommandParameters newParameters = new CommandParameters(
+                        final CommandParameters newParameters = CommandParameters.of(
                                 commandParameters,
                                 CommandCause.EMOTES,
                                 data.getUuid().toString(),

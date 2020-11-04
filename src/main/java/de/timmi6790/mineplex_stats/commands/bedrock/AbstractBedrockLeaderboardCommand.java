@@ -2,8 +2,8 @@ package de.timmi6790.mineplex_stats.commands.bedrock;
 
 import de.timmi6790.discord_framework.modules.command.CommandParameters;
 import de.timmi6790.discord_framework.modules.command.CommandResult;
-import de.timmi6790.discord_framework.modules.command.properties.ExampleCommandsCommandProperty;
-import de.timmi6790.discord_framework.modules.command.properties.MinArgCommandProperty;
+import de.timmi6790.discord_framework.modules.command.property.properties.ExampleCommandsCommandProperty;
+import de.timmi6790.discord_framework.modules.command.property.properties.MinArgCommandProperty;
 import de.timmi6790.discord_framework.modules.emote_reaction.EmoteReactionMessage;
 import de.timmi6790.discord_framework.modules.emote_reaction.emotereactions.AbstractEmoteReaction;
 import de.timmi6790.mineplex_stats.picture.PictureTable;
@@ -61,7 +61,7 @@ public abstract class AbstractBedrockLeaderboardCommand extends AbstractBedrockS
         final int endPos = this.getEndPositionThrow(startPos, commandParameters, ARG_POS_END_POS, LEADERBOARD_UPPER_LIMIT, this.leaderboardRowDistance);
         final long unixTime = this.getUnixTimeThrow(commandParameters, 3);
 
-        final ResponseModel responseModel = this.getModule().getMpStatsRestClient().getBedrockLeaderboard(game.getName(), startPos, endPos, unixTime);
+        final ResponseModel responseModel = this.getMineplexStatsModule().getMpStatsRestClient().getBedrockLeaderboard(game.getName(), startPos, endPos, unixTime);
         this.checkApiResponseThrow(commandParameters, responseModel, "No stats available");
 
         final BedrockLeaderboard bedrockLeaderboard = (BedrockLeaderboard) responseModel;

@@ -1,27 +1,30 @@
 package de.timmi6790.mineplex_stats.statsapi.models.java;
 
-import de.timmi6790.discord_framework.modules.GetModule;
+import de.timmi6790.discord_framework.DiscordBot;
 import de.timmi6790.mineplex_stats.MineplexStatsModule;
 import de.timmi6790.mineplex_stats.statsapi.utilities.StatsComparator;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
+import lombok.Getter;
 
+import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-@EqualsAndHashCode(callSuper = true)
 @Data
-public class JavaGroup extends GetModule<MineplexStatsModule> {
+public class JavaGroup {
     private final String group;
     private final String description;
     private final String[] aliasNames;
     private final List<String> games;
     private List<JavaStat> groupStats;
 
-    public JavaGroup(final String group, final String description, final String[] aliasNames, final List<String> games, final List<JavaStat> groupStats) {
+    @Getter(lazy = true)
+    private static final MineplexStatsModule module = DiscordBot.getInstance().getModuleManager().getModuleOrThrow(MineplexStatsModule.class);
+
+    public JavaGroup(final String group, final String description, final String[] aliasNames,
+                     final List<String> games, final List<JavaStat> groupStats) {
         this.group = group;
         this.description = description;
         this.aliasNames = aliasNames.clone();
@@ -38,21 +41,21 @@ public class JavaGroup extends GetModule<MineplexStatsModule> {
     }
 
     public List<JavaGame> getGames() {
-        final MineplexStatsModule module = this.getModule().getModuleOrThrow(de.timmi6790.mineplex_stats.MineplexStatsModule.class);
-        return this.games.stream()
-                .map(module::getJavaGame)
-                .filter(Optional::isPresent)
-                .map(Optional::get)
-                .collect(Collectors.toList());
+        final List<JavaGame> parsedGames = new ArrayList<>();
+        for (final String gameName : this.games) {
+            getModule().getJavaGame(gameName).ifPresent(parsedGames::add);
+        }
+
+        return parsedGames;
     }
 
     public List<JavaGame> getGames(final JavaStat stat) {
-        final de.timmi6790.mineplex_stats.MineplexStatsModule module = this.getModule().getModuleOrThrow(de.timmi6790.mineplex_stats.MineplexStatsModule.class);
-        return this.games.stream()
-                .map(module::getJavaGame)
-                .filter(gameOpt -> gameOpt.map(game -> game.getStat(stat.getName()).isPresent()).orElse(false))
-                .map(Optional::get)
-                .collect(Collectors.toList());
+        final List<JavaGame> foundGames = new ArrayList<>();
+        for (final JavaGame game : this.getGames()) {
+            game.getStat(stat.getName()).ifPresent(f -> foundGames.add(game));
+        }
+
+        return foundGames;
     }
 
     public List<String> getGameNames() {

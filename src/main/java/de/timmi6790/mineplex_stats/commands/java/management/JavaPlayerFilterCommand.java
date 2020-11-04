@@ -1,13 +1,13 @@
 package de.timmi6790.mineplex_stats.commands.java.management;
 
 import de.timmi6790.commons.builders.MapBuilder;
-import de.timmi6790.discord_framework.datatypes.builders.MultiEmbedBuilder;
 import de.timmi6790.discord_framework.modules.command.CommandParameters;
 import de.timmi6790.discord_framework.modules.command.CommandResult;
-import de.timmi6790.discord_framework.modules.command.properties.MinArgCommandProperty;
-import de.timmi6790.discord_framework.modules.command.properties.RequiredDiscordBotPermsCommandProperty;
+import de.timmi6790.discord_framework.modules.command.property.properties.MinArgCommandProperty;
+import de.timmi6790.discord_framework.modules.command.property.properties.RequiredDiscordBotPermsCommandProperty;
 import de.timmi6790.discord_framework.modules.emote_reaction.emotereactions.AbstractEmoteReaction;
 import de.timmi6790.discord_framework.modules.emote_reaction.emotereactions.EmptyEmoteReaction;
+import de.timmi6790.discord_framework.utilities.MultiEmbedBuilder;
 import de.timmi6790.discord_framework.utilities.discord.DiscordEmotes;
 import de.timmi6790.mineplex_stats.commands.java.AbstractJavaStatsCommand;
 import de.timmi6790.mineplex_stats.statsapi.models.java.JavaBoard;
@@ -38,7 +38,7 @@ public class JavaPlayerFilterCommand extends AbstractJavaStatsCommand {
         final JavaStat stat = this.getStat(game, commandParameters, 2);
         final JavaBoard board = this.getBoard(game, stat, commandParameters, 3);
 
-        final MultiEmbedBuilder embedBuilder = getEmbedBuilder(commandParameters)
+        final MultiEmbedBuilder embedBuilder = this.getEmbedBuilder(commandParameters)
                 .addField("Player UUID", uuid.toString(), false)
                 .addField("Game", game.getName(), false)
                 .addField("Stat", stat.getName(), false)
@@ -50,9 +50,9 @@ public class JavaPlayerFilterCommand extends AbstractJavaStatsCommand {
                         .setDescription("Are you sure that you want to filter this person?"),
                 new MapBuilder<String, AbstractEmoteReaction>(() -> new LinkedHashMap<>(2))
                         .put(DiscordEmotes.CHECK_MARK.getEmote(), () -> {
-                            this.getModule().getMpStatsRestClient().addJavaPlayerFilter(uuid, game.getName(), stat.getName(), board.getName());
+                            this.getMineplexStatsModule().getMpStatsRestClient().addJavaPlayerFilter(uuid, game.getName(), stat.getName(), board.getName());
 
-                            sendTimedMessage(
+                            this.sendTimedMessage(
                                     commandParameters,
                                     embedBuilder.setTitle("Successfully Filtered"),
                                     90

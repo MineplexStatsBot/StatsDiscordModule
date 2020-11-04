@@ -1,7 +1,6 @@
 package de.timmi6790.mineplex_stats.commands.bedrock.management;
 
 import de.timmi6790.commons.builders.ListBuilder;
-import de.timmi6790.discord_framework.modules.command.CommandModule;
 import de.timmi6790.discord_framework.modules.command.CommandParameters;
 import de.timmi6790.discord_framework.modules.emote_reaction.emotereactions.AbstractEmoteReaction;
 import de.timmi6790.discord_framework.modules.emote_reaction.emotereactions.CommandEmoteReaction;
@@ -37,11 +36,11 @@ public class BedrockFilterLeaderboardCommand extends AbstractBedrockLeaderboardC
     protected Map<String, AbstractEmoteReaction> getEmotes(final CommandParameters commandParameters, final BedrockLeaderboard leaderboard, final int startPos, final int endPos) {
         final Map<String, AbstractEmoteReaction> emotes = new LinkedHashMap<>();
 
-        this.getModule().getModuleOrThrow(CommandModule.class).getCommand(BedrockPlayerFilterCommand.class).ifPresent(filterCommand -> {
-            final AtomicInteger emoteIndex = new AtomicInteger(1);
+        this.getCommandModule().getCommand(BedrockPlayerFilterCommand.class).ifPresent(filterCommand -> {
+            int emoteIndex = 1;
             for (final BedrockLeaderboard.Leaderboard data : leaderboard.getLeaderboard()) {
-                final CommandParameters newParameters = new CommandParameters(commandParameters, leaderboard.getInfo().getGame(), data.getName());
-                emotes.put(DiscordEmotes.getNumberEmote(emoteIndex.getAndIncrement()).getEmote(), new CommandEmoteReaction(filterCommand, newParameters));
+                final CommandParameters newParameters = CommandParameters.of(commandParameters, leaderboard.getInfo().getGame(), data.getName());
+                emotes.put(DiscordEmotes.getNumberEmote(emoteIndex++).getEmote(), new CommandEmoteReaction(filterCommand, newParameters));
             }
         });
 

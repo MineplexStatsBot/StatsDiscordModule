@@ -12,6 +12,8 @@ import de.timmi6790.discord_framework.utilities.discord.DiscordEmotes;
 import de.timmi6790.mineplex_stats.MineplexStatsModule;
 import de.timmi6790.mineplex_stats.statsapi.models.ResponseModel;
 import de.timmi6790.mineplex_stats.statsapi.models.errors.ErrorModel;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import net.dv8tion.jda.api.utils.MarkdownUtil;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.ocpsoft.prettytime.nlp.PrettyTimeParser;
@@ -25,7 +27,9 @@ import java.time.Instant;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
-public abstract class AbstractStatsCommand extends AbstractCommand<MineplexStatsModule> {
+@EqualsAndHashCode(callSuper = true)
+@Getter
+public abstract class AbstractStatsCommand extends AbstractCommand {
     protected static final String UNKNOWN_POSITION = ">1000";
     protected static final String UNKNOWN_SCORE = "Unknown";
 
@@ -43,8 +47,14 @@ public abstract class AbstractStatsCommand extends AbstractCommand<MineplexStats
         FORMAT_NUMBER.setDecimalFormatSymbols(numberSymbol);
     }
 
+    private final MineplexStatsModule mineplexStatsModule;
+    private final EmoteReactionModule emoteReactionModule;
+
     public AbstractStatsCommand(final String name, final String category, final String description, final String syntax, final String... aliasNames) {
         super(name, category, description, syntax, aliasNames);
+
+        this.mineplexStatsModule = getModuleManager().getModuleOrThrow(MineplexStatsModule.class);
+        this.emoteReactionModule = getModuleManager().getModuleOrThrow(EmoteReactionModule.class);
     }
 
     private boolean isInt(final String userInput) {
@@ -109,7 +119,7 @@ public abstract class AbstractStatsCommand extends AbstractCommand<MineplexStats
             // No stats found
             if (((ErrorModel) response).getErrorCode() == 1) {
                 throw new CommandReturnException(
-                        getEmbedBuilder(commandParameters)
+                        this.getEmbedBuilder(commandParameters)
                                 .setTitle("No stats found")
                                 .setDescription("There are no collected stats.\n WIP")
                                 .addField("Arguments", arguments, false),
@@ -118,7 +128,7 @@ public abstract class AbstractStatsCommand extends AbstractCommand<MineplexStats
             }
 
             throw new CommandReturnException(
-                    getEmbedBuilder(commandParameters)
+                    this.getEmbedBuilder(commandParameters)
                             .setTitle("Error")
                             .setDescription("Something went wrong while requesting your data.")
                             .addField("Api Response", ((ErrorModel) response).getErrorMessage(), false)
@@ -132,7 +142,7 @@ public abstract class AbstractStatsCommand extends AbstractCommand<MineplexStats
         final String name = argPos >= commandParameters.getArgs().length ? "1" : commandParameters.getArgs()[argPos];
         if (!this.isInt(name)) {
             throw new CommandReturnException(
-                    getEmbedBuilder(commandParameters)
+                    this.getEmbedBuilder(commandParameters)
                             .setTitle("Invalid start position")
                             .setDescription(MarkdownUtil.monospace(name) + " is not a valid start position for the leaderboard.\n" +
                                     "Use a number between " + MarkdownUtil.bold("1") + " and " + MarkdownUtil.bold(String.valueOf(upperLimit)))
@@ -145,7 +155,7 @@ public abstract class AbstractStatsCommand extends AbstractCommand<MineplexStats
     protected int getEndPositionThrow(final int startPos, final CommandParameters commandParameters, final int argPos, final int upperLimit, final int maxDistance) {
         if (commandParameters.getArgs().length > argPos && !this.isInt(commandParameters.getArgs()[argPos])) {
             throw new CommandReturnException(
-                    getEmbedBuilder(commandParameters)
+                    this.getEmbedBuilder(commandParameters)
                             .setTitle("Invalid end position")
                             .setDescription(MarkdownUtil.monospace(commandParameters.getArgs()[argPos]) + " is not a valid end position for the leaderboard.\n" +
                                     "Use a number between " + MarkdownUtil.bold("1") + " and " + MarkdownUtil.bold(String.valueOf(upperLimit)))
@@ -162,7 +172,8 @@ public abstract class AbstractStatsCommand extends AbstractCommand<MineplexStats
 
     protected long getUnixTimeThrow(final CommandParameters commandParameters, final int startArgPos) {
         if (startArgPos >= commandParameters.getArgs().length) {
-            return Instant.now().getEpochSecond();
+            // TODO: Temporary solution to resolve an issue with the api that would result in the wrong time being selected.
+            return Instant.now().getEpochSecond() + TimeUnit.HOURS.toSeconds(10);
         }
 
         final String[] dateArgs = new String[commandParameters.getArgs().length - startArgPos];
@@ -176,7 +187,7 @@ public abstract class AbstractStatsCommand extends AbstractCommand<MineplexStats
         }
 
         throw new CommandReturnException(
-                getEmbedBuilder(commandParameters)
+                this.getEmbedBuilder(commandParameters)
                         .setTitle("Invalid Date")
                         .setDescription(MarkdownUtil.monospace(name) + " is not a valid date.")
         );
@@ -187,7 +198,7 @@ public abstract class AbstractStatsCommand extends AbstractCommand<MineplexStats
             return UUID.fromString(commandParameters.getArgs()[argPos]);
         } catch (final IllegalArgumentException ignore) {
             throw new CommandReturnException(
-                    getEmbedBuilder(commandParameters)
+                    this.getEmbedBuilder(commandParameters)
                             .setTitle("Invalid UUID")
                             .setDescription(MarkdownUtil.monospace(commandParameters.getArgs()[argPos]) + " is not a valid UUID")
             );
@@ -200,7 +211,7 @@ public abstract class AbstractStatsCommand extends AbstractCommand<MineplexStats
         newArgs[argPosStart] = String.valueOf(newStart);
         newArgs[argPosEnd] = String.valueOf(newStart + rowDistance);
 
-        return new CommandParameters(commandParameters, newArgs);
+        return CommandParameters.of(commandParameters, newArgs);
     }
 
     protected Map<String, AbstractEmoteReaction> getLeaderboardEmotes(final CommandParameters commandParameters, final int fastRowDistance,
@@ -245,7 +256,7 @@ public abstract class AbstractStatsCommand extends AbstractCommand<MineplexStats
         if (minSize > commandParameters.getArgs().length) {
             final String[] newArgs = new String[minSize];
             System.arraycopy(commandParameters.getArgs(), 0, newArgs, 0, commandParameters.getArgs().length);
-            return new CommandParameters(commandParameters, newArgs);
+            return CommandParameters.of(commandParameters, newArgs);
         } else {
             return commandParameters;
         }
@@ -262,7 +273,7 @@ public abstract class AbstractStatsCommand extends AbstractCommand<MineplexStats
                     .sendFile(inputStream, pictureName + ".png")
                     .queue(message -> {
                         if (emoteReactionMessage != null) {
-                            this.getModule().getModuleOrThrow(EmoteReactionModule.class).addEmoteReactionMessage(message, emoteReactionMessage);
+                            this.emoteReactionModule.addEmoteReactionMessage(message, emoteReactionMessage);
                         }
                     });
             return CommandResult.SUCCESS;

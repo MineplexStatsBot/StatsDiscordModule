@@ -2,20 +2,18 @@ package de.timmi6790.mineplex_stats.commands.info;
 
 import de.timmi6790.discord_framework.DiscordBot;
 import de.timmi6790.discord_framework.modules.command.AbstractCommand;
-import de.timmi6790.discord_framework.modules.command.CommandModule;
 import de.timmi6790.discord_framework.modules.command.CommandParameters;
 import de.timmi6790.discord_framework.modules.command.CommandResult;
-import de.timmi6790.mineplex_stats.MineplexStatsModule;
 import net.dv8tion.jda.api.utils.MarkdownUtil;
 
-public class AboutCommand extends AbstractCommand<MineplexStatsModule> {
+public class AboutCommand extends AbstractCommand {
     public AboutCommand() {
         super("about", "Info", "About the bot", "");
     }
 
     @Override
     protected CommandResult onCommand(final CommandParameters commandParameters) {
-        final String mainCommand = this.getModule().getModuleOrThrow(CommandModule.class).getMainCommand();
+        final String mainCommand = this.getCommandModule().getMainCommand();
         sendTimedMessage(
                 commandParameters,
                 getEmbedBuilder(commandParameters)

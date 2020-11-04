@@ -3,8 +3,8 @@ package de.timmi6790.mineplex_stats.commands.bedrock;
 import de.timmi6790.commons.builders.ListBuilder;
 import de.timmi6790.discord_framework.modules.command.CommandParameters;
 import de.timmi6790.discord_framework.modules.command.CommandResult;
-import de.timmi6790.discord_framework.modules.command.properties.ExampleCommandsCommandProperty;
-import de.timmi6790.discord_framework.modules.command.properties.MinArgCommandProperty;
+import de.timmi6790.discord_framework.modules.command.property.properties.ExampleCommandsCommandProperty;
+import de.timmi6790.discord_framework.modules.command.property.properties.MinArgCommandProperty;
 import de.timmi6790.mineplex_stats.picture.PictureTable;
 import de.timmi6790.mineplex_stats.statsapi.models.ResponseModel;
 import de.timmi6790.mineplex_stats.statsapi.models.bedrock.BedrockPlayerStats;
@@ -31,7 +31,7 @@ public class BedrockPlayerCommand extends AbstractBedrockStatsCommand {
         // Arg parse
         final String player = this.getPlayer(commandParameters, 0);
 
-        final ResponseModel responseModel = this.getModule().getMpStatsRestClient().getBedrockPlayerStats(player);
+        final ResponseModel responseModel = this.getMineplexStatsModule().getMpStatsRestClient().getBedrockPlayerStats(player);
         this.checkApiResponseThrow(commandParameters, responseModel, "No stats available");
 
         final BedrockPlayerStats bedrockStats = (BedrockPlayerStats) responseModel;

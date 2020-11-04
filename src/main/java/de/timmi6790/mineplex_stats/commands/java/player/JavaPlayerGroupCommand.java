@@ -3,8 +3,8 @@ package de.timmi6790.mineplex_stats.commands.java.player;
 import de.timmi6790.commons.builders.ListBuilder;
 import de.timmi6790.discord_framework.modules.command.CommandParameters;
 import de.timmi6790.discord_framework.modules.command.CommandResult;
-import de.timmi6790.discord_framework.modules.command.properties.ExampleCommandsCommandProperty;
-import de.timmi6790.discord_framework.modules.command.properties.MinArgCommandProperty;
+import de.timmi6790.discord_framework.modules.command.property.properties.ExampleCommandsCommandProperty;
+import de.timmi6790.discord_framework.modules.command.property.properties.MinArgCommandProperty;
 import de.timmi6790.mineplex_stats.commands.java.AbstractJavaStatsCommand;
 import de.timmi6790.mineplex_stats.picture.PictureTable;
 import de.timmi6790.mineplex_stats.statsapi.models.ResponseModel;
@@ -49,7 +49,7 @@ public class JavaPlayerGroupCommand extends AbstractJavaStatsCommand {
         final JavaBoard board = this.getBoard(statSpecificGames.get(0), stat, commandParameters, 3);
         final long unixTime = this.getUnixTimeThrow(commandParameters, 4);
 
-        final ResponseModel responseModel = this.getModule().getMpStatsRestClient().getPlayerGroup(playerUUID, javaGroup.getGroup(), stat.getName(), board.getName(), unixTime);
+        final ResponseModel responseModel = this.getMineplexStatsModule().getMpStatsRestClient().getPlayerGroup(playerUUID, javaGroup.getGroup(), stat.getName(), board.getName(), unixTime);
         this.checkApiResponseThrow(commandParameters, responseModel, "No stats available");
 
         // Parse data to image

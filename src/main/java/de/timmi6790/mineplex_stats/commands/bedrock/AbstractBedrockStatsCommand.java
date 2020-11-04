@@ -25,17 +25,17 @@ public abstract class AbstractBedrockStatsCommand extends AbstractStatsCommand {
 
     protected BedrockGame getGame(final CommandParameters commandParameters, final int argPos) {
         final String name = commandParameters.getArgs()[argPos];
-        final Optional<BedrockGame> game = this.getModule().getBedrockGame(name);
+        final Optional<BedrockGame> game = this.getMineplexStatsModule().getBedrockGame(name);
         if (game.isPresent()) {
             return game.get();
         }
 
-        final List<BedrockGame> similarGames = new ArrayList<>(this.getModule().getSimilarBedrockGames(name, 0.6, 3));
+        final List<BedrockGame> similarGames = new ArrayList<>(this.getMineplexStatsModule().getSimilarBedrockGames(name, 0.6, 3));
         if (!similarGames.isEmpty() && commandParameters.getUserDb().hasAutoCorrection()) {
             return similarGames.get(0);
         }
 
-        final AbstractCommand<?> command = this.getModule().getModuleOrThrow(CommandModule.class).getCommand(BedrockGamesCommand.class).orElse(null);
+        final AbstractCommand command = this.getMineplexStatsModule().getModuleOrThrow(CommandModule.class).getCommand(BedrockGamesCommand.class).orElse(null);
         this.sendHelpMessage(commandParameters, name, argPos, "game", command, new String[0], similarGames.stream().map(BedrockGame::getName).collect(Collectors.toList()));
 
         throw new CommandReturnException();

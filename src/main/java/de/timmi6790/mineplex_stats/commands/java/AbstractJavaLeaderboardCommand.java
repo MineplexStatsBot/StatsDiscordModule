@@ -3,8 +3,8 @@ package de.timmi6790.mineplex_stats.commands.java;
 import de.timmi6790.commons.builders.ListBuilder;
 import de.timmi6790.discord_framework.modules.command.CommandParameters;
 import de.timmi6790.discord_framework.modules.command.CommandResult;
-import de.timmi6790.discord_framework.modules.command.properties.ExampleCommandsCommandProperty;
-import de.timmi6790.discord_framework.modules.command.properties.MinArgCommandProperty;
+import de.timmi6790.discord_framework.modules.command.property.properties.ExampleCommandsCommandProperty;
+import de.timmi6790.discord_framework.modules.command.property.properties.MinArgCommandProperty;
 import de.timmi6790.discord_framework.modules.emote_reaction.EmoteReactionMessage;
 import de.timmi6790.discord_framework.modules.emote_reaction.emotereactions.AbstractEmoteReaction;
 import de.timmi6790.mineplex_stats.picture.PictureTable;
@@ -82,7 +82,7 @@ public abstract class AbstractJavaLeaderboardCommand extends AbstractJavaStatsCo
         final int endPos = this.getEndPositionThrow(startPos, commandParameters, ARG_POS_END_POS, LEADERBOARD_UPPER_LIMIT, this.leaderboardRowDistance);
         final long unixTime = this.getUnixTimeThrow(commandParameters, 5);
 
-        final ResponseModel responseModel = this.getModule().getMpStatsRestClient().getJavaLeaderboard(game.getName(), stat.getName(), board.getName(), startPos, endPos, unixTime, this.filteredStats);
+        final ResponseModel responseModel = this.getMineplexStatsModule().getMpStatsRestClient().getJavaLeaderboard(game.getName(), stat.getName(), board.getName(), startPos, endPos, unixTime, this.filteredStats);
         this.checkApiResponseThrow(commandParameters, responseModel, "No stats available");
 
         // Parse data to image generator

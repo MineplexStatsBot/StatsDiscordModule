@@ -1,14 +1,13 @@
 package de.timmi6790.mineplex_stats.commands.debug;
 
 import de.timmi6790.commons.utilities.EnumUtilities;
-import de.timmi6790.discord_framework.modules.command.AbstractCommand;
 import de.timmi6790.discord_framework.modules.command.CommandParameters;
 import de.timmi6790.discord_framework.modules.command.CommandResult;
-import de.timmi6790.discord_framework.modules.command.properties.MinArgCommandProperty;
-import de.timmi6790.mineplex_stats.MineplexStatsModule;
+import de.timmi6790.discord_framework.modules.command.property.properties.MinArgCommandProperty;
+import de.timmi6790.mineplex_stats.commands.AbstractStatsCommand;
 import net.dv8tion.jda.api.utils.MarkdownUtil;
 
-public class ReloadDataCommand extends AbstractCommand<MineplexStatsModule> {
+public class ReloadDataCommand extends AbstractStatsCommand {
     public ReloadDataCommand() {
         super("sReload", "Debug", "", "<javaGame|javaGroup|bedrockGame>", "sr");
 
@@ -19,20 +18,19 @@ public class ReloadDataCommand extends AbstractCommand<MineplexStatsModule> {
 
     @Override
     protected CommandResult onCommand(final CommandParameters commandParameters) {
-        final MineplexStatsModule module = this.getModule();
         final ValidArgs0 arg0 = this.getFromEnumIgnoreCaseThrow(commandParameters, 0, ValidArgs0.values());
 
         switch (arg0) {
             case JAVA_GAME:
-                module.loadJavaGames();
+                this.getMineplexStatsModule().loadJavaGames();
                 break;
 
             case JAVA_GROUP:
-                module.loadJavaGroups();
+                this.getMineplexStatsModule().loadJavaGroups();
                 break;
 
             case BEDROCK_GAME:
-                module.loadBedrockGames();
+                this.getMineplexStatsModule().loadBedrockGames();
                 break;
         }
 

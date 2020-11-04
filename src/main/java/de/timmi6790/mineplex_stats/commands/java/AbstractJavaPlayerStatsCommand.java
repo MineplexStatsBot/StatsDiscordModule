@@ -3,9 +3,9 @@ package de.timmi6790.mineplex_stats.commands.java;
 import de.timmi6790.commons.builders.ListBuilder;
 import de.timmi6790.discord_framework.modules.command.CommandParameters;
 import de.timmi6790.discord_framework.modules.command.CommandResult;
-import de.timmi6790.discord_framework.modules.command.properties.ExampleCommandsCommandProperty;
-import de.timmi6790.discord_framework.modules.command.properties.MinArgCommandProperty;
-import de.timmi6790.discord_framework.modules.command.properties.RequiredDiscordBotPermsCommandProperty;
+import de.timmi6790.discord_framework.modules.command.property.properties.ExampleCommandsCommandProperty;
+import de.timmi6790.discord_framework.modules.command.property.properties.MinArgCommandProperty;
+import de.timmi6790.discord_framework.modules.command.property.properties.RequiredDiscordBotPermsCommandProperty;
 import de.timmi6790.mineplex_stats.commands.AbstractStatsCommand;
 import de.timmi6790.mineplex_stats.picture.PictureTable;
 import de.timmi6790.mineplex_stats.statsapi.models.ResponseModel;
@@ -19,6 +19,7 @@ import lombok.SneakyThrows;
 import net.dv8tion.jda.api.Permission;
 
 import java.awt.image.BufferedImage;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Optional;
 import java.util.UUID;
@@ -64,7 +65,7 @@ public abstract class AbstractJavaPlayerStatsCommand extends AbstractJavaStatsCo
         final long unixTime = this.getUnixTimeThrow(commandParameters, 3);
 
         // Web Requests
-        final ResponseModel responseModel = this.getModule().getMpStatsRestClient().getJavaPlayerStats(playerUUID, playerName, javaGame.getName(),
+        final ResponseModel responseModel = this.getMineplexStatsModule().getMpStatsRestClient().getJavaPlayerStats(playerUUID, playerName, javaGame.getName(),
                 board.getName(), unixTime, this.filteredStats);
         this.checkApiResponseThrow(commandParameters, responseModel, "No stats available");
 
@@ -74,7 +75,7 @@ public abstract class AbstractJavaPlayerStatsCommand extends AbstractJavaStatsCo
         final CompletableFuture<BufferedImage> skinFuture = this.getPlayerSkin(playerStatsInfo.getUuid());
 
         // Parse data into image generator
-        final JavaGame game = this.getModule().getJavaGame(playerStatsInfo.getGame()).orElseThrow(RuntimeException::new);
+        final JavaGame game = this.getMineplexStatsModule().getJavaGame(playerStatsInfo.getGame()).orElseThrow(RuntimeException::new);
         final BiggestLong highestUnixTime = new BiggestLong(0);
         final String[][] leaderboard = new ListBuilder<String[]>(() -> new ArrayList<>(playerStats.getWebsiteStats().size() + game.getStats().size() + 1))
                 .add(new String[]{"Category", "Score", "Position"})
@@ -106,10 +107,12 @@ public abstract class AbstractJavaPlayerStatsCommand extends AbstractJavaStatsCo
             skin = null;
         }
 
+        // This will resolve the issue when we only have website stats and the highest time is 0
+        final long highestTime = highestUnixTime.get() == 0 ? Instant.now().getEpochSecond() : highestUnixTime.get();
         final String[] header = this.getHeader(playerStatsInfo);
         return this.sendPicture(
                 commandParameters,
-                new PictureTable(header, this.getFormattedUnixTime(highestUnixTime.get()), leaderboard, skin).getPlayerPicture(),
+                new PictureTable(header, this.getFormattedUnixTime(highestTime), leaderboard, skin).getPlayerPicture(),
                 String.join("-", header) + "-" + highestUnixTime
         );
     }

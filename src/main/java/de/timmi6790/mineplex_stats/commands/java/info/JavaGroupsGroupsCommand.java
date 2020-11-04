@@ -1,9 +1,8 @@
 package de.timmi6790.mineplex_stats.commands.java.info;
 
-import de.timmi6790.discord_framework.modules.command.CommandModule;
 import de.timmi6790.discord_framework.modules.command.CommandParameters;
 import de.timmi6790.discord_framework.modules.command.CommandResult;
-import de.timmi6790.discord_framework.modules.command.properties.ExampleCommandsCommandProperty;
+import de.timmi6790.discord_framework.modules.command.property.properties.ExampleCommandsCommandProperty;
 import de.timmi6790.mineplex_stats.commands.java.AbstractJavaStatsCommand;
 import de.timmi6790.mineplex_stats.statsapi.models.java.JavaGroup;
 import lombok.EqualsAndHashCode;
@@ -28,7 +27,7 @@ public class JavaGroupsGroupsCommand extends AbstractJavaStatsCommand {
     protected CommandResult onCommand(final CommandParameters commandParameters) {
         // Show all groups
         if (commandParameters.getArgs().length == 0) {
-            final String groupNames = this.getModule().getJavaGroups().values()
+            final String groupNames = this.getMineplexStatsModule().getJavaGroups().values()
                     .stream()
                     .map(JavaGroup::getName)
                     .sorted(Comparator.naturalOrder())
@@ -39,7 +38,7 @@ public class JavaGroupsGroupsCommand extends AbstractJavaStatsCommand {
                     getEmbedBuilder(commandParameters)
                             .setTitle("Java Groups")
                             .addField("Groups", groupNames)
-                            .setFooter("TIP: Run " + this.getModule().getModuleOrThrow(CommandModule.class).getMainCommand() + " groups <group> to see more details"),
+                            .setFooter("TIP: Run " + this.getCommandModule().getMainCommand() + " groups <group> to see more details"),
                     150
             );
             return CommandResult.SUCCESS;

@@ -1,8 +1,8 @@
 package de.timmi6790.mineplex_stats.commands.bedrock.info;
 
-import de.timmi6790.discord_framework.datatypes.builders.MultiEmbedBuilder;
 import de.timmi6790.discord_framework.modules.command.CommandParameters;
 import de.timmi6790.discord_framework.modules.command.CommandResult;
+import de.timmi6790.discord_framework.utilities.MultiEmbedBuilder;
 import de.timmi6790.mineplex_stats.commands.bedrock.AbstractBedrockStatsCommand;
 import de.timmi6790.mineplex_stats.statsapi.models.bedrock.BedrockGame;
 
@@ -19,10 +19,10 @@ public class BedrockGamesCommand extends AbstractBedrockStatsCommand {
 
     @Override
     protected CommandResult onCommand(final CommandParameters commandParameters) {
-        final MultiEmbedBuilder message = getEmbedBuilder(commandParameters)
+        final MultiEmbedBuilder message = this.getEmbedBuilder(commandParameters)
                 .setTitle("Bedrock Games");
 
-        final Map<String, List<BedrockGame>> sortedMap = this.getModule().getBedrockGames().values()
+        final Map<String, List<BedrockGame>> sortedMap = this.getMineplexStatsModule().getBedrockGames().values()
                 .stream()
                 .collect(Collectors.groupingBy(k -> k.isRemoved() ? "Removed" : "Games", TreeMap::new, Collectors.toList()));
 
@@ -37,7 +37,7 @@ public class BedrockGamesCommand extends AbstractBedrockStatsCommand {
             );
         }
 
-        sendTimedMessage(commandParameters, message, 150);
+        this.sendTimedMessage(commandParameters, message, 150);
         return CommandResult.SUCCESS;
     }
 }

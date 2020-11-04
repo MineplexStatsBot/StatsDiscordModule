@@ -25,6 +25,7 @@ public class MpStatsRestApiClient {
     private static final String GAME = "game";
     private static final String STAT = "stat";
     private static final String DATE = "date";
+    private static final String FILTERING = "filtering";
 
     private static final String BASE_URL = "https://mpstats.timmi6790.de/";//  "http://127.0.0.1:8000/"
 
@@ -89,7 +90,7 @@ public class MpStatsRestApiClient {
                         .put(GAME, game)
                         .put(BOARD, board.toLowerCase())
                         .put(DATE, unixTime)
-                        .put("filtering", filtering)
+                        .put(FILTERING, filtering)
                         .build(),
                 JavaPlayerStats.class
         );
@@ -104,7 +105,7 @@ public class MpStatsRestApiClient {
                         .put(GAME, game)
                         .put(BOARD, board.toLowerCase())
                         .put(DATE, unixTime)
-                        .put("filtering", filtering)
+                        .put(FILTERING, filtering)
                         .build(),
                 JavaPlayerStats.class
         );
@@ -121,7 +122,7 @@ public class MpStatsRestApiClient {
                         .put("startPosition", startPos)
                         .put("endPosition", endPos)
                         .put(DATE, unixTime)
-                        .put("filtering", filtering)
+                        .put(FILTERING, filtering)
                         .build(),
                 JavaLeaderboard.class
         );

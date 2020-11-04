@@ -16,6 +16,7 @@ import de.timmi6790.mineplex_stats.statsapi.models.java.JavaBoard;
 import de.timmi6790.mineplex_stats.statsapi.models.java.JavaGame;
 import de.timmi6790.mineplex_stats.statsapi.models.java.JavaGroup;
 import de.timmi6790.mineplex_stats.statsapi.models.java.JavaStat;
+import io.sentry.Sentry;
 import kong.unirest.HttpResponse;
 import kong.unirest.Unirest;
 import lombok.EqualsAndHashCode;
@@ -56,7 +57,7 @@ public abstract class AbstractJavaStatsCommand extends AbstractStatsCommand {
                     return ImageIO.read(in);
                 } catch (final IOException e) {
                     DiscordBot.getLogger().error(e);
-                    DiscordBot.getInstance().getSentry().sendException(e);
+                    Sentry.captureException(e);
                     return null;
                 }
             });
@@ -98,12 +99,12 @@ public abstract class AbstractJavaStatsCommand extends AbstractStatsCommand {
     // Arg Parsing
     protected JavaGame getGame(final CommandParameters commandParameters, final int argPos) {
         final String name = commandParameters.getArgs()[argPos];
-        final Optional<JavaGame> game = this.getModule().getJavaGame(name);
+        final Optional<JavaGame> game = this.getMineplexStatsModule().getJavaGame(name);
         if (game.isPresent()) {
             return game.get();
         }
 
-        final List<JavaGame> similarGames = this.getModule().getSimilarJavaGames(name, 0.6, 3);
+        final List<JavaGame> similarGames = this.getMineplexStatsModule().getSimilarJavaGames(name, 0.6, 3);
         if (!similarGames.isEmpty() && commandParameters.getUserDb().hasAutoCorrection()) {
             return similarGames.get(0);
         }
@@ -113,7 +114,7 @@ public abstract class AbstractJavaStatsCommand extends AbstractStatsCommand {
                 name,
                 argPos,
                 "game",
-                this.getModule().getModuleOrThrow(CommandModule.class)
+                this.getMineplexStatsModule().getModuleOrThrow(CommandModule.class)
                         .getCommand(JavaGamesCommand.class)
                         .orElse(null),
                 new String[0],
@@ -141,7 +142,7 @@ public abstract class AbstractJavaStatsCommand extends AbstractStatsCommand {
                 name,
                 argPos,
                 "stat",
-                this.getModule().getModuleOrThrow(CommandModule.class)
+                this.getMineplexStatsModule().getModuleOrThrow(CommandModule.class)
                         .getCommand(JavaGamesCommand.class)
                         .orElse(null),
                 new String[]{game.getName()},
@@ -154,7 +155,7 @@ public abstract class AbstractJavaStatsCommand extends AbstractStatsCommand {
 
     protected JavaStat getStat(final CommandParameters commandParameters, final int argPos) {
         final String name = commandParameters.getArgs()[argPos];
-        final Optional<JavaStat> stat = this.getModule().getJavaGames().values()
+        final Optional<JavaStat> stat = this.getMineplexStatsModule().getJavaGames().values()
                 .stream()
                 .map(game -> game.getStat(name))
                 .filter(Optional::isPresent)
@@ -213,7 +214,7 @@ public abstract class AbstractJavaStatsCommand extends AbstractStatsCommand {
                 name,
                 argPos,
                 "board",
-                this.getModule().getModuleOrThrow(CommandModule.class)
+                this.getMineplexStatsModule().getModuleOrThrow(CommandModule.class)
                         .getCommand(JavaGamesCommand.class)
                         .orElse(null),
                 new String[]{game.getName(), game.getStats().values().stream().findFirst().map(JavaStat::getName).orElse("")},
@@ -239,7 +240,7 @@ public abstract class AbstractJavaStatsCommand extends AbstractStatsCommand {
                 name,
                 argPos,
                 "board",
-                this.getModule().getModuleOrThrow(CommandModule.class)
+                this.getMineplexStatsModule().getModuleOrThrow(CommandModule.class)
                         .getCommand(JavaGamesCommand.class)
                         .orElse(null),
                 new String[]{game.getName(), stat.getName()},
@@ -285,12 +286,12 @@ public abstract class AbstractJavaStatsCommand extends AbstractStatsCommand {
 
     public JavaGroup getJavaGroup(final CommandParameters commandParameters, final int argPos) {
         final String name = commandParameters.getArgs()[argPos];
-        final Optional<JavaGroup> group = this.getModule().getJavaGroup(name);
+        final Optional<JavaGroup> group = this.getMineplexStatsModule().getJavaGroup(name);
         if (group.isPresent()) {
             return group.get();
         }
 
-        final List<JavaGroup> similarGroup = this.getModule().getSimilarJavaGroups(name, 0.6, 3);
+        final List<JavaGroup> similarGroup = this.getMineplexStatsModule().getSimilarJavaGroups(name, 0.6, 3);
         if (!similarGroup.isEmpty() && commandParameters.getUserDb().hasAutoCorrection()) {
             return similarGroup.get(0);
         }
@@ -300,7 +301,7 @@ public abstract class AbstractJavaStatsCommand extends AbstractStatsCommand {
                 name,
                 argPos,
                 "group",
-                this.getModule().getModuleOrThrow(CommandModule.class)
+                this.getMineplexStatsModule().getModuleOrThrow(CommandModule.class)
                         .getCommand(JavaGroupsGroupsCommand.class)
                         .orElse(null),
                 new String[]{},
@@ -337,7 +338,7 @@ public abstract class AbstractJavaStatsCommand extends AbstractStatsCommand {
                 name,
                 argPos,
                 "stat",
-                this.getModule().getModuleOrThrow(CommandModule.class)
+                this.getMineplexStatsModule().getModuleOrThrow(CommandModule.class)
                         .getCommand(JavaGroupsGroupsCommand.class)
                         .orElse(null),
                 new String[]{group.getName()},

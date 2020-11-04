@@ -3,22 +3,18 @@ package de.timmi6790.minecraft.mojang_api.models;
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonDeserializer;
 import com.google.gson.JsonElement;
-import de.timmi6790.discord_framework.modules.GetModule;
-import de.timmi6790.minecraft.MinecraftModule;
 import de.timmi6790.minecraft.mojang_api.MojangApi;
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 import lombok.NonNull;
 
 import java.lang.reflect.Type;
 import java.util.UUID;
 import java.util.regex.Pattern;
 
-@EqualsAndHashCode(callSuper = true)
 @Data
 @AllArgsConstructor
-public class MojangUser extends GetModule<MinecraftModule> {
+public class MojangUser {
     private static final Pattern FULL_UUID_PATTERN = Pattern.compile("(\\w{8})(\\w{4})(\\w{4})(\\w{4})(\\w{12})");
     private static final String PLAYER_HEARD_URL = "https://minotar.net/avatar/%s";
 
