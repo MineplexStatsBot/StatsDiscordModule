@@ -26,7 +26,7 @@ public abstract class AbstractBedrockLeaderboardCommand extends AbstractBedrockS
 
     private int leaderboardRowDistance = 15;
 
-    public AbstractBedrockLeaderboardCommand(final String name, final String description, final String... aliasNames) {
+    protected AbstractBedrockLeaderboardCommand(final String name, final String description, final String... aliasNames) {
         super(name, description, "<game> [start] [end] [date]", aliasNames);
 
         this.addProperties(
@@ -46,11 +46,20 @@ public abstract class AbstractBedrockLeaderboardCommand extends AbstractBedrockS
         return new String[]{"Bedrock " + leaderboardInfo.getGame()};
     }
 
-    protected Map<String, AbstractEmoteReaction> getEmotes(final CommandParameters commandParameters, final BedrockLeaderboard leaderboard, final int startPos, final int endPos) {
+    protected Map<String, AbstractEmoteReaction> getEmotes(final CommandParameters commandParameters,
+                                                           final BedrockLeaderboard leaderboard,
+                                                           final int startPos,
+                                                           final int endPos) {
         final int fastRowDistance = leaderboard.getInfo().getTotalLength() * 50 / 100;
-
-        return this.getLeaderboardEmotes(commandParameters, fastRowDistance, startPos, endPos, leaderboard.getInfo().getTotalLength(),
-                ARG_POS_START_POS, ARG_POS_END_POS);
+        return this.getLeaderboardEmotes(
+                commandParameters,
+                fastRowDistance,
+                startPos,
+                endPos,
+                leaderboard.getInfo().getTotalLength(),
+                ARG_POS_START_POS,
+                ARG_POS_END_POS
+        );
     }
 
     @Override
@@ -61,7 +70,8 @@ public abstract class AbstractBedrockLeaderboardCommand extends AbstractBedrockS
         final int endPos = this.getEndPositionThrow(startPos, commandParameters, ARG_POS_END_POS, LEADERBOARD_UPPER_LIMIT, this.leaderboardRowDistance);
         final long unixTime = this.getUnixTimeThrow(commandParameters, 3);
 
-        final ResponseModel responseModel = this.getMineplexStatsModule().getMpStatsRestClient().getBedrockLeaderboard(game.getName(), startPos, endPos, unixTime);
+        final ResponseModel responseModel = this.getMineplexStatsModule().getMpStatsRestClient()
+                .getBedrockLeaderboard(game.getName(), startPos, endPos, unixTime);
         this.checkApiResponseThrow(commandParameters, responseModel, "No stats available");
 
         final BedrockLeaderboard bedrockLeaderboard = (BedrockLeaderboard) responseModel;

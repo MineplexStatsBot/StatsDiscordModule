@@ -6,9 +6,10 @@ import de.timmi6790.discord_framework.modules.command.property.properties.Exampl
 import de.timmi6790.mineplex_stats.commands.java.AbstractJavaStatsCommand;
 import de.timmi6790.mineplex_stats.statsapi.models.java.JavaGroup;
 import lombok.EqualsAndHashCode;
+import org.apache.commons.collections4.list.TreeList;
 
-import java.util.Comparator;
-import java.util.stream.Collectors;
+import java.util.List;
+import java.util.StringJoiner;
 
 @EqualsAndHashCode(callSuper = true)
 public class JavaGroupsGroupsCommand extends AbstractJavaStatsCommand {
@@ -27,39 +28,66 @@ public class JavaGroupsGroupsCommand extends AbstractJavaStatsCommand {
     protected CommandResult onCommand(final CommandParameters commandParameters) {
         // Show all groups
         if (commandParameters.getArgs().length == 0) {
-            final String groupNames = this.getMineplexStatsModule().getJavaGroups().values()
-                    .stream()
-                    .map(JavaGroup::getName)
-                    .sorted(Comparator.naturalOrder())
-                    .collect(Collectors.joining("\n"));
-
-            sendTimedMessage(
-                    commandParameters,
-                    getEmbedBuilder(commandParameters)
-                            .setTitle("Java Groups")
-                            .addField("Groups", groupNames)
-                            .setFooter("TIP: Run " + this.getCommandModule().getMainCommand() + " groups <group> to see more details"),
-                    150
-            );
-            return CommandResult.SUCCESS;
+            return this.handleAllGroups(commandParameters);
         }
 
         // Group info
         final JavaGroup group = this.getJavaGroup(commandParameters, 0);
-        // Remove "Achievement" from all stat names, because MixedArcade is above the 1024 character limit
-        final String stats = group.getStatNames()
-                .stream()
-                .map(stat -> stat.replace(" ", "").replace("Achievement", ""))
-                .collect(Collectors.joining(", "));
+        return this.handleGroupInfo(commandParameters, group);
+    }
 
-        sendTimedMessage(
+    private CommandResult handleAllGroups(final CommandParameters commandParameters) {
+        final List<String> sortedGroupNames = new TreeList<>();
+        for (final JavaGroup group : this.getMineplexStatsModule().getJavaGroups().values()) {
+            sortedGroupNames.add(group.getName());
+        }
+
+        this.sendTimedMessage(
                 commandParameters,
-                getEmbedBuilder(commandParameters)
+                this.getEmbedBuilder(commandParameters)
+                        .setTitle("Java Groups")
+                        .addField("Groups", String.join("\n", sortedGroupNames))
+                        .setFooterFormat(
+                                "TIP: Run %s %s <group> to see more details",
+                                getCommandModule().getMainCommand(),
+                                this.getName()
+                        ),
+                150
+        );
+        return CommandResult.SUCCESS;
+    }
+
+    private CommandResult handleGroupInfo(final CommandParameters commandParameters, final JavaGroup group) {
+        // Remove "Achievement" from all stat names, because MixedArcade is above the 1024 character limit
+        final StringJoiner stats = new StringJoiner(", ");
+        for (final String statName : group.getStatNames()) {
+            stats.add(statName.replace(" ", "").replace("Achievement", ""));
+        }
+
+        this.sendTimedMessage(
+                commandParameters,
+                this.getEmbedBuilder(commandParameters)
                         .setTitle("Java Groups - " + group.getName())
-                        .addField("Description", group.getDescription(), false, !group.getDescription().isEmpty())
-                        .addField("Alias names", String.join(", ", group.getAliasNames()), false, group.getAliasNames().length > 0)
-                        .addField("Games", String.join(", ", group.getGameNames()), false)
-                        .addField("Stats", stats.substring(0, Math.min(stats.length(), 1024)), false),
+                        .addField(
+                                "Description",
+                                group.getDescription(),
+                                false,
+                                !group.getDescription().isEmpty()
+                        )
+                        .addField(
+                                "Alias names",
+                                String.join(", ", group.getAliasNames()),
+                                false,
+                                group.getAliasNames().length > 0
+                        )
+                        .addField(
+                                "Games",
+                                String.join(", ", group.getGameNames())
+                        )
+                        .addField(
+                                "Stats",
+                                stats.toString().substring(0, Math.min(stats.length(), 1024))
+                        ),
                 150
         );
         return CommandResult.SUCCESS;

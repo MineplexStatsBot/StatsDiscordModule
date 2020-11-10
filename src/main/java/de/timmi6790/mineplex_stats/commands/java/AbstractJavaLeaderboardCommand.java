@@ -1,6 +1,5 @@
 package de.timmi6790.mineplex_stats.commands.java;
 
-import de.timmi6790.commons.builders.ListBuilder;
 import de.timmi6790.discord_framework.modules.command.CommandParameters;
 import de.timmi6790.discord_framework.modules.command.CommandResult;
 import de.timmi6790.discord_framework.modules.command.property.properties.ExampleCommandsCommandProperty;
@@ -16,8 +15,9 @@ import de.timmi6790.mineplex_stats.statsapi.models.java.JavaStat;
 import lombok.EqualsAndHashCode;
 import lombok.Setter;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 @EqualsAndHashCode(callSuper = true)
 @Setter
@@ -31,7 +31,7 @@ public abstract class AbstractJavaLeaderboardCommand extends AbstractJavaStatsCo
     private boolean filteredStats = true;
     private int leaderboardRowDistance = 15;
 
-    public AbstractJavaLeaderboardCommand(final String name, final String description, final String... aliasNames) {
+    protected AbstractJavaLeaderboardCommand(final String name, final String description, final String... aliasNames) {
         super(name, description, "<game> <stat> [board] [start] [end] [date]", aliasNames);
 
         this.addProperties(
@@ -45,8 +45,10 @@ public abstract class AbstractJavaLeaderboardCommand extends AbstractJavaStatsCo
         );
     }
 
-    protected Map<String, AbstractEmoteReaction> getCustomEmotes(final CommandParameters commandParameters, final JavaLeaderboard javaLeaderboard,
-                                                                 final int startPos, final int endPos) {
+    protected Map<String, AbstractEmoteReaction> getCustomEmotes(final CommandParameters commandParameters,
+                                                                 final JavaLeaderboard javaLeaderboard,
+                                                                 final int startPos,
+                                                                 final int endPos) {
         final int fastRowDistance = javaLeaderboard.getInfo().getTotalLength() * 10 / 100;
 
         return this.getLeaderboardEmotes(commandParameters, fastRowDistance, startPos, endPos,
@@ -55,21 +57,34 @@ public abstract class AbstractJavaLeaderboardCommand extends AbstractJavaStatsCo
 
     protected String[] getHeader(final JavaLeaderboard.Info leaderboardInfo) {
         if (this.filteredStats) {
-            return new String[]{leaderboardInfo.getGame(), leaderboardInfo.getStat(), leaderboardInfo.getBoard()};
+            return new String[]{
+                    leaderboardInfo.getGame(),
+                    leaderboardInfo.getStat(),
+                    leaderboardInfo.getBoard()
+            };
         } else {
-            return new String[]{leaderboardInfo.getGame(), leaderboardInfo.getStat(), leaderboardInfo.getBoard(), "UNFILTERED"};
+            return new String[]{
+                    leaderboardInfo.getGame(),
+                    leaderboardInfo.getStat(),
+                    leaderboardInfo.getBoard(),
+                    "UNFILTERED"
+            };
         }
     }
 
     protected String[][] parseLeaderboard(final JavaStat stat, final JavaLeaderboard leaderboardResponse) {
-        return ListBuilder.<String[]>ofArrayList(leaderboardResponse.getLeaderboard().size() + 1)
-                .add(new String[]{"Player", "Score", "Position"})
-                .addAll(leaderboardResponse.getLeaderboard()
-                        .stream()
-                        .map(data -> new String[]{data.getName(), this.getFormattedScore(stat, data.getScore()), String.valueOf(data.getPosition())})
-                        .collect(Collectors.toList()))
-                .build()
-                .toArray(new String[0][3]);
+        final List<String[]> parsed = new ArrayList<>(leaderboardResponse.getLeaderboard().size() + 1);
+        parsed.add(new String[]{"Player", "Score", "Position"});
+
+        for (final JavaLeaderboard.Leaderboard row : leaderboardResponse.getLeaderboard()) {
+            parsed.add(new String[]{
+                    row.getName(),
+                    this.getFormattedScore(stat, row.getScore()),
+                    String.valueOf(row.getPosition())
+            });
+        }
+
+        return parsed.toArray(new String[0][3]);
     }
 
     @Override
@@ -82,7 +97,9 @@ public abstract class AbstractJavaLeaderboardCommand extends AbstractJavaStatsCo
         final int endPos = this.getEndPositionThrow(startPos, commandParameters, ARG_POS_END_POS, LEADERBOARD_UPPER_LIMIT, this.leaderboardRowDistance);
         final long unixTime = this.getUnixTimeThrow(commandParameters, 5);
 
-        final ResponseModel responseModel = this.getMineplexStatsModule().getMpStatsRestClient().getJavaLeaderboard(game.getName(), stat.getName(), board.getName(), startPos, endPos, unixTime, this.filteredStats);
+        final ResponseModel responseModel = this.getMineplexStatsModule()
+                .getMpStatsRestClient()
+                .getJavaLeaderboard(game.getName(), stat.getName(), board.getName(), startPos, endPos, unixTime, this.filteredStats);
         this.checkApiResponseThrow(commandParameters, responseModel, "No stats available");
 
         // Parse data to image generator

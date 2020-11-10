@@ -5,12 +5,11 @@ import de.timmi6790.discord_framework.modules.command.CommandResult;
 import de.timmi6790.discord_framework.utilities.MultiEmbedBuilder;
 import de.timmi6790.mineplex_stats.commands.bedrock.AbstractBedrockStatsCommand;
 import de.timmi6790.mineplex_stats.statsapi.models.bedrock.BedrockGame;
+import org.apache.commons.collections4.list.TreeList;
 
-import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
-import java.util.stream.Collectors;
 
 public class BedrockGamesCommand extends AbstractBedrockStatsCommand {
     public BedrockGamesCommand() {
@@ -22,17 +21,17 @@ public class BedrockGamesCommand extends AbstractBedrockStatsCommand {
         final MultiEmbedBuilder message = this.getEmbedBuilder(commandParameters)
                 .setTitle("Bedrock Games");
 
-        final Map<String, List<BedrockGame>> sortedMap = this.getMineplexStatsModule().getBedrockGames().values()
-                .stream()
-                .collect(Collectors.groupingBy(k -> k.isRemoved() ? "Removed" : "Games", TreeMap::new, Collectors.toList()));
 
-        for (final Map.Entry<String, List<BedrockGame>> entry : sortedMap.entrySet()) {
+        final Map<String, List<String>> sortedGames = new TreeMap<>();
+        for (final BedrockGame game : this.getMineplexStatsModule().getBedrockGames().values()) {
+            final String key = game.isRemoved() ? "Removed" : "Games";
+            sortedGames.computeIfAbsent(key, k -> new TreeList<>()).add(game.getName());
+        }
+
+        for (final Map.Entry<String, List<String>> entry : sortedGames.entrySet()) {
             message.addField(
                     entry.getKey(),
-                    entry.getValue().stream()
-                            .map(BedrockGame::getName)
-                            .sorted(Comparator.naturalOrder())
-                            .collect(Collectors.joining("\n")),
+                    String.join("\n", entry.getValue()),
                     false
             );
         }

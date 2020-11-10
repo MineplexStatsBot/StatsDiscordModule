@@ -1,6 +1,5 @@
 package de.timmi6790.mineplex_stats.commands.bedrock;
 
-import de.timmi6790.commons.builders.ListBuilder;
 import de.timmi6790.discord_framework.modules.command.CommandParameters;
 import de.timmi6790.discord_framework.modules.command.CommandResult;
 import de.timmi6790.discord_framework.modules.command.property.properties.ExampleCommandsCommandProperty;
@@ -12,6 +11,7 @@ import de.timmi6790.mineplex_stats.statsapi.utilities.BiggestLong;
 
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.List;
 import java.util.Map;
 
 public class BedrockPlayerCommand extends AbstractBedrockStatsCommand {
@@ -31,7 +31,9 @@ public class BedrockPlayerCommand extends AbstractBedrockStatsCommand {
         // Arg parse
         final String player = this.getPlayer(commandParameters, 0);
 
-        final ResponseModel responseModel = this.getMineplexStatsModule().getMpStatsRestClient().getBedrockPlayerStats(player);
+        final ResponseModel responseModel = this.getMineplexStatsModule()
+                .getMpStatsRestClient()
+                .getBedrockPlayerStats(player);
         this.checkApiResponseThrow(commandParameters, responseModel, "No stats available");
 
         final BedrockPlayerStats bedrockStats = (BedrockPlayerStats) responseModel;
@@ -40,23 +42,32 @@ public class BedrockPlayerCommand extends AbstractBedrockStatsCommand {
 
         // Parse board data
         final BiggestLong highestUnixTime = new BiggestLong(0);
-        final String[][] leaderboard = new ListBuilder<String[]>(() -> new ArrayList<>(bedrockStats.getStats().size() + 1))
-                .add(new String[]{"Game", "Score", "Position"})
-                .addAll(bedrockStats.getStats().keySet()
-                        .stream()
-                        .sorted(Comparator.naturalOrder())
-                        .map(game -> {
-                            final BedrockPlayerStats.Stats playerStat = playerStats.get(game);
-                            highestUnixTime.tryNumber(playerStat.getUnix());
-                            return new String[]{game, this.getFormattedNumber(playerStat.getScore()), String.valueOf(playerStat.getPosition())};
-                        }))
-                .build()
-                .toArray(new String[0][3]);
+        final List<String[]> leaderboard = new ArrayList<>(bedrockStats.getStats().size() + 1);
+        leaderboard.add(new String[]{"Game", "Score", "Position"});
 
+        final List<String> sortedGames = new ArrayList<>(bedrockStats.getStats().keySet());
+        sortedGames.sort(Comparator.naturalOrder());
+
+        for (final String game : sortedGames) {
+            final BedrockPlayerStats.Stats playerStat = playerStats.get(game);
+            
+            highestUnixTime.tryNumber(playerStat.getUnix());
+            leaderboard.add(new String[]{
+                    game,
+                    this.getFormattedNumber(playerStat.getScore()),
+                    String.valueOf(playerStat.getPosition())
+            });
+        }
+
+        // Create and send leaderboard
         final String[] header = {playerStatsInfo.getName() + " Bedrock"};
         return this.sendPicture(
                 commandParameters,
-                new PictureTable(header, this.getFormattedUnixTime(highestUnixTime.get()), leaderboard).getPlayerPicture(),
+                new PictureTable(
+                        header,
+                        this.getFormattedUnixTime(highestUnixTime.get()),
+                        leaderboard.toArray(new String[0][3])
+                ).getPlayerPicture(),
                 String.join("-", header) + "-" + highestUnixTime
         );
     }

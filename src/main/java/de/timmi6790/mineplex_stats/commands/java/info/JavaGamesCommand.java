@@ -8,12 +8,12 @@ import de.timmi6790.mineplex_stats.commands.java.AbstractJavaStatsCommand;
 import de.timmi6790.mineplex_stats.statsapi.models.java.JavaGame;
 import de.timmi6790.mineplex_stats.statsapi.models.java.JavaStat;
 import lombok.EqualsAndHashCode;
+import org.apache.commons.collections4.list.TreeList;
 
-import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.StringJoiner;
 import java.util.TreeMap;
-import java.util.stream.Collectors;
 
 @EqualsAndHashCode(callSuper = true)
 public class JavaGamesCommand extends AbstractJavaStatsCommand {
@@ -32,61 +32,115 @@ public class JavaGamesCommand extends AbstractJavaStatsCommand {
     protected CommandResult onCommand(final CommandParameters commandParameters) {
         // Show all games
         if (commandParameters.getArgs().length == 0) {
-            final MultiEmbedBuilder message = this.getEmbedBuilder(commandParameters)
-                    .setTitle("Java Games")
-                    .setFooter("TIP: Run " + this.getCommandModule().getMainCommand() + " games <game> to see more details");
-
-            final Map<String, List<JavaGame>> sortedMap = this.getMineplexStatsModule()
-                    .getJavaGames()
-                    .values()
-                    .stream()
-                    .collect(Collectors.groupingBy(JavaGame::getCategory, TreeMap::new, Collectors.toList()));
-
-            for (final Map.Entry<String, List<JavaGame>> entry : sortedMap.entrySet()) {
-                message.addField(
-                        entry.getKey(),
-                        entry.getValue().stream()
-                                .map(JavaGame::getName)
-                                .sorted(Comparator.naturalOrder())
-                                .collect(Collectors.joining(", "))
-                );
-            }
-
-            this.sendTimedMessage(commandParameters, message, 150);
-            return CommandResult.SUCCESS;
+            return this.handleAllGames(commandParameters);
         }
 
         // Game info
         final JavaGame game = this.getGame(commandParameters, 0);
         if (commandParameters.getArgs().length == 1) {
-            final String stats = game.getStatNames()
-                    .stream()
-                    .map(stat -> stat.replace(" ", ""))
-                    .collect(Collectors.joining(", "));
-            this.sendTimedMessage(
-                    commandParameters,
-                    this.getEmbedBuilder(commandParameters)
-                            .setTitle("Java Games - " + game.getName())
-                            .addField("Wiki", "[" + game.getName() + "](" + game.getWikiUrl() + ")", false, !game.getWikiUrl().isEmpty())
-                            .addField("Description", game.getDescription(), false, !game.getDescription().isEmpty())
-                            .addField("Alias names", String.join(", ", game.getAliasNames()), false, game.getAliasNames().length > 0)
-                            .addField("Stats (You don't need to type Achievement in front of it)", stats, false)
-                            .setFooter("TIP: Run " + this.getCommandModule().getMainCommand() + " games " + game.getName() + " <stat> to see more details"),
-                    90
-            );
-
-            return CommandResult.SUCCESS;
+            return this.handleGameInfo(commandParameters, game);
         }
 
         // Stat info
         final JavaStat stat = this.getStat(game, commandParameters, 1);
+        return this.handleStatInfo(commandParameters, game, stat);
+    }
+
+    private CommandResult handleAllGames(final CommandParameters commandParameters) {
+        final MultiEmbedBuilder message = this.getEmbedBuilder(commandParameters)
+                .setTitle("Java Games")
+                .setFooterFormat(
+                        "TIP: Run %s %s <game> to see more details",
+                        getCommandModule().getMainCommand(),
+                        this.getName()
+                );
+
+        final Map<String, List<String>> sortedLeaderboard = new TreeMap<>();
+        for (final Map.Entry<String, JavaGame> entry : this.getMineplexStatsModule().getJavaGames().entrySet()) {
+            sortedLeaderboard.computeIfAbsent(entry.getKey(), k -> new TreeList<>()).add(entry.getValue().getName());
+        }
+
+        for (final Map.Entry<String, List<String>> entry : sortedLeaderboard.entrySet()) {
+            message.addField(
+                    entry.getKey(),
+                    String.join(", ", entry.getValue())
+            );
+        }
+
+        this.sendTimedMessage(commandParameters, message, 150);
+        return CommandResult.SUCCESS;
+    }
+
+    private CommandResult handleGameInfo(final CommandParameters commandParameters, final JavaGame game) {
+        final StringJoiner stats = new StringJoiner(", ");
+        for (final String stat : game.getStatNames()) {
+            stats.add(stat.replace(" ", ""));
+        }
+
         this.sendTimedMessage(
                 commandParameters,
                 this.getEmbedBuilder(commandParameters)
-                        .setTitle("Java Games - " + game.getName() + " - " + stat.getPrintName())
-                        .addField("Description", stat.getDescription(), false, !stat.getDescription().isEmpty())
-                        .addField("Alias names", String.join(", ", stat.getAliasNames()), false, stat.getAliasNames().length > 0)
-                        .addField("Boards", String.join(", ", stat.getBoardNames()), false),
+                        .setTitle("Java Games - " + game.getName())
+                        .addField(
+                                "Wiki",
+                                "[" + game.getName() + "](" + game.getWikiUrl() + ")",
+                                false,
+                                !game.getWikiUrl().isEmpty()
+                        )
+                        .addField(
+                                "Description",
+                                game.getDescription(),
+                                false,
+                                !game.getDescription().isEmpty()
+                        )
+                        .addField(
+                                "Alias names",
+                                String.join(", ", game.getAliasNames()),
+                                false,
+                                game.getAliasNames().length > 0
+                        )
+                        .addField(
+                                "Stats (You don't need to type Achievement in front of it)",
+                                stats.toString()
+                        )
+                        .setFooterFormat(
+                                "TIP: Run %s %s %s <stat> to see more details",
+                                getCommandModule().getMainCommand(),
+                                this.getName(),
+                                game.getName()
+                        ),
+                90
+        );
+
+        return CommandResult.SUCCESS;
+    }
+
+    private CommandResult handleStatInfo(final CommandParameters commandParameters, final JavaGame game, final JavaStat stat) {
+        this.sendTimedMessage(
+                commandParameters,
+                this.getEmbedBuilder(commandParameters)
+                        .setTitleFormat(
+                                "Java Games - %s - %s",
+                                game.getName(),
+                                stat.getPrintName()
+                        )
+                        .addField(
+                                "Description",
+                                stat.getDescription(),
+                                false,
+                                !stat.getDescription().isEmpty()
+                        )
+                        .addField(
+                                "Alias names",
+                                String.join(", ", stat.getAliasNames()),
+                                false,
+                                stat.getAliasNames().length > 0
+                        )
+                        .addField(
+                                "Boards",
+                                String.join(", ", stat.getBoardNames()),
+                                false
+                        ),
                 150
         );
         return CommandResult.SUCCESS;

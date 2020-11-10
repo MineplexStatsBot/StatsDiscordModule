@@ -8,14 +8,12 @@ import de.timmi6790.discord_framework.modules.command.property.properties.MinArg
 import de.timmi6790.minecraft.mojang_api.MojangApi;
 import de.timmi6790.minecraft.mojang_api.models.MojangUser;
 import de.timmi6790.minecraft.mojang_api.models.NameHistory;
+import de.timmi6790.minecraft.utilities.JavaUtilities;
 import net.dv8tion.jda.api.utils.MarkdownUtil;
 
 import java.util.StringJoiner;
-import java.util.regex.Pattern;
 
 public class NamesCommand extends AbstractCommand {
-    private static final Pattern NAME_PATTERN = Pattern.compile("^\\w{1,16}$");
-
     public NamesCommand() {
         super("names", "Minecraft", "Shows the players past names", "<playerName>", "n");
 
@@ -26,11 +24,11 @@ public class NamesCommand extends AbstractCommand {
 
     private String getPlayer(final CommandParameters commandParameters, final int argPos) {
         final String name = commandParameters.getArgs()[argPos];
-        if (NAME_PATTERN.matcher(name).find()) {
+        if (JavaUtilities.isValidName(name)) {
             return name;
         }
 
-        throwInvalidArg(commandParameters, 0, "Minecraft Name");
+        this.throwInvalidArg(commandParameters, 0, "Minecraft Name");
         throw new CommandReturnException();
     }
 
@@ -39,7 +37,7 @@ public class NamesCommand extends AbstractCommand {
         final String playerName = this.getPlayer(commandParameters, 0);
         final MojangUser user = MojangApi.getUser(playerName)
                 .orElseThrow(() -> {
-                    throwInvalidArg(commandParameters, 0, "Minecraft Name");
+                    this.throwInvalidArg(commandParameters, 0, "Minecraft Name");
                     return new CommandReturnException();
                 });
 
@@ -48,9 +46,9 @@ public class NamesCommand extends AbstractCommand {
             descriptionBuilder.add(MarkdownUtil.monospace(nameHistoryData.getName()) + " - " + nameHistoryData.getFormattedTime());
         }
 
-        sendTimedMessage(
+        this.sendTimedMessage(
                 commandParameters,
-                getEmbedBuilder(commandParameters)
+                this.getEmbedBuilder(commandParameters)
                         .setTitle(String.format("%s - Names", user.getName()))
                         .setThumbnail(user.getHeadUrl())
                         .setDescription(descriptionBuilder.toString()),

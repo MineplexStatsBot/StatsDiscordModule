@@ -1,12 +1,13 @@
 package de.timmi6790.mineplex_stats.commands.bedrock;
 
 import de.timmi6790.discord_framework.modules.command.AbstractCommand;
-import de.timmi6790.discord_framework.modules.command.CommandModule;
 import de.timmi6790.discord_framework.modules.command.CommandParameters;
 import de.timmi6790.discord_framework.modules.command.exceptions.CommandReturnException;
+import de.timmi6790.minecraft.utilities.BedrockUtilities;
 import de.timmi6790.mineplex_stats.commands.AbstractStatsCommand;
 import de.timmi6790.mineplex_stats.commands.bedrock.info.BedrockGamesCommand;
 import de.timmi6790.mineplex_stats.settings.BedrockNameReplacementSetting;
+import de.timmi6790.mineplex_stats.settings.NameReplacementSetting;
 import de.timmi6790.mineplex_stats.statsapi.models.bedrock.BedrockGame;
 import net.dv8tion.jda.api.utils.MarkdownUtil;
 
@@ -14,13 +15,13 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 public abstract class AbstractBedrockStatsCommand extends AbstractStatsCommand {
-    private static final Pattern NAME_PATTERN = Pattern.compile("^.{3,32}$");
-
-    protected AbstractBedrockStatsCommand(final String name, final String description, final String syntax, final String... aliasNames) {
+    protected AbstractBedrockStatsCommand(final String name,
+                                          final String description,
+                                          final String syntax,
+                                          final String... aliasNames) {
         super(name, "MineplexStats - Bedrock", description, syntax, aliasNames);
     }
 
@@ -36,24 +37,43 @@ public abstract class AbstractBedrockStatsCommand extends AbstractStatsCommand {
             return similarGames.get(0);
         }
 
-        final AbstractCommand command = this.getMineplexStatsModule().getModuleOrThrow(CommandModule.class).getCommand(BedrockGamesCommand.class).orElse(null);
-        this.sendHelpMessage(commandParameters, name, argPos, "game", command, new String[0], similarGames.stream().map(BedrockGame::getName).collect(Collectors.toList()));
+        final AbstractCommand command = getCommandModule()
+                .getCommand(BedrockGamesCommand.class)
+                .orElse(null);
+        this.sendHelpMessage(
+                commandParameters,
+                name,
+                argPos,
+                "game",
+                command,
+                new String[0],
+                similarGames.stream()
+                        .map(BedrockGame::getName)
+                        .collect(Collectors.toList())
+        );
 
         throw new CommandReturnException();
     }
 
     protected String getPlayer(final CommandParameters commandParameters, final int startPos) {
-        String name = String.join(" ", Arrays.copyOfRange(commandParameters.getArgs(), startPos, commandParameters.getArgs().length));
+        String name = String.join(
+                " ",
+                Arrays.copyOfRange(
+                        commandParameters.getArgs(),
+                        startPos,
+                        commandParameters.getArgs().length
+                )
+        );
 
         // Check for setting
-        if (name.equalsIgnoreCase(BedrockNameReplacementSetting.getKEYWORD())) {
+        if (name.equalsIgnoreCase(NameReplacementSetting.getKeyword())) {
             final String settingName = commandParameters.getUserDb().getSettingOrDefault(BedrockNameReplacementSetting.class, "");
             if (!settingName.isEmpty()) {
                 name = settingName;
             }
         }
 
-        if (NAME_PATTERN.matcher(name).find()) {
+        if (BedrockUtilities.isValidName(name)) {
             return name;
         }
 

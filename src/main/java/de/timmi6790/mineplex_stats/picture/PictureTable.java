@@ -43,11 +43,16 @@ public class PictureTable extends AbstractPicture {
     private int currentHeightY = FONT_HEADER.getSize();
     private Graphics2D gd = null;
 
-    public PictureTable(final String[] header, final String date, final String[][] leaderboard) {
+    public PictureTable(final String[] header,
+                        final String date,
+                        final String[][] leaderboard) {
         this(header, date, leaderboard, null);
     }
 
-    public PictureTable(final String[] header, final String date, final String[][] leaderboard, final BufferedImage skin) {
+    public PictureTable(final String[] header,
+                        final String date,
+                        final String[][] leaderboard,
+                        final BufferedImage skin) {
         this.header = header.clone();
         this.leaderboard = leaderboard.clone();
         this.date = date;
@@ -58,7 +63,11 @@ public class PictureTable extends AbstractPicture {
         this.skin = skin;
     }
 
-    private void drawRow(final String[] dataArray, final int[] widthArray, final Font font, final int increaseX, final int rowHeight) {
+    private void drawRow(final String[] dataArray,
+                         final int[] widthArray,
+                         final Font font,
+                         final int increaseX,
+                         final int rowHeight) {
         this.gd.setFont(font);
         for (int index = 0, xPos = GAP_X_BORDER; dataArray.length > index; xPos += widthArray[index] + increaseX, index++) {
             this.gd.drawString(dataArray[index], xPos, this.currentHeightY);

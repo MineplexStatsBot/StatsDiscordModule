@@ -1,16 +1,13 @@
 package de.timmi6790.mineplex_stats.commands.java.management;
 
+import de.timmi6790.commons.utilities.EnumUtilities;
 import de.timmi6790.discord_framework.modules.command.CommandParameters;
 import de.timmi6790.discord_framework.modules.command.CommandResult;
 import de.timmi6790.discord_framework.modules.command.property.properties.MinArgCommandProperty;
 import de.timmi6790.mineplex_stats.commands.java.AbstractJavaStatsCommand;
 import net.dv8tion.jda.api.utils.MarkdownUtil;
 
-import java.util.Arrays;
-
 public class JavaBoardAliasCommand extends AbstractJavaStatsCommand {
-    private static final String[] JAVA_BOARDS = {"all", "daily", "weekly", "monthly", "yearly"};
-
     public JavaBoardAliasCommand() {
         super("aliasBoard", "Board Alias", "<board> <alias>", "ab");
 
@@ -22,17 +19,30 @@ public class JavaBoardAliasCommand extends AbstractJavaStatsCommand {
 
     @Override
     protected CommandResult onCommand(final CommandParameters commandParameters) {
-        final String board = this.getFromListIgnoreCaseThrow(commandParameters, 0, Arrays.asList(JAVA_BOARDS));
-        this.getMineplexStatsModule().getMpStatsRestClient().addJavaBoardAlias(board, commandParameters.getArgs()[1]);
+        final JavaBoards board = this.getFromEnumIgnoreCaseThrow(commandParameters, 0, JavaBoards.values());
+        final String newAlias = commandParameters.getArgs()[1];
+
+        this.getMineplexStatsModule()
+                .getMpStatsRestClient()
+                .addJavaBoardAlias(EnumUtilities.getPrettyName(board), newAlias);
         this.getMineplexStatsModule().loadJavaGames();
-        sendTimedMessage(
+
+        this.sendTimedMessage(
                 commandParameters,
-                getEmbedBuilder(commandParameters)
+                this.getEmbedBuilder(commandParameters)
                         .setTitle("Added Board Alias")
-                        .setDescription("Added new board alias " + MarkdownUtil.monospace(commandParameters.getArgs()[0])),
+                        .setDescription("Added new board alias " + MarkdownUtil.monospace(newAlias)),
                 90
         );
 
         return CommandResult.SUCCESS;
+    }
+
+    private enum JavaBoards {
+        ALL,
+        DAILY,
+        WEEKLY,
+        MONTHLY,
+        YEARLY
     }
 }

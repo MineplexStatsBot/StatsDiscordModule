@@ -22,15 +22,22 @@ public class JavaStatAliasCommand extends AbstractJavaStatsCommand {
     protected CommandResult onCommand(final CommandParameters commandParameters) {
         final JavaGame game = this.getGame(commandParameters, 0);
         final JavaStat stat = this.getStat(game, commandParameters, 1);
+        final String statAlias = commandParameters.getArgs()[2];
 
-        this.getMineplexStatsModule().getMpStatsRestClient().addJavaStatAlias(game.getName(), stat.getName(), commandParameters.getArgs()[2]);
+        this.getMineplexStatsModule()
+                .getMpStatsRestClient()
+                .addJavaStatAlias(game.getName(), stat.getName(), statAlias);
         this.getMineplexStatsModule().loadJavaGames();
-        sendTimedMessage(
+
+        this.sendTimedMessage(
                 commandParameters,
-                getEmbedBuilder(commandParameters)
+                this.getEmbedBuilder(commandParameters)
                         .setTitle("Added Stat Alias")
-                        .setDescription("Added new stat alias " + MarkdownUtil.monospace(commandParameters.getArgs()[2]) + " for " +
-                                MarkdownUtil.bold(game.getName() + " " + stat.getPrintName())),
+                        .setDescription(
+                                "Added new stat alias %s for %s.",
+                                MarkdownUtil.monospace(statAlias),
+                                MarkdownUtil.bold(game.getName() + " " + stat.getPrintName())
+                        ),
                 90
         );
 

@@ -1,69 +1,38 @@
 package de.timmi6790.mineplex_stats.commands.java;
 
-import com.github.benmanes.caffeine.cache.AsyncLoadingCache;
-import com.github.benmanes.caffeine.cache.Caffeine;
-import de.timmi6790.discord_framework.DiscordBot;
 import de.timmi6790.discord_framework.modules.command.CommandModule;
 import de.timmi6790.discord_framework.modules.command.CommandParameters;
 import de.timmi6790.discord_framework.modules.command.exceptions.CommandReturnException;
 import de.timmi6790.discord_framework.utilities.DataUtilities;
 import de.timmi6790.minecraft.mojang_api.MojangApi;
 import de.timmi6790.minecraft.mojang_api.models.MojangUser;
+import de.timmi6790.minecraft.utilities.JavaUtilities;
 import de.timmi6790.mineplex_stats.commands.AbstractStatsCommand;
 import de.timmi6790.mineplex_stats.commands.java.info.JavaGamesCommand;
 import de.timmi6790.mineplex_stats.commands.java.info.JavaGroupsGroupsCommand;
 import de.timmi6790.mineplex_stats.settings.JavaNameReplacementSetting;
+import de.timmi6790.mineplex_stats.settings.NameReplacementSetting;
 import de.timmi6790.mineplex_stats.statsapi.models.java.JavaBoard;
 import de.timmi6790.mineplex_stats.statsapi.models.java.JavaGame;
 import de.timmi6790.mineplex_stats.statsapi.models.java.JavaGroup;
 import de.timmi6790.mineplex_stats.statsapi.models.java.JavaStat;
-import io.sentry.Sentry;
-import kong.unirest.HttpResponse;
-import kong.unirest.Unirest;
 import lombok.EqualsAndHashCode;
 import lombok.NonNull;
 import net.dv8tion.jda.api.utils.MarkdownUtil;
 
-import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.TimeUnit;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 @EqualsAndHashCode(callSuper = true)
 public abstract class AbstractJavaStatsCommand extends AbstractStatsCommand {
-    private static final Pattern NAME_PATTERN = Pattern.compile("^\\w{1,16}$");
-    private static final List<String> STATS_TIME = new ArrayList<>(Arrays.asList("Ingame Time", "Hub Time", "Time Playing"));
+    private static final List<String> STATS_TIME = Arrays.asList("Ingame Time", "Hub Time", "Time Playing");
 
-    private static final AsyncLoadingCache<UUID, BufferedImage> SKIN_CACHE = Caffeine.newBuilder()
-            .maximumSize(10_000)
-            .expireAfterWrite(10, TimeUnit.MINUTES)
-            .expireAfterAccess(2, TimeUnit.MINUTES)
-            .buildAsync(uuid -> {
-                final HttpResponse<byte[]> response = Unirest.get("https://visage.surgeplay.com/frontfull/{uuid}.png")
-                        .routeParam("uuid", uuid.toString().replace("-", ""))
-                        .connectTimeout(10_000)
-                        .asBytes();
-
-                if (!response.isSuccess()) {
-                    return null;
-                }
-
-                try (final InputStream in = new ByteArrayInputStream(response.getBody())) {
-                    return ImageIO.read(in);
-                } catch (final IOException e) {
-                    DiscordBot.getLogger().error(e);
-                    Sentry.captureException(e);
-                    return null;
-                }
-            });
-
-    public AbstractJavaStatsCommand(final String name, final String description, final String syntax, final String... aliasNames) {
+    protected AbstractJavaStatsCommand(final String name,
+                                       final String description,
+                                       final String syntax,
+                                       final String... aliasNames) {
         super(name, "MineplexStats - Java", description, syntax, aliasNames);
     }
 
@@ -76,7 +45,7 @@ public abstract class AbstractJavaStatsCommand extends AbstractStatsCommand {
     }
 
     protected CompletableFuture<BufferedImage> getPlayerSkin(@NonNull final UUID uuid) {
-        return SKIN_CACHE.get(uuid);
+        return JavaUtilities.getPlayerSkin(uuid);
     }
 
     protected UUID getPlayerUUIDFromName(final CommandParameters commandParameters, final int argPos) {
@@ -180,7 +149,12 @@ public abstract class AbstractJavaStatsCommand extends AbstractStatsCommand {
     }
 
     protected JavaBoard getBoard(final JavaGame game, final CommandParameters commandParameters, final int argPos) {
-        final String name = (argPos >= commandParameters.getArgs().length || commandParameters.getArgs()[argPos] == null) ? "All" : commandParameters.getArgs()[argPos];
+        final String name;
+        if (argPos >= commandParameters.getArgs().length || commandParameters.getArgs()[argPos] == null) {
+            name = "All";
+        } else {
+            name = commandParameters.getArgs()[argPos];
+        }
 
         for (final JavaStat stat : game.getStats().values()) {
             final Optional<JavaBoard> javaBoardOpt = stat.getBoard(name);
@@ -191,7 +165,8 @@ public abstract class AbstractJavaStatsCommand extends AbstractStatsCommand {
 
         final List<String> similarBoards = DataUtilities.getSimilarityList(
                 name,
-                game.getStats().values()
+                game.getStats()
+                        .values()
                         .stream()
                         .flatMap(stat -> stat.getBoardNames().stream())
                         .collect(Collectors.toSet()),
@@ -224,7 +199,10 @@ public abstract class AbstractJavaStatsCommand extends AbstractStatsCommand {
         throw new CommandReturnException();
     }
 
-    protected JavaBoard getBoard(final JavaGame game, final JavaStat stat, final CommandParameters commandParameters, final int argPos) {
+    protected JavaBoard getBoard(final JavaGame game,
+                                 final JavaStat stat,
+                                 final CommandParameters commandParameters,
+                                 final int argPos) {
         final String name = argPos >= commandParameters.getArgs().length ? "All" : commandParameters.getArgs()[argPos];
         final Optional<JavaBoard> board = stat.getBoard(name);
         if (board.isPresent()) {
@@ -276,14 +254,14 @@ public abstract class AbstractJavaStatsCommand extends AbstractStatsCommand {
         String name = commandParameters.getArgs()[argPos];
 
         // Check for setting
-        if (name.equalsIgnoreCase(JavaNameReplacementSetting.getKEYWORD())) {
+        if (name.equalsIgnoreCase(NameReplacementSetting.getKeyword())) {
             final String settingName = commandParameters.getUserDb().getSettingOrDefault(JavaNameReplacementSetting.class, "");
             if (!settingName.isEmpty()) {
                 name = settingName;
             }
         }
 
-        if (NAME_PATTERN.matcher(name).find()) {
+        if (JavaUtilities.isValidName(name)) {
             return name;
         }
 

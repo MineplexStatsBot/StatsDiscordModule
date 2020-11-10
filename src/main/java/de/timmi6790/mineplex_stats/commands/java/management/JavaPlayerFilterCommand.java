@@ -1,6 +1,5 @@
 package de.timmi6790.mineplex_stats.commands.java.management;
 
-import de.timmi6790.commons.builders.MapBuilder;
 import de.timmi6790.discord_framework.modules.command.CommandParameters;
 import de.timmi6790.discord_framework.modules.command.CommandResult;
 import de.timmi6790.discord_framework.modules.command.property.properties.MinArgCommandProperty;
@@ -16,6 +15,7 @@ import de.timmi6790.mineplex_stats.statsapi.models.java.JavaStat;
 import net.dv8tion.jda.api.Permission;
 
 import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.UUID;
 
 public class JavaPlayerFilterCommand extends AbstractJavaStatsCommand {
@@ -44,22 +44,26 @@ public class JavaPlayerFilterCommand extends AbstractJavaStatsCommand {
                 .addField("Stat", stat.getName(), false)
                 .addField("Board", board.getName(), false);
 
+        // Emotes
+        final Map<String, AbstractEmoteReaction> emotes = new LinkedHashMap<>(2);
+        emotes.put(DiscordEmotes.CHECK_MARK.getEmote(), () -> {
+            this.getMineplexStatsModule().getMpStatsRestClient().addJavaPlayerFilter(uuid, game.getName(), stat.getName(), board.getName());
+
+            this.sendTimedMessage(
+                    commandParameters,
+                    embedBuilder.setTitle("Successfully Filtered"),
+                    90
+            );
+        });
+        emotes.put(DiscordEmotes.RED_CROSS_MARK.getEmote(), new EmptyEmoteReaction());
+
+        // Send
         sendEmoteMessage(
                 commandParameters,
-                embedBuilder.setTitle("Filter Confirm")
+                embedBuilder
+                        .setTitle("Filter Confirm")
                         .setDescription("Are you sure that you want to filter this person?"),
-                new MapBuilder<String, AbstractEmoteReaction>(() -> new LinkedHashMap<>(2))
-                        .put(DiscordEmotes.CHECK_MARK.getEmote(), () -> {
-                            this.getMineplexStatsModule().getMpStatsRestClient().addJavaPlayerFilter(uuid, game.getName(), stat.getName(), board.getName());
-
-                            this.sendTimedMessage(
-                                    commandParameters,
-                                    embedBuilder.setTitle("Successfully Filtered"),
-                                    90
-                            );
-                        })
-                        .put(DiscordEmotes.RED_CROSS_MARK.getEmote(), new EmptyEmoteReaction())
-                        .build()
+                emotes
         );
 
         return CommandResult.SUCCESS;

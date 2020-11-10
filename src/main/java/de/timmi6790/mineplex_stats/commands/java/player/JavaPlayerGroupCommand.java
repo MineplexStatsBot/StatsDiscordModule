@@ -1,6 +1,5 @@
 package de.timmi6790.mineplex_stats.commands.java.player;
 
-import de.timmi6790.commons.builders.ListBuilder;
 import de.timmi6790.discord_framework.modules.command.CommandParameters;
 import de.timmi6790.discord_framework.modules.command.CommandResult;
 import de.timmi6790.discord_framework.modules.command.property.properties.ExampleCommandsCommandProperty;
@@ -15,7 +14,6 @@ import lombok.SneakyThrows;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
@@ -49,7 +47,9 @@ public class JavaPlayerGroupCommand extends AbstractJavaStatsCommand {
         final JavaBoard board = this.getBoard(statSpecificGames.get(0), stat, commandParameters, 3);
         final long unixTime = this.getUnixTimeThrow(commandParameters, 4);
 
-        final ResponseModel responseModel = this.getMineplexStatsModule().getMpStatsRestClient().getPlayerGroup(playerUUID, javaGroup.getGroup(), stat.getName(), board.getName(), unixTime);
+        final ResponseModel responseModel = this.getMineplexStatsModule()
+                .getMpStatsRestClient()
+                .getPlayerGroup(playerUUID, javaGroup.getGroup(), stat.getName(), board.getName(), unixTime);
         this.checkApiResponseThrow(commandParameters, responseModel, "No stats available");
 
         // Parse data to image
@@ -58,18 +58,25 @@ public class JavaPlayerGroupCommand extends AbstractJavaStatsCommand {
         final CompletableFuture<BufferedImage> skinFuture = this.getPlayerSkin(playerStatsInfo.getUuid());
 
         final BiggestLong highestUnixTime = new BiggestLong(0);
-        final String[][] leaderboard = new ListBuilder<String[]>(() -> new ArrayList<>(statSpecificGames.size() + 1))
-                .add(new String[]{"Game", "Score", "Position"})
-                .addAll(statSpecificGames.stream()
-                        .map(game -> Optional.ofNullable(groupStats.getStats().get(game.getName()))
-                                .map(playerStat -> {
-                                    highestUnixTime.tryNumber(playerStat.getUnix());
-                                    return new String[]{game.getName(), this.getFormattedScore(stat, playerStat.getScore()), String.valueOf(playerStat.getPosition())};
-                                })
-                                .orElse(new String[]{game.getName(), UNKNOWN_SCORE, UNKNOWN_POSITION}))
-                )
-                .build()
-                .toArray(new String[0][3]);
+        final List<String[]> leaderboard = new ArrayList<>(statSpecificGames.size() + 1);
+        leaderboard.add(new String[]{"Game", "Score", "Position"});
+        for (final JavaGame game : statSpecificGames) {
+            final JavaGroupsPlayer.Stats playerStat = groupStats.getStats().get(game.getName());
+            if (playerStat == null) {
+                leaderboard.add(new String[]{
+                        game.getName(),
+                        UNKNOWN_SCORE,
+                        UNKNOWN_POSITION
+                });
+            } else {
+                highestUnixTime.tryNumber(playerStat.getUnix());
+                leaderboard.add(new String[]{
+                        game.getName(),
+                        this.getFormattedScore(stat, playerStat.getScore()),
+                        String.valueOf(playerStat.getPosition())
+                });
+            }
+        }
 
         BufferedImage skin;
         try {
@@ -78,10 +85,20 @@ public class JavaPlayerGroupCommand extends AbstractJavaStatsCommand {
             skin = null;
         }
 
-        final String[] header = {playerStatsInfo.getName(), playerStatsInfo.getGroup(), playerStatsInfo.getStat(), playerStatsInfo.getBoard()};
+        final String[] header = {
+                playerStatsInfo.getName(),
+                playerStatsInfo.getGroup(),
+                playerStatsInfo.getStat(),
+                playerStatsInfo.getBoard()
+        };
         return this.sendPicture(
                 commandParameters,
-                new PictureTable(header, this.getFormattedUnixTime(highestUnixTime.get()), leaderboard, skin).getPlayerPicture(),
+                new PictureTable(
+                        header,
+                        this.getFormattedUnixTime(highestUnixTime.get()),
+                        leaderboard.toArray(new String[0][0]),
+                        skin
+                ).getPlayerPicture(),
                 String.join("-", header) + "-" + highestUnixTime
         );
     }

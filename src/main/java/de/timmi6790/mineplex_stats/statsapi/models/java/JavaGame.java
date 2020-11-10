@@ -22,7 +22,12 @@ public class JavaGame {
     private final Map<String, String> statAlias = new HashMap<>();
     private final List<String> sortedStatsNames = new ArrayList<>();
 
-    public JavaGame(final String name, final String[] aliasNames, final String category, final String wikiUrl, final String description, final Map<String, JavaStat> stats) {
+    public JavaGame(final String name,
+                    final String[] aliasNames,
+                    final String category,
+                    final String wikiUrl,
+                    final String description,
+                    final Map<String, JavaStat> stats) {
         this.name = name;
         this.aliasNames = aliasNames.clone();
         this.category = category;

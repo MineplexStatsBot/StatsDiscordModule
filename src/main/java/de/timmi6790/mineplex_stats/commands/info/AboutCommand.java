@@ -13,10 +13,10 @@ public class AboutCommand extends AbstractCommand {
 
     @Override
     protected CommandResult onCommand(final CommandParameters commandParameters) {
-        final String mainCommand = this.getCommandModule().getMainCommand();
-        sendTimedMessage(
+        final String mainCommand = getCommandModule().getMainCommand();
+        this.sendTimedMessage(
                 commandParameters,
-                getEmbedBuilder(commandParameters)
+                this.getEmbedBuilder(commandParameters)
                         .setTitle("About")
                         .setDescription("This bot is themed around a minecraft server called [Mineplex](https://www.mineplex.com/home/).\n"
                                 + "You can use it to show the game leaderboards or player stats.")

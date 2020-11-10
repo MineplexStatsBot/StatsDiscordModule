@@ -50,7 +50,11 @@ public abstract class AbstractStatsCommand extends AbstractCommand {
     private final MineplexStatsModule mineplexStatsModule;
     private final EmoteReactionModule emoteReactionModule;
 
-    protected AbstractStatsCommand(final String name, final String category, final String description, final String syntax, final String... aliasNames) {
+    protected AbstractStatsCommand(final String name,
+                                   final String category,
+                                   final String description,
+                                   final String syntax,
+                                   final String... aliasNames) {
         super(name, category, description, syntax, aliasNames);
 
         this.mineplexStatsModule = getModuleManager().getModuleOrThrow(MineplexStatsModule.class);
@@ -114,7 +118,9 @@ public abstract class AbstractStatsCommand extends AbstractCommand {
         return dateFormat.format(Date.from(Instant.ofEpochSecond(unix)));
     }
 
-    public void checkApiResponseThrow(final CommandParameters commandParameters, final ResponseModel response, final String arguments) {
+    public void checkApiResponseThrow(final CommandParameters commandParameters,
+                                      final ResponseModel response,
+                                      final String arguments) {
         if (response instanceof ErrorModel) {
             // No stats found
             if (((ErrorModel) response).getErrorCode() == 1) {
@@ -144,21 +150,35 @@ public abstract class AbstractStatsCommand extends AbstractCommand {
             throw new CommandReturnException(
                     this.getEmbedBuilder(commandParameters)
                             .setTitle("Invalid start position")
-                            .setDescription(MarkdownUtil.monospace(name) + " is not a valid start position for the leaderboard.\n" +
-                                    "Use a number between " + MarkdownUtil.bold("1") + " and " + MarkdownUtil.bold(String.valueOf(upperLimit)))
+                            .setDescription(
+                                    "%s is not a valid start position for the leaderboard.\n" +
+                                            "Use a number between %s and %s.",
+                                    MarkdownUtil.monospace(name),
+                                    MarkdownUtil.bold("1"),
+                                    MarkdownUtil.bold(String.valueOf(upperLimit))
+                            )
             );
         }
 
         return Math.min(Math.max(1, Integer.parseInt(name)), upperLimit);
     }
 
-    protected int getEndPositionThrow(final int startPos, final CommandParameters commandParameters, final int argPos, final int upperLimit, final int maxDistance) {
+    protected int getEndPositionThrow(final int startPos,
+                                      final CommandParameters commandParameters,
+                                      final int argPos,
+                                      final int upperLimit,
+                                      final int maxDistance) {
         if (commandParameters.getArgs().length > argPos && !this.isInt(commandParameters.getArgs()[argPos])) {
             throw new CommandReturnException(
                     this.getEmbedBuilder(commandParameters)
                             .setTitle("Invalid end position")
-                            .setDescription(MarkdownUtil.monospace(commandParameters.getArgs()[argPos]) + " is not a valid end position for the leaderboard.\n" +
-                                    "Use a number between " + MarkdownUtil.bold("1") + " and " + MarkdownUtil.bold(String.valueOf(upperLimit)))
+                            .setDescription(
+                                    "%s is not a valid end position for the leaderboard.\n" +
+                                            "Use a number between %s and %s.",
+                                    MarkdownUtil.monospace(commandParameters.getArgs()[argPos]),
+                                    MarkdownUtil.bold("1"),
+                                    MarkdownUtil.bold(String.valueOf(upperLimit))
+                            )
             );
         }
 
@@ -205,52 +225,109 @@ public abstract class AbstractStatsCommand extends AbstractCommand {
         }
     }
 
-    private CommandParameters getLeaderboardNewCommandParameters(final CommandParameters commandParameters, final int argPosStart, final int argPosEnd, final int newStart,
+    private CommandParameters getLeaderboardNewCommandParameters(final CommandParameters commandParameters,
+                                                                 final int argPosStart,
+                                                                 final int argPosEnd,
+                                                                 final int newStart,
                                                                  final int rowDistance) {
-        final String[] newArgs = Arrays.copyOf(commandParameters.getArgs(), Math.max(commandParameters.getArgs().length, Math.max(argPosEnd, argPosStart) + 1));
+        final String[] newArgs = Arrays.copyOf(
+                commandParameters.getArgs(),
+                Math.max(commandParameters.getArgs().length, Math.max(argPosEnd, argPosStart) + 1)
+        );
         newArgs[argPosStart] = String.valueOf(newStart);
         newArgs[argPosEnd] = String.valueOf(newStart + rowDistance);
 
         return CommandParameters.of(commandParameters, newArgs);
     }
 
-    protected Map<String, AbstractEmoteReaction> getLeaderboardEmotes(final CommandParameters commandParameters, final int fastRowDistance,
-                                                                      final int startPos, final int endPos, final int totalLength, final int argPosStart, final int argPosEnd) {
+    protected Map<String, AbstractEmoteReaction> getLeaderboardEmotes(final CommandParameters commandParameters,
+                                                                      final int fastRowDistance,
+                                                                      final int startPos,
+                                                                      final int endPos,
+                                                                      final int totalLength,
+                                                                      final int argPosStart,
+                                                                      final int argPosEnd) {
         final int rowDistance = endPos - startPos;
         final Map<String, AbstractEmoteReaction> emotes = new LinkedHashMap<>(4);
 
         // Far Left Arrow
         if (startPos - rowDistance > 2) {
             final int newStart = Math.max(1, (startPos - fastRowDistance));
-            emotes.put(DiscordEmotes.FAR_LEFT_ARROW.getEmote(), new CommandEmoteReaction(this, this.getLeaderboardNewCommandParameters(commandParameters, argPosStart,
-                    argPosEnd, newStart, rowDistance)));
+            emotes.put(
+                    DiscordEmotes.FAR_LEFT_ARROW.getEmote(),
+                    new CommandEmoteReaction(
+                            this,
+                            this.getLeaderboardNewCommandParameters(
+                                    commandParameters,
+                                    argPosStart,
+                                    argPosEnd,
+                                    newStart,
+                                    rowDistance
+                            )
+                    )
+            );
         }
 
         // Left Arrow
         if (startPos > 1) {
             final int newStart = Math.max(1, (startPos - rowDistance - 1));
-            emotes.put(DiscordEmotes.LEFT_ARROW.getEmote(), new CommandEmoteReaction(this, this.getLeaderboardNewCommandParameters(commandParameters, argPosStart,
-                    argPosEnd, newStart, rowDistance)));
+            emotes.put(
+                    DiscordEmotes.LEFT_ARROW.getEmote(),
+                    new CommandEmoteReaction(
+                            this,
+                            this.getLeaderboardNewCommandParameters(
+                                    commandParameters,
+                                    argPosStart,
+                                    argPosEnd,
+                                    newStart,
+                                    rowDistance
+                            )
+                    )
+            );
         }
 
         // Right Arrow
         if (totalLength > endPos) {
             final int newStart = Math.min(totalLength, (endPos + rowDistance + 1)) - rowDistance;
-            emotes.put(DiscordEmotes.RIGHT_ARROW.getEmote(), new CommandEmoteReaction(this, this.getLeaderboardNewCommandParameters(commandParameters, argPosStart,
-                    argPosEnd, newStart, rowDistance)));
+            emotes.put(
+                    DiscordEmotes.RIGHT_ARROW.getEmote(),
+                    new CommandEmoteReaction(
+                            this,
+                            this.getLeaderboardNewCommandParameters(
+                                    commandParameters,
+                                    argPosStart,
+                                    argPosEnd,
+                                    newStart,
+                                    rowDistance
+                            )
+                    )
+            );
         }
 
         // Far Right Arrow
         if (totalLength - rowDistance - 1 > endPos) {
             final int newStart = Math.min(totalLength, (endPos + fastRowDistance)) - rowDistance;
-            emotes.put(DiscordEmotes.FAR_RIGHT_ARROW.getEmote(), new CommandEmoteReaction(this, this.getLeaderboardNewCommandParameters(commandParameters, argPosStart,
-                    argPosEnd, newStart, rowDistance)));
+            emotes.put(
+                    DiscordEmotes.FAR_RIGHT_ARROW.getEmote(),
+                    new CommandEmoteReaction(
+                            this,
+                            this.getLeaderboardNewCommandParameters(
+                                    commandParameters,
+                                    argPosStart,
+                                    argPosEnd,
+                                    newStart,
+                                    rowDistance
+                            )
+                    )
+            );
         }
 
         return emotes;
     }
 
-    protected CommandParameters getLeaderboardFixedCommandParameter(final CommandParameters commandParameters, final int startPosPosition, final int endPosPosition) {
+    protected CommandParameters getLeaderboardFixedCommandParameter(final CommandParameters commandParameters,
+                                                                    final int startPosPosition,
+                                                                    final int endPosPosition) {
         // Create a new args array if the old array has no positions
         final int minSize = Math.max(startPosPosition, endPosPosition) + 1;
         if (minSize > commandParameters.getArgs().length) {
@@ -262,11 +339,15 @@ public abstract class AbstractStatsCommand extends AbstractCommand {
         }
     }
 
-    protected CommandResult sendPicture(final CommandParameters commandParameters, @Nullable final InputStream inputStream, final String pictureName) {
+    protected CommandResult sendPicture(final CommandParameters commandParameters,
+                                        @Nullable final InputStream inputStream,
+                                        final String pictureName) {
         return this.sendPicture(commandParameters, inputStream, pictureName, null);
     }
 
-    protected CommandResult sendPicture(final CommandParameters commandParameters, @Nullable final InputStream inputStream, final String pictureName,
+    protected CommandResult sendPicture(final CommandParameters commandParameters,
+                                        @Nullable final InputStream inputStream,
+                                        final String pictureName,
                                         final @Nullable EmoteReactionMessage emoteReactionMessage) {
         if (inputStream != null) {
             commandParameters.getLowestMessageChannel()

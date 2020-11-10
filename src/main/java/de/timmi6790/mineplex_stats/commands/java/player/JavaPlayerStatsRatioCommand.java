@@ -61,42 +61,59 @@ public class JavaPlayerStatsRatioCommand extends AbstractJavaStatsCommand {
         final long unixTime = Instant.now().getEpochSecond();// this.getUnixTime(commandParameters, 3);
 
         // Web request
-        final ResponseModel responseModel = this.getMineplexStatsModule().getMpStatsRestClient().getPlayerStatsRatio(player, stat.getPrintName(), board.getName(), unixTime);
+        final ResponseModel responseModel = this.getMineplexStatsModule()
+                .getMpStatsRestClient()
+                .getPlayerStatsRatio(player, stat.getPrintName(), board.getName(), unixTime);
         this.checkApiResponseThrow(commandParameters, responseModel, "No stats available");
 
         final JavaRatioPlayer javaRatioPlayer = (JavaRatioPlayer) responseModel;
 
         // Add to pie chart
         final List<Slice> slices = new ArrayList<>();
+        final long totalValue = javaRatioPlayer.getInfo().getTotalNumber();
 
-        final long totalValue = javaRatioPlayer.getStats().values().stream().mapToLong(JavaRatioPlayer.Stat::getScore).sum();
         final DecimalFormat decimalFormat = new DecimalFormat("#0.00");
         decimalFormat.setDecimalFormatSymbols(DecimalFormatSymbols.getInstance(Locale.US));
-        javaRatioPlayer.getStats().values()
-                .stream()
-                .sorted(Comparator.comparingLong(JavaRatioPlayer.Stat::getScore))
-                .forEach(value -> slices.add(
-                        Slice.newSlice(
-                                value.getScore(),
-                                String.format("%s %s %s",
-                                        value.getGame(),
-                                        decimalFormat.format(Math.min(value.getScore(), totalValue) == 0 ? 0D : ((double) value.getScore() / (double) totalValue) * 100) + "%",
-                                        this.getFormattedNumber(value.getScore())
-                                )
-                        )
-                ));
+
+        final List<JavaRatioPlayer.Stat> sortedStats = new ArrayList<>(javaRatioPlayer.getStats().values());
+        sortedStats.sort(Comparator.comparingLong(JavaRatioPlayer.Stat::getScore));
+
+        for (final JavaRatioPlayer.Stat sortedStat : sortedStats) {
+            final int percentage;
+            if (totalValue == 0 || sortedStat.getScore() == 0) {
+                percentage = 0;
+            } else {
+                percentage = (int) ((double) sortedStat.getScore() / totalValue) * 100;
+            }
+
+            slices.add(Slice.newSlice(
+                    sortedStat.getScore(),
+                    String.format("%s %s %s",
+                            sortedStat.getGame(),
+                            decimalFormat.format(percentage) + "%",
+                            this.getFormattedNumber(sortedStat.getScore())
+                    )
+            ));
+        }
 
         final PieChart gCharts = GCharts.newPieChart(slices);
-        gCharts.setTitle(javaRatioPlayer.getInfo().getName() + " " + stat.getPrintName() + " " + board.getName() + " " +
-                this.getFormattedNumber(javaRatioPlayer.getInfo().getTotalNumber()) + " " + this.getFormattedUnixTime(unixTime));
+        gCharts.setTitle(String.format(
+                "%s %s %s %s %s",
+                javaRatioPlayer.getInfo().getName(),
+                stat.getPrintName(),
+                board.getName(),
+                this.getFormattedNumber(javaRatioPlayer.getInfo().getTotalNumber()),
+                this.getFormattedUnixTime(unixTime)
+        ));
 
         // Send to server
         commandParameters.getLowestMessageChannel()
                 .sendMessage(getPieUrl(gCharts))
                 .queue();
-        sendMessage(
+
+        this.sendMessage(
                 commandParameters,
-                getEmbedBuilder(commandParameters)
+                this.getEmbedBuilder(commandParameters)
                         .setTitle("Prototype Command")
                         .setDescription(
                                 MarkdownUtil.bold("The data you see up there is not 100% correct.\n") +
