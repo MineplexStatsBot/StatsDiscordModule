@@ -79,11 +79,11 @@ public class JavaPlayerStatsRatioCommand extends AbstractJavaStatsCommand {
         sortedStats.sort(Comparator.comparingLong(JavaRatioPlayer.Stat::getScore));
 
         for (final JavaRatioPlayer.Stat sortedStat : sortedStats) {
-            final int percentage;
+            final double percentage;
             if (totalValue == 0 || sortedStat.getScore() == 0) {
-                percentage = 0;
+                percentage = 0D;
             } else {
-                percentage = (int) ((double) sortedStat.getScore() / totalValue) * 100;
+                percentage = ((double) sortedStat.getScore() / (double) totalValue) * 100;
             }
 
             slices.add(Slice.newSlice(
@@ -102,7 +102,7 @@ public class JavaPlayerStatsRatioCommand extends AbstractJavaStatsCommand {
                 javaRatioPlayer.getInfo().getName(),
                 stat.getPrintName(),
                 board.getName(),
-                this.getFormattedNumber(javaRatioPlayer.getInfo().getTotalNumber()),
+                this.getFormattedNumber(totalValue),
                 this.getFormattedUnixTime(unixTime)
         ));
 

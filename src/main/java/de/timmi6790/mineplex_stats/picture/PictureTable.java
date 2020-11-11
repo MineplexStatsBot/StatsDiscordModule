@@ -69,7 +69,9 @@ public class PictureTable extends AbstractPicture {
                          final int increaseX,
                          final int rowHeight) {
         this.gd.setFont(font);
-        for (int index = 0, xPos = GAP_X_BORDER; dataArray.length > index; xPos += widthArray[index] + increaseX, index++) {
+        for (int index = 0, xPos = GAP_X_BORDER;
+             dataArray.length > index;
+             xPos += widthArray[index] + increaseX, index++) {
             this.gd.drawString(dataArray[index], xPos, this.currentHeightY);
         }
         this.currentHeightY += rowHeight;
@@ -84,25 +86,51 @@ public class PictureTable extends AbstractPicture {
         // Header, center if only one entry
         if (this.header.length <= 1) {
             this.gd.setFont(FONT_HEADER);
-            this.gd.drawString(this.header[0], GAP_X_BORDER + (Math.max(this.widthDateMax, this.widthLeaderboardMax) - getTextWidth(this.header[0], FONT_HEADER)) / 2, this.currentHeightY);
+            this.gd.drawString(
+                    this.header[0],
+                    GAP_X_BORDER + (Math.max(this.widthDateMax, this.widthLeaderboardMax) - getTextWidth(this.header[0], FONT_HEADER)) / 2,
+                    this.currentHeightY
+            );
             this.currentHeightY += GAP_HEADER + FONT_HEADER.getSize();
 
         } else {
             final int distanceWord = Math.max(((Math.max(this.widthHeaderMax, this.widthLeaderboardMax) - Arrays.stream(this.widthHeader).sum()) / (this.header.length - 1)), GAP_WORD_MIN);
-            this.drawRow(this.header, this.widthHeader, FONT_HEADER, distanceWord, GAP_HEADER + FONT_SUB_HEADER.getSize());
+            this.drawRow(
+                    this.header,
+                    this.widthHeader,
+                    FONT_HEADER,
+                    distanceWord,
+                    GAP_HEADER + FONT_SUB_HEADER.getSize()
+            );
         }
 
         // Sub header
         this.gd.setFont(FONT_SUB_HEADER);
-        this.gd.drawString(this.date, GAP_X_BORDER + (Math.max(this.widthDateMax, this.widthLeaderboardMax) - getTextWidth(this.date, FONT_SUB_HEADER)) / 2, this.currentHeightY);
+        this.gd.drawString(
+                this.date,
+                GAP_X_BORDER + (Math.max(this.widthDateMax, this.widthLeaderboardMax) - getTextWidth(this.date, FONT_SUB_HEADER)) / 2,
+                this.currentHeightY
+        );
         this.currentHeightY += GAP_SUB_HEADER + FONT_LEADERBOARD_HEADER.getSize();
 
         // Leaderboard header centered above leaderboard data
-        this.drawRow(this.leaderboard[0], this.widthLeaderboard, FONT_LEADERBOARD_HEADER, GAP_WORD_MIN, GAP_LEADERBOARD_HEADER + FONT_LEADERBOARD.getSize());
+        this.drawRow(
+                this.leaderboard[0],
+                this.widthLeaderboard,
+                FONT_LEADERBOARD_HEADER,
+                GAP_WORD_MIN,
+                GAP_LEADERBOARD_HEADER + FONT_LEADERBOARD.getSize()
+        );
 
         // Leaderboard
         for (int columnIndex = 1; this.leaderboard.length > columnIndex; columnIndex++) {
-            this.drawRow(this.leaderboard[columnIndex], this.widthLeaderboard, FONT_LEADERBOARD, GAP_WORD_MIN, FONT_LEADERBOARD.getSize() + GAP_Y_ROW);
+            this.drawRow(
+                    this.leaderboard[columnIndex],
+                    this.widthLeaderboard,
+                    FONT_LEADERBOARD,
+                    GAP_WORD_MIN,
+                    FONT_LEADERBOARD.getSize() + GAP_Y_ROW
+            );
         }
 
         // Skin
@@ -134,9 +162,9 @@ public class PictureTable extends AbstractPicture {
         // Width
         this.widthHeaderMax = Arrays.stream(this.widthHeader).sum() + GAP_WORD_MIN * (this.widthHeader.length - 1);
         this.widthDateMax = getTextWidth(this.date, FONT_SUB_HEADER) + GAP_WORD_MIN;
-        int widthLeaderboardMax = Arrays.stream(this.widthLeaderboard).sum() + GAP_WORD_MIN * (this.widthLeaderboard.length - 1);
+        this.widthLeaderboardMax = Arrays.stream(this.widthLeaderboard).sum() + GAP_WORD_MIN * (this.widthLeaderboard.length - 1);
 
-        this.widthLeaderboardMax = widthLeaderboardMax;
+        int widthMax = this.widthLeaderboardMax;
 
         // Height
         final int heightHeader = FONT_HEADER.getSize() + GAP_HEADER;
@@ -146,9 +174,9 @@ public class PictureTable extends AbstractPicture {
 
         // If a skin is found, we place it directly next to the leaderboard
         if (this.skin != null) {
-            this.skinX = widthLeaderboardMax;
+            this.skinX = this.widthLeaderboardMax;
             // TODO: Do a proper fix for this. The skins picture width is too big.
-            widthLeaderboardMax += this.skin.getWidth() - GAP_X_BORDER * 3;
+            widthMax += this.skin.getWidth() - GAP_X_BORDER * 3;
 
             this.skinY = heightHeader + heightSubHeader + heightLeaderboardHeader + 2;
             if (this.skin.getHeight() > heightLeaderboard) {
@@ -156,7 +184,7 @@ public class PictureTable extends AbstractPicture {
             }
         }
 
-        this.maxWidth = Math.max(Math.max(this.widthHeaderMax, this.widthDateMax), widthLeaderboardMax) + GAP_X_BORDER * 2;
+        this.maxWidth = Math.max(Math.max(this.widthHeaderMax, this.widthDateMax), widthMax) + GAP_X_BORDER * 2;
         this.maxHeight = heightHeader + heightSubHeader + heightLeaderboardHeader + heightLeaderboard;
     }
 }
