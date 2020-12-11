@@ -55,9 +55,10 @@ public class JavaGamesCommand extends AbstractJavaStatsCommand {
                         this.getName()
                 );
 
+        // Sort java games after category
         final Map<String, List<String>> sortedLeaderboard = new TreeMap<>();
-        for (final Map.Entry<String, JavaGame> entry : this.getMineplexStatsModule().getJavaGames().entrySet()) {
-            sortedLeaderboard.computeIfAbsent(entry.getKey(), k -> new TreeList<>()).add(entry.getValue().getName());
+        for (final JavaGame game : this.getMineplexStatsModule().getJavaGames().values()) {
+            sortedLeaderboard.computeIfAbsent(game.getCategory(), k -> new TreeList<>()).add(game.getName());
         }
 
         for (final Map.Entry<String, List<String>> entry : sortedLeaderboard.entrySet()) {
@@ -115,7 +116,9 @@ public class JavaGamesCommand extends AbstractJavaStatsCommand {
         return CommandResult.SUCCESS;
     }
 
-    private CommandResult handleStatInfo(final CommandParameters commandParameters, final JavaGame game, final JavaStat stat) {
+    private CommandResult handleStatInfo(final CommandParameters commandParameters,
+                                         final JavaGame game,
+                                         final JavaStat stat) {
         this.sendTimedMessage(
                 commandParameters,
                 this.getEmbedBuilder(commandParameters)

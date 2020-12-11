@@ -6,4 +6,6 @@ import lombok.Data;
 public class Config {
     private String apiName = "";
     private String apiPassword = "";
+    private String apiUrl = "https://mpstats.timmi6790.de/";
+    private int apiTimeout = 6_000;
 }

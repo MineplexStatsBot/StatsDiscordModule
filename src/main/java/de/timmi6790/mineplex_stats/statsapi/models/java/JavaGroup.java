@@ -2,7 +2,7 @@ package de.timmi6790.mineplex_stats.statsapi.models.java;
 
 import de.timmi6790.discord_framework.DiscordBot;
 import de.timmi6790.mineplex_stats.MineplexStatsModule;
-import de.timmi6790.mineplex_stats.statsapi.utilities.StatsComparator;
+import de.timmi6790.mineplex_stats.utilities.StatsComparator;
 import lombok.Data;
 import lombok.Getter;
 

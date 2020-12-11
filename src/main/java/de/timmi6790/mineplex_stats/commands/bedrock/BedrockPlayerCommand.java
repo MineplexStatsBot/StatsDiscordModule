@@ -7,7 +7,7 @@ import de.timmi6790.discord_framework.modules.command.property.properties.MinArg
 import de.timmi6790.mineplex_stats.picture.PictureTable;
 import de.timmi6790.mineplex_stats.statsapi.models.ResponseModel;
 import de.timmi6790.mineplex_stats.statsapi.models.bedrock.BedrockPlayerStats;
-import de.timmi6790.mineplex_stats.statsapi.utilities.BiggestLong;
+import de.timmi6790.mineplex_stats.utilities.BiggestLong;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -15,6 +15,8 @@ import java.util.List;
 import java.util.Map;
 
 public class BedrockPlayerCommand extends AbstractBedrockStatsCommand {
+    private static final String[] LIST_HEADER = new String[]{"Game", "Score", "Position"};
+
     public BedrockPlayerCommand() {
         super("bplayer", "Bedrock player stats", "<player>", "bpl");
 
@@ -41,16 +43,16 @@ public class BedrockPlayerCommand extends AbstractBedrockStatsCommand {
         final Map<String, BedrockPlayerStats.Stats> playerStats = bedrockStats.getStats();
 
         // Parse board data
-        final BiggestLong highestUnixTime = new BiggestLong(0);
+        final BiggestLong highestUnixTime = new BiggestLong();
         final List<String[]> leaderboard = new ArrayList<>(bedrockStats.getStats().size() + 1);
-        leaderboard.add(new String[]{"Game", "Score", "Position"});
+        leaderboard.add(LIST_HEADER);
 
         final List<String> sortedGames = new ArrayList<>(bedrockStats.getStats().keySet());
         sortedGames.sort(Comparator.naturalOrder());
 
         for (final String game : sortedGames) {
             final BedrockPlayerStats.Stats playerStat = playerStats.get(game);
-            
+
             highestUnixTime.tryNumber(playerStat.getUnix());
             leaderboard.add(new String[]{
                     game,

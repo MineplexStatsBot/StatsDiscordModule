@@ -8,7 +8,8 @@ import de.timmi6790.mineplex_stats.commands.java.AbstractJavaStatsCommand;
 import de.timmi6790.mineplex_stats.picture.PictureTable;
 import de.timmi6790.mineplex_stats.statsapi.models.ResponseModel;
 import de.timmi6790.mineplex_stats.statsapi.models.java.*;
-import de.timmi6790.mineplex_stats.statsapi.utilities.BiggestLong;
+import de.timmi6790.mineplex_stats.utilities.BiggestLong;
+import lombok.Data;
 import lombok.SneakyThrows;
 
 import java.awt.image.BufferedImage;
@@ -16,9 +17,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
 
 public class JavaPlayerGroupCommand extends AbstractJavaStatsCommand {
+    private static final String[] LEADERBOARD_HEADER = new String[]{"Game", "Score", "Position"};
+
     public JavaPlayerGroupCommand() {
         super("gplayer", "Java player group stats", "<player> <group> <stat> [board] [date]", "gpl");
 
@@ -31,6 +33,46 @@ public class JavaPlayerGroupCommand extends AbstractJavaStatsCommand {
                         "nwang888 MixedArcade wins yearly",
                         "nwang888 MixedArcade wins global 1/30/2020"
                 )
+        );
+    }
+
+    private LeaderboardData parseLeaderboard(final JavaGroupsPlayer groupStats,
+                                             final JavaStat stat,
+                                             final List<JavaGame> statSpecificGames) {
+        final JavaGroupsPlayer.Info playerStatsInfo = groupStats.getInfo();
+
+        final BiggestLong highestUnixTime = new BiggestLong();
+        final List<String[]> leaderboard = new ArrayList<>(statSpecificGames.size() + 1);
+        leaderboard.add(LEADERBOARD_HEADER);
+        for (final JavaGame game : statSpecificGames) {
+            final JavaGroupsPlayer.Stats playerStat = groupStats.getStats().get(game.getName());
+            if (playerStat == null) {
+                leaderboard.add(new String[]{
+                        game.getName(),
+                        UNKNOWN_SCORE,
+                        UNKNOWN_POSITION
+                });
+            } else {
+                highestUnixTime.tryNumber(playerStat.getUnix());
+                leaderboard.add(new String[]{
+                        game.getName(),
+                        this.getFormattedScore(stat, playerStat.getScore()),
+                        String.valueOf(playerStat.getPosition())
+                });
+            }
+        }
+
+        final String[] header = {
+                playerStatsInfo.getName(),
+                playerStatsInfo.getGroup(),
+                playerStatsInfo.getStat(),
+                playerStatsInfo.getBoard()
+        };
+
+        return new LeaderboardData(
+                leaderboard.toArray(new String[0][0]),
+                header,
+                highestUnixTime.get()
         );
     }
 
@@ -52,54 +94,28 @@ public class JavaPlayerGroupCommand extends AbstractJavaStatsCommand {
                 .getPlayerGroup(playerUUID, javaGroup.getGroup(), stat.getName(), board.getName(), unixTime);
         this.checkApiResponseThrow(commandParameters, responseModel, "No stats available");
 
-        // Parse data to image
+        // Parse data
         final JavaGroupsPlayer groupStats = (JavaGroupsPlayer) responseModel;
-        final JavaGroupsPlayer.Info playerStatsInfo = groupStats.getInfo();
-        final CompletableFuture<BufferedImage> skinFuture = this.getPlayerSkin(playerStatsInfo.getUuid());
+        final CompletableFuture<BufferedImage> skinFuture = this.getPlayerSkin(groupStats.getInfo().getUuid());
+        final LeaderboardData leaderboardData = this.parseLeaderboard(groupStats, stat, statSpecificGames);
+        final BufferedImage skin = this.awaitOrDefault(skinFuture, null);
 
-        final BiggestLong highestUnixTime = new BiggestLong(0);
-        final List<String[]> leaderboard = new ArrayList<>(statSpecificGames.size() + 1);
-        leaderboard.add(new String[]{"Game", "Score", "Position"});
-        for (final JavaGame game : statSpecificGames) {
-            final JavaGroupsPlayer.Stats playerStat = groupStats.getStats().get(game.getName());
-            if (playerStat == null) {
-                leaderboard.add(new String[]{
-                        game.getName(),
-                        UNKNOWN_SCORE,
-                        UNKNOWN_POSITION
-                });
-            } else {
-                highestUnixTime.tryNumber(playerStat.getUnix());
-                leaderboard.add(new String[]{
-                        game.getName(),
-                        this.getFormattedScore(stat, playerStat.getScore()),
-                        String.valueOf(playerStat.getPosition())
-                });
-            }
-        }
-
-        BufferedImage skin;
-        try {
-            skin = skinFuture.get();
-        } catch (final ExecutionException ignore) {
-            skin = null;
-        }
-
-        final String[] header = {
-                playerStatsInfo.getName(),
-                playerStatsInfo.getGroup(),
-                playerStatsInfo.getStat(),
-                playerStatsInfo.getBoard()
-        };
         return this.sendPicture(
                 commandParameters,
                 new PictureTable(
-                        header,
-                        this.getFormattedUnixTime(highestUnixTime.get()),
-                        leaderboard.toArray(new String[0][0]),
+                        leaderboardData.getHeader(),
+                        this.getFormattedUnixTime(leaderboardData.getHighestUnixTime()),
+                        leaderboardData.getLeaderboard(),
                         skin
                 ).getPlayerPicture(),
-                String.join("-", header) + "-" + highestUnixTime
+                String.join("-", leaderboardData.getHeader()) + "-" + leaderboardData.getHighestUnixTime()
         );
+    }
+
+    @Data
+    private static class LeaderboardData {
+        private final String[][] leaderboard;
+        private final String[] header;
+        private final long highestUnixTime;
     }
 }

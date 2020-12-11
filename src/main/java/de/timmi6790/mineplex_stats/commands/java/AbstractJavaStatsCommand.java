@@ -18,11 +18,13 @@ import de.timmi6790.mineplex_stats.statsapi.models.java.JavaGroup;
 import de.timmi6790.mineplex_stats.statsapi.models.java.JavaStat;
 import lombok.EqualsAndHashCode;
 import lombok.NonNull;
+import lombok.SneakyThrows;
 import net.dv8tion.jda.api.utils.MarkdownUtil;
 
 import java.awt.image.BufferedImage;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
 @EqualsAndHashCode(callSuper = true)
@@ -335,5 +337,14 @@ public abstract class AbstractJavaStatsCommand extends AbstractStatsCommand {
                         .collect(Collectors.toList())
         );
         throw new CommandReturnException();
+    }
+
+    @SneakyThrows
+    public <T> T awaitOrDefault(final CompletableFuture<T> completableFuture, final T defaultValue) {
+        try {
+            return completableFuture.get();
+        } catch (final ExecutionException ignore) {
+            return defaultValue;
+        }
     }
 }

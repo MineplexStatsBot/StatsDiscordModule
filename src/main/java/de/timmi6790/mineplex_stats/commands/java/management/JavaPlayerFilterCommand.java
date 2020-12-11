@@ -47,7 +47,9 @@ public class JavaPlayerFilterCommand extends AbstractJavaStatsCommand {
         // Emotes
         final Map<String, AbstractEmoteReaction> emotes = new LinkedHashMap<>(2);
         emotes.put(DiscordEmotes.CHECK_MARK.getEmote(), () -> {
-            this.getMineplexStatsModule().getMpStatsRestClient().addJavaPlayerFilter(uuid, game.getName(), stat.getName(), board.getName());
+            this.getMineplexStatsModule()
+                    .getMpStatsRestClient()
+                    .addJavaPlayerFilter(uuid, game.getName(), stat.getName(), board.getName());
 
             this.sendTimedMessage(
                     commandParameters,

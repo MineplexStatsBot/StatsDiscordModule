@@ -1,15 +1,18 @@
-package de.timmi6790.mineplex_stats.statsapi.utilities;
+package de.timmi6790.mineplex_stats.utilities;
 
 import de.timmi6790.mineplex_stats.statsapi.models.java.JavaGame;
 import de.timmi6790.mineplex_stats.statsapi.models.java.JavaStat;
 
 import java.io.Serializable;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
 
 public class StatsComparator implements Comparator<JavaStat>, Serializable {
-    private static final List<String> STATS_ORDER = new ArrayList<>(Arrays.asList("HiderWins", "HunterWins", "Wins", "IngameTime", "HubTime", "GamesPlayed",
+    private static final List<String> STATS_ORDER = Arrays.asList("HiderWins", "HunterWins", "Wins", "IngameTime", "HubTime", "GamesPlayed",
             "DailyVotes", "ClansDailyRewards", "DailyRewards", "CrownsEarned", "BestWinStreak", "SecondPlace", "ThirdPlace", "Losses", "Kills", "FinalKills",
-            "Assists", "Deaths", "ExpEarned", "GemsEarned", "DailyMissions", "WeeklyMissions", "EventMissions"));
+            "Assists", "Deaths", "ExpEarned", "GemsEarned", "DailyMissions", "WeeklyMissions", "EventMissions");
 
     static {
         Collections.reverse(STATS_ORDER);

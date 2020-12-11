@@ -26,7 +26,9 @@ public abstract class AbstractBedrockLeaderboardCommand extends AbstractBedrockS
 
     private int leaderboardRowDistance = 15;
 
-    protected AbstractBedrockLeaderboardCommand(final String name, final String description, final String... aliasNames) {
+    protected AbstractBedrockLeaderboardCommand(final String name,
+                                                final String description,
+                                                final String... aliasNames) {
         super(name, description, "<game> [start] [end] [date]", aliasNames);
 
         this.addProperties(
@@ -67,7 +69,13 @@ public abstract class AbstractBedrockLeaderboardCommand extends AbstractBedrockS
         // Parse args
         final BedrockGame game = this.getGame(commandParameters, 0);
         final int startPos = this.getStartPositionThrow(commandParameters, ARG_POS_START_POS, LEADERBOARD_UPPER_LIMIT);
-        final int endPos = this.getEndPositionThrow(startPos, commandParameters, ARG_POS_END_POS, LEADERBOARD_UPPER_LIMIT, this.leaderboardRowDistance);
+        final int endPos = this.getEndPositionThrow(
+                startPos,
+                commandParameters,
+                ARG_POS_END_POS,
+                LEADERBOARD_UPPER_LIMIT,
+                this.leaderboardRowDistance
+        );
         final long unixTime = this.getUnixTimeThrow(commandParameters, 3);
 
         final ResponseModel responseModel = this.getMineplexStatsModule().getMpStatsRestClient()
@@ -83,8 +91,16 @@ public abstract class AbstractBedrockLeaderboardCommand extends AbstractBedrockS
         final String[] header = this.getHeader(leaderboardInfo);
         return this.sendPicture(
                 this.getLeaderboardFixedCommandParameter(commandParameters, ARG_POS_END_POS, ARG_POS_START_POS),
-                new PictureTable(header, this.getFormattedUnixTime(leaderboardInfo.getUnix()), leaderboard).getPlayerPicture(),
-                String.format("%s-%s", String.join("-", header), leaderboardInfo.getUnix()),
+                new PictureTable(
+                        header,
+                        this.getFormattedUnixTime(leaderboardInfo.getUnix()),
+                        leaderboard
+                ).getPlayerPicture(),
+                String.format(
+                        "%s-%s",
+                        String.join("-", header),
+                        leaderboardInfo.getUnix()
+                ),
                 new EmoteReactionMessage(
                         this.getEmotes(commandParameters, bedrockLeaderboard, startPos, endPos),
                         commandParameters.getUser().getIdLong(),

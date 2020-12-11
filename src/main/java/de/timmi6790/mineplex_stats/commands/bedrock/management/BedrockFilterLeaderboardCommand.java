@@ -13,6 +13,8 @@ import java.util.List;
 import java.util.Map;
 
 public class BedrockFilterLeaderboardCommand extends AbstractBedrockLeaderboardCommand {
+    private static final String[] LIST_HEADER = new String[]{"Emote", "Player", "Score", "Position"};
+
     public BedrockFilterLeaderboardCommand() {
         super("bfleaderboard", "Bedrock Filter Leaderboard", "bfl", "bflb");
 
@@ -22,7 +24,7 @@ public class BedrockFilterLeaderboardCommand extends AbstractBedrockLeaderboardC
     @Override
     protected String[][] parseLeaderboard(final List<BedrockLeaderboard.Leaderboard> leaderboardResponse) {
         final List<String[]> parsed = new ArrayList<>(leaderboardResponse.size() + 1);
-        parsed.add(new String[]{"Emote", "Player", "Score", "Position"});
+        parsed.add(LIST_HEADER);
 
         int emoteIndex = 1;
         for (final BedrockLeaderboard.Leaderboard data : leaderboardResponse) {

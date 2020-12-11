@@ -12,6 +12,8 @@ import de.timmi6790.mineplex_stats.statsapi.models.ResponseModel;
 import de.timmi6790.mineplex_stats.statsapi.models.java.JavaBoard;
 import de.timmi6790.mineplex_stats.statsapi.models.java.JavaRatioPlayer;
 import de.timmi6790.mineplex_stats.statsapi.models.java.JavaStat;
+import de.timmi6790.mineplex_stats.utilities.BiggestLong;
+import lombok.Data;
 import net.dv8tion.jda.api.utils.MarkdownUtil;
 
 import java.text.DecimalFormat;
@@ -23,6 +25,12 @@ import java.util.List;
 import java.util.Locale;
 
 public class JavaPlayerStatsRatioCommand extends AbstractJavaStatsCommand {
+    private static final DecimalFormat DECIMAL_FORMAT = new DecimalFormat("#0.00");
+
+    static {
+        DECIMAL_FORMAT.setDecimalFormatSymbols(DecimalFormatSymbols.getInstance(Locale.US));
+    }
+
     public JavaPlayerStatsRatioCommand() {
         super("playerstats", "Player stats as graph", "<player> <stat> [board]", "pls", "plsats", "plstat");
 
@@ -37,9 +45,7 @@ public class JavaPlayerStatsRatioCommand extends AbstractJavaStatsCommand {
         );
     }
 
-    private static String getPieUrl(final PieChart gCharts) {
-        gCharts.setSize(750, 400);
-
+    private String generatePieUrl(final PieChart gCharts) {
         String url = gCharts.toURLString();
         // Series colours | RED, YELLOW_GREEN, GREEN, BLUE, PURPLE
         url += "&chco=FF0000,ADFF2F,00FF00,0000FF,a020f0";
@@ -49,6 +55,57 @@ public class JavaPlayerStatsRatioCommand extends AbstractJavaStatsCommand {
         url += "&chdlp=r|a";
 
         return url;
+    }
+
+    private PieSlicesData parseSlices(final long totalValue, final List<JavaRatioPlayer.Stat> stats) {
+        stats.sort(Comparator.comparingLong(JavaRatioPlayer.Stat::getScore));
+
+        final BiggestLong highestUnixTime = new BiggestLong();
+        final List<Slice> slices = new ArrayList<>();
+        for (final JavaRatioPlayer.Stat stat : stats) {
+            final double percentage;
+            if (totalValue == 0 || stat.getScore() == 0) {
+                percentage = 0;
+            } else {
+                percentage = ((double) stat.getScore() / (double) totalValue) * 100;
+            }
+
+            highestUnixTime.tryNumber(stat.getUnix());
+            slices.add(Slice.newSlice(
+                    stat.getScore(),
+                    String.format("%s %s %s",
+                            stat.getGame(),
+                            DECIMAL_FORMAT.format(percentage) + "%",
+                            this.getFormattedNumber(stat.getScore())
+                    )
+            ));
+        }
+
+        return new PieSlicesData(slices, highestUnixTime.get());
+    }
+
+    private String generatePieChart(final JavaRatioPlayer javaRatioPlayer) {
+        final JavaRatioPlayer.Info info = javaRatioPlayer.getInfo();
+        final long totalValue = info.getTotalNumber();
+
+        // Add to pie chart
+        final PieSlicesData pieSlicesData = this.parseSlices(
+                totalValue,
+                new ArrayList<>(javaRatioPlayer.getStats().values())
+        );
+
+        final PieChart pieChart = GCharts.newPieChart(pieSlicesData.getSlices());
+        pieChart.setSize(750, 400);
+        pieChart.setTitle(String.format(
+                "%s %s %s %s %s",
+                info.getName(),
+                info.getStat(),
+                info.getBoard(),
+                this.getFormattedNumber(totalValue),
+                this.getFormattedUnixTime(pieSlicesData.getHighestUnixTime())
+        ));
+
+        return this.generatePieUrl(pieChart);
     }
 
     @Override
@@ -66,49 +123,11 @@ public class JavaPlayerStatsRatioCommand extends AbstractJavaStatsCommand {
                 .getPlayerStatsRatio(player, stat.getPrintName(), board.getName(), unixTime);
         this.checkApiResponseThrow(commandParameters, responseModel, "No stats available");
 
-        final JavaRatioPlayer javaRatioPlayer = (JavaRatioPlayer) responseModel;
-
-        // Add to pie chart
-        final List<Slice> slices = new ArrayList<>();
-        final long totalValue = javaRatioPlayer.getInfo().getTotalNumber();
-
-        final DecimalFormat decimalFormat = new DecimalFormat("#0.00");
-        decimalFormat.setDecimalFormatSymbols(DecimalFormatSymbols.getInstance(Locale.US));
-
-        final List<JavaRatioPlayer.Stat> sortedStats = new ArrayList<>(javaRatioPlayer.getStats().values());
-        sortedStats.sort(Comparator.comparingLong(JavaRatioPlayer.Stat::getScore));
-
-        for (final JavaRatioPlayer.Stat sortedStat : sortedStats) {
-            final double percentage;
-            if (totalValue == 0 || sortedStat.getScore() == 0) {
-                percentage = 0D;
-            } else {
-                percentage = ((double) sortedStat.getScore() / (double) totalValue) * 100;
-            }
-
-            slices.add(Slice.newSlice(
-                    sortedStat.getScore(),
-                    String.format("%s %s %s",
-                            sortedStat.getGame(),
-                            decimalFormat.format(percentage) + "%",
-                            this.getFormattedNumber(sortedStat.getScore())
-                    )
-            ));
-        }
-
-        final PieChart gCharts = GCharts.newPieChart(slices);
-        gCharts.setTitle(String.format(
-                "%s %s %s %s %s",
-                javaRatioPlayer.getInfo().getName(),
-                stat.getPrintName(),
-                board.getName(),
-                this.getFormattedNumber(totalValue),
-                this.getFormattedUnixTime(unixTime)
-        ));
+        final String pieUrl = this.generatePieChart((JavaRatioPlayer) responseModel);
 
         // Send to server
         commandParameters.getLowestMessageChannel()
-                .sendMessage(getPieUrl(gCharts))
+                .sendMessage(pieUrl)
                 .queue();
 
         this.sendMessage(
@@ -126,5 +145,11 @@ public class JavaPlayerStatsRatioCommand extends AbstractJavaStatsCommand {
                         )
         );
         return CommandResult.SUCCESS;
+    }
+
+    @Data
+    private static class PieSlicesData {
+        private final List<Slice> slices;
+        private final long highestUnixTime;
     }
 }

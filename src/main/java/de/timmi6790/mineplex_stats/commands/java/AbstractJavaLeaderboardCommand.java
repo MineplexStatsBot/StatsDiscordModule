@@ -22,16 +22,18 @@ import java.util.Map;
 @EqualsAndHashCode(callSuper = true)
 @Setter
 public abstract class AbstractJavaLeaderboardCommand extends AbstractJavaStatsCommand {
-    private static final int ARG_POS_BOARD_POS = 2;
-    private static final int ARG_POS_START_POS = 3;
-    private static final int ARG_POS_END_POS = 4;
+    private static final int ARG_POS_BOARD = 2;
+    private static final int ARG_POS_START = 3;
+    private static final int ARG_POS_END = 4;
 
     private static final int LEADERBOARD_UPPER_LIMIT = 1_000;
 
     private boolean filteredStats = true;
     private int leaderboardRowDistance = 15;
 
-    protected AbstractJavaLeaderboardCommand(final String name, final String description, final String... aliasNames) {
+    protected AbstractJavaLeaderboardCommand(final String name,
+                                             final String description,
+                                             final String... aliasNames) {
         super(name, description, "<game> <stat> [board] [start] [end] [date]", aliasNames);
 
         this.addProperties(
@@ -50,9 +52,15 @@ public abstract class AbstractJavaLeaderboardCommand extends AbstractJavaStatsCo
                                                                  final int startPos,
                                                                  final int endPos) {
         final int fastRowDistance = javaLeaderboard.getInfo().getTotalLength() * 10 / 100;
-
-        return this.getLeaderboardEmotes(commandParameters, fastRowDistance, startPos, endPos,
-                javaLeaderboard.getInfo().getTotalLength(), ARG_POS_START_POS, ARG_POS_END_POS);
+        return this.getLeaderboardEmotes(
+                commandParameters,
+                fastRowDistance,
+                startPos,
+                endPos,
+                javaLeaderboard.getInfo().getTotalLength(),
+                ARG_POS_START,
+                ARG_POS_END
+        );
     }
 
     protected String[] getHeader(final JavaLeaderboard.Info leaderboardInfo) {
@@ -92,9 +100,9 @@ public abstract class AbstractJavaLeaderboardCommand extends AbstractJavaStatsCo
         // Parse args
         final JavaGame game = this.getGame(commandParameters, 0);
         final JavaStat stat = this.getStat(game, commandParameters, 1);
-        final JavaBoard board = this.getBoard(game, commandParameters, ARG_POS_BOARD_POS);
-        final int startPos = this.getStartPositionThrow(commandParameters, ARG_POS_START_POS, LEADERBOARD_UPPER_LIMIT);
-        final int endPos = this.getEndPositionThrow(startPos, commandParameters, ARG_POS_END_POS, LEADERBOARD_UPPER_LIMIT, this.leaderboardRowDistance);
+        final JavaBoard board = this.getBoard(game, commandParameters, ARG_POS_BOARD);
+        final int startPos = this.getStartPositionThrow(commandParameters, ARG_POS_START, LEADERBOARD_UPPER_LIMIT);
+        final int endPos = this.getEndPositionThrow(startPos, commandParameters, ARG_POS_END, LEADERBOARD_UPPER_LIMIT, this.leaderboardRowDistance);
         final long unixTime = this.getUnixTimeThrow(commandParameters, 5);
 
         final ResponseModel responseModel = this.getMineplexStatsModule()
@@ -110,7 +118,7 @@ public abstract class AbstractJavaLeaderboardCommand extends AbstractJavaStatsCo
 
         final String[] header = this.getHeader(leaderboardInfo);
         return this.sendPicture(
-                this.getLeaderboardFixedCommandParameter(commandParameters, ARG_POS_END_POS, ARG_POS_START_POS),
+                this.getLeaderboardFixedCommandParameter(commandParameters, ARG_POS_END, ARG_POS_START),
                 new PictureTable(header, this.getFormattedUnixTime(leaderboardInfo.getUnix()), leaderboard).getPlayerPicture(),
                 String.format("%s-%s", String.join("-", header), leaderboardInfo.getUnix()),
                 new EmoteReactionMessage(

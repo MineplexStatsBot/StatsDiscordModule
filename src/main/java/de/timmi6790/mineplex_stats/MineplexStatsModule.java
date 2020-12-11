@@ -1,5 +1,6 @@
 package de.timmi6790.mineplex_stats;
 
+import de.timmi6790.discord_framework.DiscordBot;
 import de.timmi6790.discord_framework.modules.AbstractModule;
 import de.timmi6790.discord_framework.modules.command.CommandModule;
 import de.timmi6790.discord_framework.modules.config.ConfigModule;
@@ -66,7 +67,13 @@ public class MineplexStatsModule extends AbstractModule {
     public void onInitialize() {
         final Config statsConfig = this.getModuleOrThrow(ConfigModule.class)
                 .registerAndGetConfig(this, new Config());
-        this.mpStatsRestClient = new MpStatsRestApiClient(statsConfig.getApiName(), statsConfig.getApiPassword());
+        this.mpStatsRestClient = new MpStatsRestApiClient(
+                DiscordBot.getLogger(),
+                statsConfig.getApiName(),
+                statsConfig.getApiPassword(),
+                statsConfig.getApiUrl(),
+                statsConfig.getApiTimeout()
+        );
 
         // I should maybe handle the api downtime better
         this.loadJavaGames();
