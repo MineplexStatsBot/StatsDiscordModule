@@ -23,6 +23,7 @@ import de.timmi6790.mineplex_stats.commands.java.player.JavaPlayerStatsRatioComm
 import de.timmi6790.mineplex_stats.commands.java.unfiltered.JavaUnfilteredLeaderboardCommand;
 import de.timmi6790.mineplex_stats.commands.java.unfiltered.JavaUnfilteredPlayerStatsCommand;
 import de.timmi6790.mineplex_stats.settings.BedrockNameReplacementSetting;
+import de.timmi6790.mineplex_stats.settings.DisclaimerMessageSetting;
 import de.timmi6790.mineplex_stats.settings.JavaNameReplacementSetting;
 import de.timmi6790.mineplex_stats.statsapi.MpStatsRestApiClient;
 import de.timmi6790.mineplex_stats.statsapi.models.ResponseModel;
@@ -81,7 +82,8 @@ public class MineplexStatsModule extends AbstractModule {
         this.getModuleOrThrow(SettingModule.class).registerSettings(
                 this,
                 new JavaNameReplacementSetting(),
-                new BedrockNameReplacementSetting()
+                new BedrockNameReplacementSetting(),
+                new DisclaimerMessageSetting()
         );
 
         this.getModuleOrThrow(CommandModule.class).registerCommands(

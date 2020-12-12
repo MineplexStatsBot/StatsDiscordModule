@@ -8,6 +8,7 @@ import de.timmi6790.discord_framework.modules.command.CommandResult;
 import de.timmi6790.discord_framework.modules.command.property.properties.ExampleCommandsCommandProperty;
 import de.timmi6790.discord_framework.modules.command.property.properties.MinArgCommandProperty;
 import de.timmi6790.mineplex_stats.commands.java.AbstractJavaStatsCommand;
+import de.timmi6790.mineplex_stats.settings.DisclaimerMessageSetting;
 import de.timmi6790.mineplex_stats.statsapi.models.ResponseModel;
 import de.timmi6790.mineplex_stats.statsapi.models.java.JavaBoard;
 import de.timmi6790.mineplex_stats.statsapi.models.java.JavaRatioPlayer;
@@ -130,20 +131,25 @@ public class JavaPlayerStatsRatioCommand extends AbstractJavaStatsCommand {
                 .sendMessage(pieUrl)
                 .queue();
 
-        this.sendMessage(
-                commandParameters,
-                this.getEmbedBuilder(commandParameters)
-                        .setTitle("Prototype Command")
-                        .setDescription(
-                                MarkdownUtil.bold("The data you see up there is not 100% correct.\n") +
-                                        "Everything you see is based on leaderboards, " +
-                                        "that means that for your data to show, you need to fulfill one of the 2 conditions: " +
-                                        "You either need to have that stat on mineplex.com/players/YourName or to be on the leaderboard for the specific stat." +
-                                        "\n\nThis is also the reason you sometimes see " + MarkdownUtil.bold("Unknown") + ". " +
-                                        "Unknown basically means that I know what your total value is, but I can't find all the sources of it." +
-                                        "\n\nI hope I don't really need to mention that this command is not even close to be done."
-                        )
-        );
+
+        if (commandParameters.getUserDb().getSettingOrDefault(DisclaimerMessageSetting.class, true)) {
+            this.sendMessage(
+                    commandParameters,
+                    this.getEmbedBuilder(commandParameters)
+                            .setTitle("Prototype Command")
+                            .setDescription(
+                                    "%s%n" +
+                                            "Everything you see is based on leaderboards, " +
+                                            "that means that for your data to show, you need to fulfill one of the 2 conditions: " +
+                                            "You either need to have that stat on mineplex.com/players/YourName or to be on the leaderboard for the specific stat." +
+                                            "\n\nThis is also the reason you sometimes see %s. " +
+                                            "Unknown basically means that I know what your total value is, but I can't find all the sources of it." +
+                                            "\n\nI hope I don't really need to mention that this command is not even close to be done.",
+                                    MarkdownUtil.bold("The data you see up there is not 100% correct."),
+                                    MarkdownUtil.bold("Unknown")
+                            )
+            );
+        }
         return CommandResult.SUCCESS;
     }
 
