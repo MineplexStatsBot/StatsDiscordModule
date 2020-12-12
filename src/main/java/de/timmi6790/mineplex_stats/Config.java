@@ -8,4 +8,11 @@ public class Config {
     private String apiPassword = "";
     private String apiUrl = "https://mpstats.timmi6790.de/";
     private int apiTimeout = 6_000;
+    private final NotificationChannel notificationChannel = new NotificationChannel();
+
+    @Data
+    public static class NotificationChannel {
+        private long filterChannel = 0;
+        private long aliasNameChannel = 0;
+    }
 }

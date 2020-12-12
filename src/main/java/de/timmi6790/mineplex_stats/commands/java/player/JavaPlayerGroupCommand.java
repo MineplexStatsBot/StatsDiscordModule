@@ -10,7 +10,6 @@ import de.timmi6790.mineplex_stats.statsapi.models.ResponseModel;
 import de.timmi6790.mineplex_stats.statsapi.models.java.*;
 import de.timmi6790.mineplex_stats.utilities.BiggestLong;
 import lombok.Data;
-import lombok.SneakyThrows;
 
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
@@ -68,7 +67,6 @@ public class JavaPlayerGroupCommand extends AbstractJavaStatsCommand {
                 playerStatsInfo.getStat(),
                 playerStatsInfo.getBoard()
         };
-
         return new LeaderboardData(
                 leaderboard.toArray(new String[0][0]),
                 header,
@@ -76,7 +74,6 @@ public class JavaPlayerGroupCommand extends AbstractJavaStatsCommand {
         );
     }
 
-    @SneakyThrows
     @Override
     protected CommandResult onCommand(final CommandParameters commandParameters) {
         // Parse input

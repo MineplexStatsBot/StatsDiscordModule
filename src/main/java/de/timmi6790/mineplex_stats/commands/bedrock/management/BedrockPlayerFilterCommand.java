@@ -44,6 +44,14 @@ public class BedrockPlayerFilterCommand extends AbstractBedrockStatsCommand {
                     embedBuilder.setTitle("Successfully Filtered"),
                     90
             );
+
+            // Log
+            this.getMineplexStatsModule().sendFilterNotification(
+                    commandParameters,
+                    "Bedrock",
+                    player,
+                    game.getName()
+            );
         });
         emotes.put(DiscordEmotes.RED_CROSS_MARK.getEmote(), new EmptyEmoteReaction());
 

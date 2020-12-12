@@ -20,19 +20,27 @@ public class JavaGameAliasCommand extends AbstractJavaStatsCommand {
     @Override
     protected CommandResult onCommand(final CommandParameters commandParameters) {
         final JavaGame game = this.getGame(commandParameters, 0);
-        final String newAlias = commandParameters.getArgs()[1];
+        final String newAlias = this.getArg(commandParameters, 1);
 
         this.getMineplexStatsModule()
                 .getMpStatsRestClient()
                 .addJavaGameAlias(game.getName(), newAlias);
         this.getMineplexStatsModule().loadJavaGames();
-        
+
         this.sendTimedMessage(
                 commandParameters,
                 this.getEmbedBuilder(commandParameters)
                         .setTitle("Added Game Alias")
                         .setDescription("Added new game alias " + MarkdownUtil.monospace(newAlias)),
                 90
+        );
+
+        // Log
+        this.getMineplexStatsModule().sendAliasNotification(
+                commandParameters,
+                "Java",
+                game.getName(),
+                newAlias
         );
 
         return CommandResult.SUCCESS;

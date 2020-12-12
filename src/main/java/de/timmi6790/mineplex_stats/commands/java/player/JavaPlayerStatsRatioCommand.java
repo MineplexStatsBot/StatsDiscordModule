@@ -8,7 +8,7 @@ import de.timmi6790.discord_framework.modules.command.CommandResult;
 import de.timmi6790.discord_framework.modules.command.property.properties.ExampleCommandsCommandProperty;
 import de.timmi6790.discord_framework.modules.command.property.properties.MinArgCommandProperty;
 import de.timmi6790.mineplex_stats.commands.java.AbstractJavaStatsCommand;
-import de.timmi6790.mineplex_stats.settings.DisclaimerMessageSetting;
+import de.timmi6790.mineplex_stats.settings.DisclaimerMessagesSetting;
 import de.timmi6790.mineplex_stats.statsapi.models.ResponseModel;
 import de.timmi6790.mineplex_stats.statsapi.models.java.JavaBoard;
 import de.timmi6790.mineplex_stats.statsapi.models.java.JavaRatioPlayer;
@@ -132,7 +132,7 @@ public class JavaPlayerStatsRatioCommand extends AbstractJavaStatsCommand {
                 .queue();
 
 
-        if (commandParameters.getUserDb().getSettingOrDefault(DisclaimerMessageSetting.class, true)) {
+        if (commandParameters.getUserDb().getSettingOrDefault(DisclaimerMessagesSetting.class, true)) {
             this.sendMessage(
                     commandParameters,
                     this.getEmbedBuilder(commandParameters)

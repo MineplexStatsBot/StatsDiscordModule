@@ -20,7 +20,7 @@ public class JavaBoardAliasCommand extends AbstractJavaStatsCommand {
     @Override
     protected CommandResult onCommand(final CommandParameters commandParameters) {
         final JavaBoards board = this.getFromEnumIgnoreCaseThrow(commandParameters, 0, JavaBoards.values());
-        final String newAlias = commandParameters.getArgs()[1];
+        final String newAlias = this.getArg(commandParameters, 1);
 
         this.getMineplexStatsModule()
                 .getMpStatsRestClient()
@@ -33,6 +33,14 @@ public class JavaBoardAliasCommand extends AbstractJavaStatsCommand {
                         .setTitle("Added Board Alias")
                         .setDescription("Added new board alias " + MarkdownUtil.monospace(newAlias)),
                 90
+        );
+
+        // Log
+        this.getMineplexStatsModule().sendAliasNotification(
+                commandParameters,
+                "Java",
+                EnumUtilities.getPrettyName(board),
+                newAlias
         );
 
         return CommandResult.SUCCESS;

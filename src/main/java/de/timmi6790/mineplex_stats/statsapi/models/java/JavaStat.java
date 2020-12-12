@@ -26,7 +26,7 @@ public class JavaStat {
         this.description = description;
 
         for (final JavaBoard javaBoard : boards.values()) {
-            boards.put(javaBoard.getName(), javaBoard);
+            this.boards.put(javaBoard.getName(), javaBoard);
             for (final String aliasName : javaBoard.getAliasNames()) {
                 this.boardAlias.put(aliasName, javaBoard.getName());
             }

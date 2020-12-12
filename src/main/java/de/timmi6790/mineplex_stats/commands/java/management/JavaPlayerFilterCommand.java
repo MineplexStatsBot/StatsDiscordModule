@@ -56,6 +56,14 @@ public class JavaPlayerFilterCommand extends AbstractJavaStatsCommand {
                     embedBuilder.setTitle("Successfully Filtered"),
                     90
             );
+
+            // Log
+            this.getMineplexStatsModule().sendFilterNotification(
+                    commandParameters,
+                    "Java",
+                    uuid.toString(),
+                    String.join("-", game.getName(), stat.getName(), board.getName())
+            );
         });
         emotes.put(DiscordEmotes.RED_CROSS_MARK.getEmote(), new EmptyEmoteReaction());
 

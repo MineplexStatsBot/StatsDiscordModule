@@ -3,8 +3,10 @@ package de.timmi6790.mineplex_stats;
 import de.timmi6790.discord_framework.DiscordBot;
 import de.timmi6790.discord_framework.modules.AbstractModule;
 import de.timmi6790.discord_framework.modules.command.CommandModule;
+import de.timmi6790.discord_framework.modules.command.CommandParameters;
 import de.timmi6790.discord_framework.modules.config.ConfigModule;
 import de.timmi6790.discord_framework.modules.setting.SettingModule;
+import de.timmi6790.discord_framework.utilities.discord.DiscordMessagesUtilities;
 import de.timmi6790.minecraft.MinecraftModule;
 import de.timmi6790.mineplex_stats.commands.bedrock.BedrockLeaderboardCommand;
 import de.timmi6790.mineplex_stats.commands.bedrock.BedrockPlayerCommand;
@@ -23,7 +25,7 @@ import de.timmi6790.mineplex_stats.commands.java.player.JavaPlayerStatsRatioComm
 import de.timmi6790.mineplex_stats.commands.java.unfiltered.JavaUnfilteredLeaderboardCommand;
 import de.timmi6790.mineplex_stats.commands.java.unfiltered.JavaUnfilteredPlayerStatsCommand;
 import de.timmi6790.mineplex_stats.settings.BedrockNameReplacementSetting;
-import de.timmi6790.mineplex_stats.settings.DisclaimerMessageSetting;
+import de.timmi6790.mineplex_stats.settings.DisclaimerMessagesSetting;
 import de.timmi6790.mineplex_stats.settings.JavaNameReplacementSetting;
 import de.timmi6790.mineplex_stats.statsapi.MpStatsRestApiClient;
 import de.timmi6790.mineplex_stats.statsapi.models.ResponseModel;
@@ -35,20 +37,24 @@ import de.timmi6790.mineplex_stats.statsapi.models.java.JavaGroup;
 import de.timmi6790.mineplex_stats.statsapi.models.java.JavaGroupsGroups;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import net.dv8tion.jda.api.entities.TextChannel;
+import net.dv8tion.jda.api.utils.MarkdownUtil;
 import org.apache.commons.collections4.map.CaseInsensitiveMap;
 
+import java.time.Instant;
 import java.util.*;
 
 @EqualsAndHashCode(callSuper = true)
 public class MineplexStatsModule extends AbstractModule {
-    private final Map<String, JavaGame> javaGames = Collections.synchronizedMap(new CaseInsensitiveMap<>());
-    private final Map<String, String> javaGamesAlias = Collections.synchronizedMap(new CaseInsensitiveMap<>());
-    private final Map<String, JavaGroup> javaGroups = Collections.synchronizedMap(new CaseInsensitiveMap<>());
-    private final Map<String, String> javaGroupsAlias = Collections.synchronizedMap(new CaseInsensitiveMap<>());
-    private final Map<String, BedrockGame> bedrockGames = Collections.synchronizedMap(new CaseInsensitiveMap<>());
+    private final Map<String, JavaGame> javaGames = new CaseInsensitiveMap<>();
+    private final Map<String, String> javaGamesAlias = new CaseInsensitiveMap<>();
+    private final Map<String, JavaGroup> javaGroups = new CaseInsensitiveMap<>();
+    private final Map<String, String> javaGroupsAlias = new CaseInsensitiveMap<>();
+    private final Map<String, BedrockGame> bedrockGames = new CaseInsensitiveMap<>();
 
     @Getter
     private MpStatsRestApiClient mpStatsRestClient;
+    private Config statsConfig;
 
     public MineplexStatsModule() {
         super("MineplexStats");
@@ -63,14 +69,14 @@ public class MineplexStatsModule extends AbstractModule {
 
     @Override
     public void onInitialize() {
-        final Config statsConfig = this.getModuleOrThrow(ConfigModule.class)
+        this.statsConfig = this.getModuleOrThrow(ConfigModule.class)
                 .registerAndGetConfig(this, new Config());
         this.mpStatsRestClient = new MpStatsRestApiClient(
                 DiscordBot.getLogger(),
-                statsConfig.getApiName(),
-                statsConfig.getApiPassword(),
-                statsConfig.getApiUrl(),
-                statsConfig.getApiTimeout()
+                this.statsConfig.getApiName(),
+                this.statsConfig.getApiPassword(),
+                this.statsConfig.getApiUrl(),
+                this.statsConfig.getApiTimeout()
         );
 
         // I should maybe handle the api downtime better
@@ -83,7 +89,7 @@ public class MineplexStatsModule extends AbstractModule {
                 this,
                 new JavaNameReplacementSetting(),
                 new BedrockNameReplacementSetting(),
-                new DisclaimerMessageSetting()
+                new DisclaimerMessagesSetting()
         );
 
         this.getModuleOrThrow(CommandModule.class).registerCommands(
@@ -123,16 +129,19 @@ public class MineplexStatsModule extends AbstractModule {
             return;
         }
 
-        this.javaGames.clear();
-        this.javaGamesAlias.clear();
+        synchronized (this.javaGames) {
+            synchronized (this.javaGamesAlias) {
+                this.javaGames.clear();
+                this.javaGamesAlias.clear();
 
-        for (final JavaGame game : ((JavaGamesModel) responseModel).getGames().values()) {
-            this.javaGames.put(game.getName(), game);
-            for (final String aliasName : game.getAliasNames()) {
-                this.javaGamesAlias.put(aliasName, game.getName());
+                for (final JavaGame game : ((JavaGamesModel) responseModel).getGames().values()) {
+                    this.javaGames.put(game.getName(), game);
+                    for (final String aliasName : game.getAliasNames()) {
+                        this.javaGamesAlias.put(aliasName, game.getName());
+                    }
+                }
             }
         }
-
     }
 
     public void loadJavaGroups() {
@@ -141,16 +150,20 @@ public class MineplexStatsModule extends AbstractModule {
             return;
         }
 
-        this.javaGroups.clear();
-        this.javaGroupsAlias.clear();
+        synchronized (this.javaGroups) {
+            synchronized (this.javaGroupsAlias) {
+                this.javaGroups.clear();
+                this.javaGroupsAlias.clear();
 
-        for (final JavaGroup javaGroup : ((JavaGroupsGroups) responseModel).getGroups().values()) {
-            Arrays.sort(javaGroup.getAliasNames());
-            javaGroup.getGameNames().sort(Comparator.naturalOrder());
+                for (final JavaGroup javaGroup : ((JavaGroupsGroups) responseModel).getGroups().values()) {
+                    Arrays.sort(javaGroup.getAliasNames());
+                    javaGroup.getGameNames().sort(Comparator.naturalOrder());
 
-            this.javaGroups.put(javaGroup.getName(), javaGroup);
-            for (final String aliasName : javaGroup.getAliasNames()) {
-                this.javaGroupsAlias.put(aliasName, javaGroup.getName());
+                    this.javaGroups.put(javaGroup.getName(), javaGroup);
+                    for (final String aliasName : javaGroup.getAliasNames()) {
+                        this.javaGroupsAlias.put(aliasName, javaGroup.getName());
+                    }
+                }
             }
         }
     }
@@ -161,9 +174,11 @@ public class MineplexStatsModule extends AbstractModule {
             return;
         }
 
-        this.bedrockGames.clear();
-        for (final BedrockGame game : ((BedrockGames) responseModel).getGames()) {
-            this.bedrockGames.put(game.getName(), game);
+        synchronized (this.bedrockGames) {
+            this.bedrockGames.clear();
+            for (final BedrockGame game : ((BedrockGames) responseModel).getGames()) {
+                this.bedrockGames.put(game.getName(), game);
+            }
         }
     }
 
@@ -192,5 +207,51 @@ public class MineplexStatsModule extends AbstractModule {
 
     public List<BedrockGame> getBedrockGames() {
         return new ArrayList<>(this.bedrockGames.values());
+    }
+
+    // Notifications
+    private void sendNotification(final CommandParameters commandParameters,
+                                  final long channelId,
+                                  final String format,
+                                  final Object... arguments) {
+        final TextChannel logChannel = this.getDiscord().getTextChannelById(channelId);
+        if (logChannel != null) {
+            DiscordMessagesUtilities.sendMessage(
+                    logChannel,
+                    DiscordMessagesUtilities.getEmbedBuilder(commandParameters)
+                            .appendDescription(format, arguments)
+                            .setTimestamp(Instant.now())
+            );
+        }
+    }
+
+    public void sendFilterNotification(final CommandParameters commandParameters,
+                                       final String category,
+                                       final String filteredPlayer,
+                                       final String leaderboard) {
+        this.sendNotification(
+                commandParameters,
+                this.statsConfig.getNotificationChannel().getFilterChannel(),
+                "[%s]%s added a new filter entry for %s in %s",
+                category,
+                commandParameters.getUser().getAsMention(),
+                MarkdownUtil.monospace(filteredPlayer),
+                MarkdownUtil.monospace(leaderboard)
+        );
+    }
+
+    public void sendAliasNotification(final CommandParameters commandParameters,
+                                      final String category,
+                                      final String leaderboard,
+                                      final String newAliasName) {
+        this.sendNotification(
+                commandParameters,
+                this.statsConfig.getNotificationChannel().getAliasNameChannel(),
+                "[%s]%s added a new alias entry %s for %s",
+                category,
+                commandParameters.getUser().getAsMention(),
+                MarkdownUtil.monospace(newAliasName),
+                MarkdownUtil.monospace(leaderboard)
+        );
     }
 }
