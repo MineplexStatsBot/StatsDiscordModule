@@ -31,7 +31,7 @@ public class JavaRatioPlayer extends ResponseModel {
     @AllArgsConstructor
     public static class Stat {
         private final String game;
-        private final int score;
+        private final long score;
         private final int unix;
     }
 }

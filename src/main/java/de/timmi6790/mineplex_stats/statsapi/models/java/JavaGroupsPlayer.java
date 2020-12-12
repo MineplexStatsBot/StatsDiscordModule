@@ -32,7 +32,7 @@ public class JavaGroupsPlayer extends ResponseModel {
     public static class Stats {
         private final String game;
         private final int position;
-        private final int score;
+        private final long score;
         private final int unix;
     }
 }

@@ -281,22 +281,21 @@ public abstract class AbstractStatsCommand extends AbstractCommand {
                                       final int argPos,
                                       final int upperLimit,
                                       final int maxDistance) {
-        final String userInput = this.getArg(commandParameters, argPos);
-        if (commandParameters.getArgs().length > argPos && !this.isInt(userInput)) {
+        if (commandParameters.getArgs().length > argPos && !this.isInt(this.getArg(commandParameters, argPos))) {
             throw new CommandReturnException(
                     this.getEmbedBuilder(commandParameters)
                             .setTitle("Invalid end position")
                             .setDescription(
                                     "%s is not a valid end position for the leaderboard.\n" +
                                             "Use a number between %s and %s.",
-                                    MarkdownUtil.monospace(commandParameters.getArgs()[argPos]),
+                                    MarkdownUtil.monospace(this.getArg(commandParameters, argPos)),
                                     MarkdownUtil.bold("1"),
                                     MarkdownUtil.bold(String.valueOf(upperLimit))
                             )
             );
         }
 
-        int endPos = argPos >= commandParameters.getArgs().length ? upperLimit : Integer.parseInt(userInput);
+        int endPos = argPos >= commandParameters.getArgs().length ? upperLimit : Integer.parseInt(this.getArg(commandParameters, argPos));
         if (startPos > endPos || endPos - startPos > maxDistance) {
             endPos = startPos + maxDistance;
         }

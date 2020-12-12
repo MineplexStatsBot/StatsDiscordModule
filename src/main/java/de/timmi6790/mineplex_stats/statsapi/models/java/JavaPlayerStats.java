@@ -32,7 +32,7 @@ public class JavaPlayerStats extends ResponseModel {
     public static class Stat {
         private final String statName;
         private final int position;
-        private final int score;
+        private final long score;
         private final int unix;
     }
 
@@ -40,6 +40,6 @@ public class JavaPlayerStats extends ResponseModel {
     @AllArgsConstructor
     public static class WebsiteStat {
         private final String stat;
-        private final int score;
+        private final long score;
     }
 }

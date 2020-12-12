@@ -73,7 +73,7 @@ public class JavaPlayerStatsRatioCommand extends AbstractJavaStatsCommand {
 
             highestUnixTime.tryNumber(stat.getUnix());
             slices.add(Slice.newSlice(
-                    stat.getScore(),
+                    (int) Math.round(percentage * 100),
                     String.format("%s %s %s",
                             stat.getGame(),
                             DECIMAL_FORMAT.format(percentage) + "%",
