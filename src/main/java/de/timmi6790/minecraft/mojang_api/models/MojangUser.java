@@ -33,7 +33,9 @@ public class MojangUser {
 
     public static class MojangUserDeserializer implements JsonDeserializer<MojangUser> {
         @Override
-        public MojangUser deserialize(final JsonElement jsonElement, final Type type, final JsonDeserializationContext jsonDeserializationContext) {
+        public MojangUser deserialize(final JsonElement jsonElement,
+                                      final Type type,
+                                      final JsonDeserializationContext jsonDeserializationContext) {
             return new MojangUser(
                     jsonElement.getAsJsonObject().get("name").getAsString(),
                     UUID.fromString(FULL_UUID_PATTERN.matcher(jsonElement.getAsJsonObject().get("id").getAsString()).replaceAll("$1-$2-$3-$4-$5"))

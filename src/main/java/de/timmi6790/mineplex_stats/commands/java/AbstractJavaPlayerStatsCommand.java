@@ -55,8 +55,9 @@ public abstract class AbstractJavaPlayerStatsCommand extends AbstractJavaStatsCo
         final JavaPlayerStats.Info playerStatsInfo = playerStats.getInfo();
 
         // Parse data into image generator
-        final JavaGame game = this.getMineplexStatsModule().getJavaGame(playerStatsInfo.getGame()).orElseThrow(RuntimeException::new);
-        final BiggestLong highestUnixTime = new BiggestLong();
+        final JavaGame game = this.getMineplexStatsModule()
+                .getJavaGame(playerStatsInfo.getGame())
+                .orElseThrow(RuntimeException::new);
 
         final List<String[]> leaderboard = new ArrayList<>(playerStats.getWebsiteStats().size() + game.getStats().size() + 1);
         leaderboard.add(LIST_HEADER);
@@ -67,6 +68,7 @@ public abstract class AbstractJavaPlayerStatsCommand extends AbstractJavaStatsCo
         }
 
         // Leaderboard stats
+        final BiggestLong highestUnixTime = new BiggestLong();
         for (final String statName : game.getStatNames()) {
             final Optional<JavaStat> statOpt = game.getStat(statName);
             if (!statOpt.isPresent()) {
@@ -78,10 +80,17 @@ public abstract class AbstractJavaPlayerStatsCommand extends AbstractJavaStatsCo
             if (foundStat != null) {
                 highestUnixTime.tryNumber(foundStat.getUnix());
 
-                final String position = foundStat.getPosition() == -1 ? AbstractStatsCommand.UNKNOWN_POSITION : String.valueOf(foundStat.getPosition());
-                leaderboard.add(new String[]{stat.getPrintName(), this.getFormattedScore(stat, foundStat.getScore()), position});
+                leaderboard.add(new String[]{
+                        stat.getPrintName(),
+                        this.getFormattedScore(stat, foundStat.getScore()),
+                        foundStat.getPosition() == -1 ? AbstractStatsCommand.UNKNOWN_POSITION : String.valueOf(foundStat.getPosition())
+                });
             } else {
-                leaderboard.add(new String[]{stat.getPrintName(), AbstractStatsCommand.UNKNOWN_SCORE, AbstractStatsCommand.UNKNOWN_POSITION});
+                leaderboard.add(new String[]{
+                        stat.getPrintName(),
+                        AbstractStatsCommand.UNKNOWN_SCORE,
+                        AbstractStatsCommand.UNKNOWN_POSITION
+                });
             }
         }
 
@@ -94,9 +103,18 @@ public abstract class AbstractJavaPlayerStatsCommand extends AbstractJavaStatsCo
 
     protected String[] getHeader(final JavaPlayerStats.Info playerStatsInfo) {
         if (this.filteredStats) {
-            return new String[]{playerStatsInfo.getName(), playerStatsInfo.getGame(), playerStatsInfo.getBoard()};
+            return new String[]{
+                    playerStatsInfo.getName(),
+                    playerStatsInfo.getGame(),
+                    playerStatsInfo.getBoard()
+            };
         } else {
-            return new String[]{playerStatsInfo.getName(), playerStatsInfo.getGame(), playerStatsInfo.getBoard(), "UNFILTERED"};
+            return new String[]{
+                    playerStatsInfo.getName(),
+                    playerStatsInfo.getGame(),
+                    playerStatsInfo.getBoard(),
+                    "UNFILTERED"
+            };
         }
     }
 
@@ -106,7 +124,7 @@ public abstract class AbstractJavaPlayerStatsCommand extends AbstractJavaStatsCo
     protected CommandResult onCommand(final CommandParameters commandParameters) {
         // Parse args
         final String playerName = this.getPlayer(commandParameters, 0);
-        final UUID playerUUID = this.getPlayerUUIDFromName(commandParameters, 0);
+        final UUID playerUUID = this.getPlayerUUIDFromNameThrow(commandParameters, 0);
         final JavaGame javaGame = this.getGame(commandParameters, 1);
         final JavaBoard board = this.getBoard(javaGame, commandParameters, 2);
         final long unixTime = this.getUnixTimeThrow(commandParameters, 3);
@@ -114,7 +132,14 @@ public abstract class AbstractJavaPlayerStatsCommand extends AbstractJavaStatsCo
         // Web Requests
         final ResponseModel responseModel = this.getMineplexStatsModule()
                 .getMpStatsRestClient()
-                .getJavaPlayerStats(playerUUID, playerName, javaGame.getName(), board.getName(), unixTime, this.filteredStats);
+                .getJavaPlayerStats(
+                        playerUUID,
+                        playerName,
+                        javaGame.getName(),
+                        board.getName(),
+                        unixTime,
+                        this.filteredStats
+                );
         this.checkApiResponseThrow(commandParameters, responseModel, "No stats available");
 
         final JavaPlayerStats playerStats = (JavaPlayerStats) responseModel;

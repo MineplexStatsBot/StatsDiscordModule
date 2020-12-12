@@ -23,8 +23,11 @@ public class JavaGroup {
     @Getter(lazy = true)
     private static final MineplexStatsModule module = DiscordBot.getInstance().getModuleManager().getModuleOrThrow(MineplexStatsModule.class);
 
-    public JavaGroup(final String group, final String description, final String[] aliasNames,
-                     final List<String> games, final List<JavaStat> groupStats) {
+    public JavaGroup(final String group,
+                     final String description,
+                     final String[] aliasNames,
+                     final List<String> games,
+                     final List<JavaStat> groupStats) {
         this.group = group;
         this.description = description;
         this.aliasNames = aliasNames.clone();

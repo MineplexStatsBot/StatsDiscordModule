@@ -1,6 +1,5 @@
 package de.timmi6790.mineplex_stats.commands.bedrock;
 
-import de.timmi6790.discord_framework.modules.command.AbstractCommand;
 import de.timmi6790.discord_framework.modules.command.CommandParameters;
 import de.timmi6790.discord_framework.modules.command.exceptions.CommandReturnException;
 import de.timmi6790.minecraft.utilities.BedrockUtilities;
@@ -11,11 +10,7 @@ import de.timmi6790.mineplex_stats.settings.NameReplacementSetting;
 import de.timmi6790.mineplex_stats.statsapi.models.bedrock.BedrockGame;
 import net.dv8tion.jda.api.utils.MarkdownUtil;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
 
 public abstract class AbstractBedrockStatsCommand extends AbstractStatsCommand {
     protected AbstractBedrockStatsCommand(final String name,
@@ -26,33 +21,16 @@ public abstract class AbstractBedrockStatsCommand extends AbstractStatsCommand {
     }
 
     protected BedrockGame getGame(final CommandParameters commandParameters, final int argPos) {
-        final String name = commandParameters.getArgs()[argPos];
-        final Optional<BedrockGame> game = this.getMineplexStatsModule().getBedrockGame(name);
-        if (game.isPresent()) {
-            return game.get();
-        }
-
-        final List<BedrockGame> similarGames = new ArrayList<>(this.getMineplexStatsModule().getSimilarBedrockGames(name, 0.6, 3));
-        if (!similarGames.isEmpty() && commandParameters.getUserDb().hasAutoCorrection()) {
-            return similarGames.get(0);
-        }
-
-        final AbstractCommand command = getCommandModule()
-                .getCommand(BedrockGamesCommand.class)
-                .orElse(null);
-        this.sendHelpMessage(
+        return this.getArgumentOrThrow(
                 commandParameters,
-                name,
-                argPos,
                 "game",
-                command,
-                new String[0],
-                similarGames.stream()
-                        .map(BedrockGame::getName)
-                        .collect(Collectors.toList())
+                argPos,
+                gameName -> this.getMineplexStatsModule().getBedrockGame(gameName),
+                BedrockGame::getName,
+                () -> this.getMineplexStatsModule().getBedrockGames(),
+                () -> new String[0],
+                BedrockGamesCommand.class
         );
-
-        throw new CommandReturnException();
     }
 
     protected String getPlayer(final CommandParameters commandParameters, final int startPos) {

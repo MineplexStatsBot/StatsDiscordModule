@@ -102,12 +102,26 @@ public abstract class AbstractJavaLeaderboardCommand extends AbstractJavaStatsCo
         final JavaStat stat = this.getStat(game, commandParameters, 1);
         final JavaBoard board = this.getBoard(game, commandParameters, ARG_POS_BOARD);
         final int startPos = this.getStartPositionThrow(commandParameters, ARG_POS_START, LEADERBOARD_UPPER_LIMIT);
-        final int endPos = this.getEndPositionThrow(startPos, commandParameters, ARG_POS_END, LEADERBOARD_UPPER_LIMIT, this.leaderboardRowDistance);
+        final int endPos = this.getEndPositionThrow(
+                startPos,
+                commandParameters,
+                ARG_POS_END,
+                LEADERBOARD_UPPER_LIMIT,
+                this.leaderboardRowDistance
+        );
         final long unixTime = this.getUnixTimeThrow(commandParameters, 5);
 
         final ResponseModel responseModel = this.getMineplexStatsModule()
                 .getMpStatsRestClient()
-                .getJavaLeaderboard(game.getName(), stat.getName(), board.getName(), startPos, endPos, unixTime, this.filteredStats);
+                .getJavaLeaderboard(
+                        game.getName(),
+                        stat.getName(),
+                        board.getName(),
+                        startPos,
+                        endPos,
+                        unixTime,
+                        this.filteredStats
+                );
         this.checkApiResponseThrow(commandParameters, responseModel, "No stats available");
 
         // Parse data to image generator
@@ -119,7 +133,11 @@ public abstract class AbstractJavaLeaderboardCommand extends AbstractJavaStatsCo
         final String[] header = this.getHeader(leaderboardInfo);
         return this.sendPicture(
                 this.getLeaderboardFixedCommandParameter(commandParameters, ARG_POS_END, ARG_POS_START),
-                new PictureTable(header, this.getFormattedUnixTime(leaderboardInfo.getUnix()), leaderboard).getPlayerPicture(),
+                new PictureTable(
+                        header,
+                        this.getFormattedUnixTime(leaderboardInfo.getUnix()),
+                        leaderboard
+                ).getPlayerPicture(),
                 String.format("%s-%s", String.join("-", header), leaderboardInfo.getUnix()),
                 new EmoteReactionMessage(
                         this.getCustomEmotes(commandParameters, leaderboardResponse, startPos, endPos),

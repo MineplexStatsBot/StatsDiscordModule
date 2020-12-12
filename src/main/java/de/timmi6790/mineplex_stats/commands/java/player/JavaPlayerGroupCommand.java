@@ -80,7 +80,7 @@ public class JavaPlayerGroupCommand extends AbstractJavaStatsCommand {
     @Override
     protected CommandResult onCommand(final CommandParameters commandParameters) {
         // Parse input
-        final UUID playerUUID = this.getPlayerUUIDFromName(commandParameters, 0);
+        final UUID playerUUID = this.getPlayerUUIDFromNameThrow(commandParameters, 0);
         final JavaGroup javaGroup = this.getJavaGroup(commandParameters, 1);
         final JavaStat stat = this.getJavaStat(javaGroup, commandParameters, 2);
 

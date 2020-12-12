@@ -1,10 +1,9 @@
 package de.timmi6790.mineplex_stats.statsapi.models.java;
 
-import de.timmi6790.discord_framework.utilities.DataUtilities;
 import lombok.Data;
+import org.apache.commons.collections4.map.CaseInsensitiveMap;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Data
 public class JavaStat {
@@ -13,20 +12,25 @@ public class JavaStat {
     private final boolean achievement;
     private final String description;
 
-    private final Map<String, JavaBoard> boards;
-    private final Map<String, String> boardAlias = new HashMap<>();
+    private final Map<String, JavaBoard> boards = new CaseInsensitiveMap<>();
+    private final Map<String, String> boardAlias = new CaseInsensitiveMap<>();
 
-    public JavaStat(final String name, final String[] aliasNames, final boolean achievement, final String description, final Map<String, JavaBoard> boards) {
+    public JavaStat(final String name,
+                    final String[] aliasNames,
+                    final boolean achievement,
+                    final String description,
+                    final Map<String, JavaBoard> boards) {
         this.name = name;
         this.aliasNames = aliasNames.clone();
         this.achievement = achievement;
         this.description = description;
-        this.boards = boards;
 
-        boards.values().forEach(board -> {
-            final String boardLower = board.getName().toLowerCase();
-            Arrays.stream(board.getAliasNames()).forEach(alias -> this.boardAlias.put(alias, boardLower));
-        });
+        for (final JavaBoard javaBoard : boards.values()) {
+            boards.put(javaBoard.getName(), javaBoard);
+            for (final String aliasName : javaBoard.getAliasNames()) {
+                this.boardAlias.put(aliasName, javaBoard.getName());
+            }
+        }
     }
 
     public String[] getAliasNames() {
@@ -42,22 +46,17 @@ public class JavaStat {
     }
 
     public List<String> getBoardNames() {
-        return this.boards.values()
-                .stream()
-                .map(JavaBoard::getName)
-                .sorted(Comparator.naturalOrder())
-                .collect(Collectors.toList());
+        return new ArrayList<>(this.boards.keySet());
+    }
+
+    public List<String> getBoardNamesSorted() {
+        final List<String> javaBoardNames = this.getBoardNames();
+        javaBoardNames.sort(Comparator.naturalOrder());
+        return javaBoardNames;
     }
 
     public Optional<JavaBoard> getBoard(String name) {
         name = this.boardAlias.getOrDefault(name.toLowerCase(), name.toLowerCase());
         return Optional.ofNullable(this.boards.get(name));
-    }
-
-    public List<JavaBoard> getSimilarBoard(final String name, final double similarity, final int limit) {
-        return DataUtilities.getSimilarityList(name, this.boards.keySet(), similarity, limit)
-                .stream()
-                .map(this.boards::get)
-                .collect(Collectors.toList());
     }
 }

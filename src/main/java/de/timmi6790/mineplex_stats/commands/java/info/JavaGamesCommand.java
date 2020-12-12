@@ -57,7 +57,7 @@ public class JavaGamesCommand extends AbstractJavaStatsCommand {
 
         // Sort java games after category
         final Map<String, List<String>> sortedLeaderboard = new TreeMap<>();
-        for (final JavaGame game : this.getMineplexStatsModule().getJavaGames().values()) {
+        for (final JavaGame game : this.getMineplexStatsModule().getJavaGames()) {
             sortedLeaderboard.computeIfAbsent(game.getCategory(), k -> new TreeList<>()).add(game.getName());
         }
 
@@ -141,7 +141,7 @@ public class JavaGamesCommand extends AbstractJavaStatsCommand {
                         )
                         .addField(
                                 "Boards",
-                                String.join(", ", stat.getBoardNames()),
+                                String.join(", ", stat.getBoardNamesSorted()),
                                 false
                         ),
                 150

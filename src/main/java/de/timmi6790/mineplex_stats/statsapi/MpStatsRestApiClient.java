@@ -3,13 +3,13 @@ package de.timmi6790.mineplex_stats.statsapi;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import de.timmi6790.commons.builders.MapBuilder;
+import de.timmi6790.mineplex_stats.statsapi.deserializer.JavaGamesModelDeserializer;
 import de.timmi6790.mineplex_stats.statsapi.models.ResponseModel;
 import de.timmi6790.mineplex_stats.statsapi.models.bedrock.BedrockGames;
 import de.timmi6790.mineplex_stats.statsapi.models.bedrock.BedrockLeaderboard;
 import de.timmi6790.mineplex_stats.statsapi.models.bedrock.BedrockPlayerStats;
 import de.timmi6790.mineplex_stats.statsapi.models.errors.ErrorModel;
 import de.timmi6790.mineplex_stats.statsapi.models.java.*;
-import de.timmi6790.mineplex_stats.utilities.JavaGamesModelDeserializer;
 import kong.unirest.*;
 import kong.unirest.json.JSONObject;
 import lombok.AccessLevel;
@@ -252,60 +252,50 @@ public class MpStatsRestApiClient {
                                     final String game,
                                     final String stat,
                                     final String board) {
-        if (!this.isValidCredentials()) {
-            return;
+        if (this.isValidCredentials()) {
+            this.unirest.post("java/leaderboards/filter")
+                    .queryString(GAME, game)
+                    .queryString(STAT, stat)
+                    .queryString(BOARD, board.toLowerCase())
+                    .queryString("uuid", uuid.toString())
+                    .asEmpty();
         }
-
-        this.unirest.post("java/leaderboards/filter")
-                .queryString(GAME, game)
-                .queryString(STAT, stat)
-                .queryString(BOARD, board.toLowerCase())
-                .queryString("uuid", uuid.toString())
-                .asEmpty();
     }
 
     public void addBedrockPlayerFilter(final String player, final String game) {
-        if (!this.isValidCredentials()) {
-            return;
+        if (this.isValidCredentials()) {
+            this.unirest.post("bedrock/leaderboards/filter")
+                    .queryString(GAME, game)
+                    .queryString("name", player)
+                    .asEmpty();
         }
-
-        this.unirest.post("bedrock/leaderboards/filter")
-                .queryString(GAME, game)
-                .queryString("name", player)
-                .asEmpty();
     }
 
     public void addJavaBoardAlias(final String board, final String alias) {
-        if (!this.isValidCredentials()) {
-            return;
+        if (this.isValidCredentials()) {
+            this.unirest.post("java/leaderboards/alias/board")
+                    .queryString(BOARD, board.toLowerCase())
+                    .queryString(ALIAS, alias)
+                    .asEmpty();
         }
-
-        this.unirest.post("java/leaderboards/alias/board")
-                .queryString(BOARD, board.toLowerCase())
-                .queryString(ALIAS, alias)
-                .asEmpty();
     }
 
     public void addJavaGameAlias(final String game, final String alias) {
-        if (!this.isValidCredentials()) {
-            return;
+        if (this.isValidCredentials()) {
+            this.unirest.post("java/leaderboards/alias/game")
+                    .queryString(GAME, game)
+                    .queryString(ALIAS, alias)
+                    .asEmpty();
         }
-
-        this.unirest.post("java/leaderboards/alias/game")
-                .queryString(GAME, game)
-                .queryString(ALIAS, alias)
-                .asEmpty();
     }
 
     public void addJavaStatAlias(final String game, final String stat, final String alias) {
-        if (!this.isValidCredentials()) {
-            return;
+        if (this.isValidCredentials()) {
+            this.unirest.post("java/leaderboards/alias/stat")
+                    .queryString(GAME, game)
+                    .queryString(STAT, stat)
+                    .queryString(ALIAS, alias)
+                    .asEmpty();
         }
-
-        this.unirest.post("java/leaderboards/alias/stat")
-                .queryString(GAME, game)
-                .queryString(STAT, stat)
-                .queryString(ALIAS, alias)
-                .asEmpty();
     }
 }

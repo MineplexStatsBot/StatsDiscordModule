@@ -5,7 +5,6 @@ import de.timmi6790.discord_framework.modules.AbstractModule;
 import de.timmi6790.discord_framework.modules.command.CommandModule;
 import de.timmi6790.discord_framework.modules.config.ConfigModule;
 import de.timmi6790.discord_framework.modules.setting.SettingModule;
-import de.timmi6790.discord_framework.utilities.DataUtilities;
 import de.timmi6790.minecraft.MinecraftModule;
 import de.timmi6790.mineplex_stats.commands.bedrock.BedrockLeaderboardCommand;
 import de.timmi6790.mineplex_stats.commands.bedrock.BedrockPlayerCommand;
@@ -35,20 +34,18 @@ import de.timmi6790.mineplex_stats.statsapi.models.java.JavaGroup;
 import de.timmi6790.mineplex_stats.statsapi.models.java.JavaGroupsGroups;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import org.apache.commons.collections4.map.CaseInsensitiveMap;
 
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
 
 @EqualsAndHashCode(callSuper = true)
 public class MineplexStatsModule extends AbstractModule {
-    @Getter
-    private final Map<String, JavaGame> javaGames = new ConcurrentHashMap<>();
-    private final Map<String, String> javaGamesAlias = new ConcurrentHashMap<>();
-    @Getter
-    private final Map<String, JavaGroup> javaGroups = new ConcurrentHashMap<>();
-    private final Map<String, String> javaGroupsAlias = new ConcurrentHashMap<>();
-    @Getter
-    private final Map<String, BedrockGame> bedrockGames = new ConcurrentHashMap<>();
+    private final Map<String, JavaGame> javaGames = Collections.synchronizedMap(new CaseInsensitiveMap<>());
+    private final Map<String, String> javaGamesAlias = Collections.synchronizedMap(new CaseInsensitiveMap<>());
+    private final Map<String, JavaGroup> javaGroups = Collections.synchronizedMap(new CaseInsensitiveMap<>());
+    private final Map<String, String> javaGroupsAlias = Collections.synchronizedMap(new CaseInsensitiveMap<>());
+    private final Map<String, BedrockGame> bedrockGames = Collections.synchronizedMap(new CaseInsensitiveMap<>());
+
     @Getter
     private MpStatsRestApiClient mpStatsRestClient;
 
@@ -126,10 +123,14 @@ public class MineplexStatsModule extends AbstractModule {
 
         this.javaGames.clear();
         this.javaGamesAlias.clear();
-        ((JavaGamesModel) responseModel).getGames().values().forEach(javaGame -> {
-            this.javaGames.put(javaGame.getName().toLowerCase(), javaGame);
-            Arrays.stream(javaGame.getAliasNames()).forEach(alias -> this.javaGamesAlias.put(alias.toLowerCase(), javaGame.getName().toLowerCase()));
-        });
+
+        for (final JavaGame game : ((JavaGamesModel) responseModel).getGames().values()) {
+            this.javaGames.put(game.getName(), game);
+            for (final String aliasName : game.getAliasNames()) {
+                this.javaGamesAlias.put(aliasName, game.getName());
+            }
+        }
+
     }
 
     public void loadJavaGroups() {
@@ -140,12 +141,15 @@ public class MineplexStatsModule extends AbstractModule {
 
         this.javaGroups.clear();
         this.javaGroupsAlias.clear();
+
         for (final JavaGroup javaGroup : ((JavaGroupsGroups) responseModel).getGroups().values()) {
             Arrays.sort(javaGroup.getAliasNames());
             javaGroup.getGameNames().sort(Comparator.naturalOrder());
 
-            this.javaGroups.put(javaGroup.getName().toLowerCase(), javaGroup);
-            Arrays.stream(javaGroup.getAliasNames()).forEach(alias -> this.javaGroupsAlias.put(alias.toLowerCase(), javaGroup.getName().toLowerCase()));
+            this.javaGroups.put(javaGroup.getName(), javaGroup);
+            for (final String aliasName : javaGroup.getAliasNames()) {
+                this.javaGroupsAlias.put(aliasName, javaGroup.getName());
+            }
         }
     }
 
@@ -156,52 +160,35 @@ public class MineplexStatsModule extends AbstractModule {
         }
 
         this.bedrockGames.clear();
-        ((BedrockGames) responseModel).getGames().forEach(game -> this.bedrockGames.put(game.getName().toLowerCase(), game));
+        for (final BedrockGame game : ((BedrockGames) responseModel).getGames()) {
+            this.bedrockGames.put(game.getName(), game);
+        }
     }
 
-    // Get Data
+    // Data
     public Optional<JavaGame> getJavaGame(String name) {
-        name = this.javaGamesAlias.getOrDefault(name.toLowerCase(), name.toLowerCase());
+        name = this.javaGamesAlias.getOrDefault(name, name);
         return Optional.ofNullable(this.javaGames.get(name));
     }
 
-    public List<JavaGame> getSimilarJavaGames(final String name, final double similarity, final int limit) {
-        return DataUtilities.getSimilarityList(
-                name,
-                this.javaGames.values(),
-                JavaGame::getName,
-                similarity,
-                limit
-        );
+    public List<JavaGame> getJavaGames() {
+        return new ArrayList<>(this.javaGames.values());
     }
 
     public Optional<JavaGroup> getJavaGroup(String name) {
-        name = this.javaGroupsAlias.getOrDefault(name.toLowerCase(), name.toLowerCase());
+        name = this.javaGroupsAlias.getOrDefault(name, name);
         return Optional.ofNullable(this.javaGroups.get(name));
     }
 
-    public List<JavaGroup> getSimilarJavaGroups(final String name, final double similarity, final int limit) {
-        return DataUtilities.getSimilarityList(
-                name,
-                this.javaGroups.values(),
-                JavaGroup::getName,
-                similarity,
-                limit
-        );
+    public List<JavaGroup> getJavaGroups() {
+        return new ArrayList<>(this.javaGroups.values());
     }
 
     public Optional<BedrockGame> getBedrockGame(final String name) {
-        return Optional.ofNullable(this.bedrockGames.get(name.toLowerCase()));
+        return Optional.ofNullable(this.bedrockGames.get(name));
     }
 
-    public List<BedrockGame> getSimilarBedrockGames(final String name, final double similarity, final int limit) {
-        return DataUtilities.getSimilarityList(
-                name,
-                this.bedrockGames.values(),
-                BedrockGame::getName,
-                similarity,
-                limit
-        );
+    public List<BedrockGame> getBedrockGames() {
+        return new ArrayList<>(this.bedrockGames.values());
     }
-
 }

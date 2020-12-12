@@ -23,7 +23,7 @@ public class BedrockGamesCommand extends AbstractBedrockStatsCommand {
 
 
         final Map<String, List<String>> sortedGames = new TreeMap<>();
-        for (final BedrockGame game : this.getMineplexStatsModule().getBedrockGames().values()) {
+        for (final BedrockGame game : this.getMineplexStatsModule().getBedrockGames()) {
             final String key = game.isRemoved() ? "Removed" : "Games";
             sortedGames.computeIfAbsent(key, k -> new TreeList<>()).add(game.getName());
         }

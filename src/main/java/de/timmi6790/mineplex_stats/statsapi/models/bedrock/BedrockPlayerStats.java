@@ -1,7 +1,6 @@
 package de.timmi6790.mineplex_stats.statsapi.models.bedrock;
 
 import de.timmi6790.mineplex_stats.statsapi.models.ResponseModel;
-import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
@@ -15,14 +14,12 @@ public class BedrockPlayerStats extends ResponseModel {
 
 
     @Data
-    @AllArgsConstructor
     public static class Info {
         private final String name;
         private final boolean filter;
     }
 
     @Data
-    @AllArgsConstructor
     public static class Stats {
         private final String game;
         private final int position;

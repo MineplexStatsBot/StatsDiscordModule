@@ -22,7 +22,10 @@ import lombok.SneakyThrows;
 import net.dv8tion.jda.api.utils.MarkdownUtil;
 
 import java.awt.image.BufferedImage;
-import java.util.*;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
@@ -50,7 +53,17 @@ public abstract class AbstractJavaStatsCommand extends AbstractStatsCommand {
         return JavaUtilities.getPlayerSkin(uuid);
     }
 
-    protected UUID getPlayerUUIDFromName(final CommandParameters commandParameters, final int argPos) {
+    @SneakyThrows
+    protected <T> T awaitOrDefault(final CompletableFuture<T> completableFuture, final T defaultValue) {
+        try {
+            return completableFuture.get();
+        } catch (final ExecutionException ignore) {
+            return defaultValue;
+        }
+    }
+
+    // Arg Parsing
+    protected UUID getPlayerUUIDFromNameThrow(final CommandParameters commandParameters, final int argPos) {
         final String playerName = this.getPlayer(commandParameters, argPos);
         final Optional<MojangUser> mojangUser = MojangApi.getUser(playerName);
         if (mojangUser.isPresent()) {
@@ -68,80 +81,56 @@ public abstract class AbstractJavaStatsCommand extends AbstractStatsCommand {
         );
     }
 
-    // Arg Parsing
     protected JavaGame getGame(final CommandParameters commandParameters, final int argPos) {
-        final String name = commandParameters.getArgs()[argPos];
-        final Optional<JavaGame> game = this.getMineplexStatsModule().getJavaGame(name);
-        if (game.isPresent()) {
-            return game.get();
-        }
-
-        final List<JavaGame> similarGames = this.getMineplexStatsModule().getSimilarJavaGames(name, 0.6, 3);
-        if (!similarGames.isEmpty() && commandParameters.getUserDb().hasAutoCorrection()) {
-            return similarGames.get(0);
-        }
-
-        this.sendHelpMessage(
+        return this.getArgumentOrThrow(
                 commandParameters,
-                name,
-                argPos,
                 "game",
-                this.getMineplexStatsModule().getModuleOrThrow(CommandModule.class)
-                        .getCommand(JavaGamesCommand.class)
-                        .orElse(null),
-                new String[0],
-                similarGames.stream()
-                        .map(JavaGame::getName)
-                        .collect(Collectors.toList())
+                argPos,
+                gameName -> this.getMineplexStatsModule()
+                        .getJavaGame(gameName),
+                JavaGame::getName,
+                () -> this.getMineplexStatsModule().getJavaGames(),
+                () -> new String[0],
+                JavaGamesCommand.class
         );
-        throw new CommandReturnException();
     }
 
     protected JavaStat getStat(final JavaGame game, final CommandParameters commandParameters, final int argPos) {
-        final String name = commandParameters.getArgs()[argPos];
-        final Optional<JavaStat> stat = game.getStat(name);
-        if (stat.isPresent()) {
-            return stat.get();
-        }
-
-        final List<JavaStat> similarStats = game.getSimilarStats(JavaGame.getCleanStat(name), 0.6, 3);
-        if (!similarStats.isEmpty() && commandParameters.getUserDb().hasAutoCorrection()) {
-            return similarStats.get(0);
-        }
-
-        this.sendHelpMessage(
+        return this.getArgumentOrThrow(
                 commandParameters,
-                name,
-                argPos,
                 "stat",
-                this.getMineplexStatsModule().getModuleOrThrow(CommandModule.class)
-                        .getCommand(JavaGamesCommand.class)
-                        .orElse(null),
-                new String[]{game.getName()},
-                similarStats.stream()
-                        .map(JavaStat::getName)
-                        .collect(Collectors.toList())
+                argPos,
+                game::getStat,
+                JavaStat::getName,
+                () -> game.getStats().values(),
+                () -> new String[]{game.getName()},
+                JavaGamesCommand.class
         );
-        throw new CommandReturnException();
     }
 
     protected JavaStat getStat(final CommandParameters commandParameters, final int argPos) {
-        final String name = commandParameters.getArgs()[argPos];
-        final Optional<JavaStat> stat = this.getMineplexStatsModule().getJavaGames().values()
-                .stream()
-                .map(game -> game.getStat(name))
-                .filter(Optional::isPresent)
-                .map(Optional::get)
-                .max(Comparator.comparingInt(javaStat -> javaStat.getBoards().size()));
-        if (stat.isPresent()) {
-            return stat.get();
+        final String userInput = this.getArg(commandParameters, argPos);
+
+        // Tries to locate the stat with the requested name and the highest board size.
+        // We need the highest board size here to prevent an issue that it would later not find the board in the stat
+        // This is a shitty fix for this issue and should be changed in the future
+        JavaStat foundStat = null;
+        for (final JavaGame game : this.getMineplexStatsModule().getJavaGames()) {
+            final Optional<JavaStat> statOpt = game.getStat(userInput);
+            if (statOpt.isPresent() &&
+                    (foundStat == null || statOpt.get().getBoards().size() > foundStat.getBoards().size())) {
+                foundStat = statOpt.get();
+            }
+        }
+        if (foundStat != null) {
+            return foundStat;
         }
 
         this.sendTimedMessage(
                 commandParameters,
                 this.getEmbedBuilder(commandParameters)
                         .setTitle("Invalid Stat")
-                        .setDescription(MarkdownUtil.monospace(name) + " is not a valid stat. " +
+                        .setDescription(MarkdownUtil.monospace(userInput) + " is not a valid stat. " +
                                 "\nTODO: Add help emotes." +
                                 "\n In the meantime just use any valid stat name, if that is not working scream at me."),
                 90
@@ -151,22 +140,16 @@ public abstract class AbstractJavaStatsCommand extends AbstractStatsCommand {
     }
 
     protected JavaBoard getBoard(final JavaGame game, final CommandParameters commandParameters, final int argPos) {
-        final String name;
-        if (argPos >= commandParameters.getArgs().length || commandParameters.getArgs()[argPos] == null) {
-            name = "All";
-        } else {
-            name = commandParameters.getArgs()[argPos];
-        }
-
+        final String userInput = this.getArgOrDefault(commandParameters, argPos, "All");
         for (final JavaStat stat : game.getStats().values()) {
-            final Optional<JavaBoard> javaBoardOpt = stat.getBoard(name);
+            final Optional<JavaBoard> javaBoardOpt = stat.getBoard(userInput);
             if (javaBoardOpt.isPresent()) {
                 return javaBoardOpt.get();
             }
         }
 
         final List<String> similarBoards = DataUtilities.getSimilarityList(
-                name,
+                userInput,
                 game.getStats()
                         .values()
                         .stream()
@@ -189,13 +172,16 @@ public abstract class AbstractJavaStatsCommand extends AbstractStatsCommand {
 
         this.sendHelpMessage(
                 commandParameters,
-                name,
+                userInput,
                 argPos,
                 "board",
                 this.getMineplexStatsModule().getModuleOrThrow(CommandModule.class)
                         .getCommand(JavaGamesCommand.class)
                         .orElse(null),
-                new String[]{game.getName(), game.getStats().values().stream().findFirst().map(JavaStat::getName).orElse("")},
+                new String[]{
+                        game.getName(),
+                        game.getStats().values().stream().findFirst().map(JavaStat::getName).orElse("")
+                },
                 similarBoards
         );
         throw new CommandReturnException();
@@ -205,36 +191,22 @@ public abstract class AbstractJavaStatsCommand extends AbstractStatsCommand {
                                  final JavaStat stat,
                                  final CommandParameters commandParameters,
                                  final int argPos) {
-        final String name = argPos >= commandParameters.getArgs().length ? "All" : commandParameters.getArgs()[argPos];
-        final Optional<JavaBoard> board = stat.getBoard(name);
-        if (board.isPresent()) {
-            return board.get();
-        }
-
-        final List<JavaBoard> similarBoards = stat.getSimilarBoard(name, 0.0, 6);
-        if (!similarBoards.isEmpty() && commandParameters.getUserDb().hasAutoCorrection()) {
-            return similarBoards.get(0);
-        }
-
-        this.sendHelpMessage(
+        return this.getArgumentDefaultOrThrow(
                 commandParameters,
-                name,
-                argPos,
                 "board",
-                this.getMineplexStatsModule().getModuleOrThrow(CommandModule.class)
-                        .getCommand(JavaGamesCommand.class)
-                        .orElse(null),
-                new String[]{game.getName(), stat.getName()},
-                similarBoards.stream()
-                        .map(JavaBoard::getName)
-                        .collect(Collectors.toList())
+                argPos,
+                "All",
+                stat::getBoard,
+                JavaBoard::getName,
+                () -> stat.getBoards().values(),
+                () -> new String[]{game.getName(), stat.getName()},
+                JavaGamesCommand.class
         );
-        throw new CommandReturnException();
     }
 
     protected JavaBoard getBoard(final JavaStat stat, final CommandParameters commandParameters, final int argPos) {
-        final String name = argPos >= commandParameters.getArgs().length ? "All" : commandParameters.getArgs()[argPos];
-        final Optional<JavaBoard> board = stat.getBoard(name);
+        final String userInput = this.getArgOrDefault(commandParameters, argPos, "All");
+        final Optional<JavaBoard> board = stat.getBoard(userInput);
         if (board.isPresent()) {
             return board.get();
         }
@@ -243,7 +215,7 @@ public abstract class AbstractJavaStatsCommand extends AbstractStatsCommand {
                 commandParameters,
                 this.getEmbedBuilder(commandParameters)
                         .setTitle("Invalid Board")
-                        .setDescription(MarkdownUtil.monospace(name) + " is not a valid board. " +
+                        .setDescription(MarkdownUtil.monospace(userInput) + " is not a valid board. " +
                                 "\nTODO: Add help emotes." +
                                 "\nHow did you do this?! Just pick all, yearly, weekly, daily or monthly."),
                 90
@@ -253,71 +225,53 @@ public abstract class AbstractJavaStatsCommand extends AbstractStatsCommand {
     }
 
     protected String getPlayer(final CommandParameters commandParameters, final int argPos) {
-        String name = commandParameters.getArgs()[argPos];
+        String userInput = this.getArg(commandParameters, argPos);
 
         // Check for setting
-        if (name.equalsIgnoreCase(NameReplacementSetting.getKeyword())) {
+        if (userInput.equalsIgnoreCase(NameReplacementSetting.getKeyword())) {
             final String settingName = commandParameters.getUserDb().getSettingOrDefault(JavaNameReplacementSetting.class, "");
             if (!settingName.isEmpty()) {
-                name = settingName;
+                userInput = settingName;
             }
         }
 
-        if (JavaUtilities.isValidName(name)) {
-            return name;
+        if (JavaUtilities.isValidName(userInput)) {
+            return userInput;
         }
 
         throw new CommandReturnException(
                 this.getEmbedBuilder(commandParameters)
                         .setTitle("Invalid Name")
-                        .setDescription(MarkdownUtil.monospace(name) + " is not a minecraft name.")
+                        .setDescription(MarkdownUtil.monospace(userInput) + " is not a minecraft name.")
         );
     }
 
-    public JavaGroup getJavaGroup(final CommandParameters commandParameters, final int argPos) {
-        final String name = commandParameters.getArgs()[argPos];
-        final Optional<JavaGroup> group = this.getMineplexStatsModule().getJavaGroup(name);
-        if (group.isPresent()) {
-            return group.get();
-        }
-
-        final List<JavaGroup> similarGroup = this.getMineplexStatsModule().getSimilarJavaGroups(name, 0.6, 3);
-        if (!similarGroup.isEmpty() && commandParameters.getUserDb().hasAutoCorrection()) {
-            return similarGroup.get(0);
-        }
-
-        this.sendHelpMessage(
+    protected JavaGroup getJavaGroup(final CommandParameters commandParameters, final int argPos) {
+        return this.getArgumentOrThrow(
                 commandParameters,
-                name,
-                argPos,
                 "group",
-                this.getMineplexStatsModule().getModuleOrThrow(CommandModule.class)
-                        .getCommand(JavaGroupsGroupsCommand.class)
-                        .orElse(null),
-                new String[]{},
-                similarGroup.stream()
-                        .map(JavaGroup::getName)
-                        .collect(Collectors.toList())
+                argPos,
+                groupName -> this.getMineplexStatsModule().getJavaGroup(groupName),
+                JavaGroup::getName,
+                () -> this.getMineplexStatsModule().getJavaGroups(),
+                () -> new String[]{},
+                JavaGroupsGroupsCommand.class
         );
-        throw new CommandReturnException();
     }
 
-    public JavaStat getJavaStat(final JavaGroup group, final CommandParameters commandParameters, final int argPos) {
-        final String name = commandParameters.getArgs()[argPos];
-
+    protected JavaStat getJavaStat(final JavaGroup group, final CommandParameters commandParameters, final int argPos) {
+        final String userInput = this.getArg(commandParameters, argPos);
         for (final JavaGame game : group.getGames()) {
-            final Optional<JavaStat> statOpt = game.getStat(name);
+            final Optional<JavaStat> statOpt = game.getStat(userInput);
             if (statOpt.isPresent()) {
                 return statOpt.get();
             }
         }
 
-        final List<JavaStat> similarStats = DataUtilities.getSimilarityList(
-                JavaGame.getCleanStat(name),
+        final List<JavaStat> similarStats = this.getSimilarityList(
+                JavaGame.getCleanStat(userInput),
                 group.getStats(),
-                JavaStat::getName,
-                0.6,
-                3
+                JavaStat::getName
         );
         if (!similarStats.isEmpty() && commandParameters.getUserDb().hasAutoCorrection()) {
             return similarStats.get(0);
@@ -325,26 +279,15 @@ public abstract class AbstractJavaStatsCommand extends AbstractStatsCommand {
 
         this.sendHelpMessage(
                 commandParameters,
-                name,
+                userInput,
                 argPos,
                 "stat",
                 this.getMineplexStatsModule().getModuleOrThrow(CommandModule.class)
                         .getCommand(JavaGroupsGroupsCommand.class)
                         .orElse(null),
                 new String[]{group.getName()},
-                similarStats.stream()
-                        .map(JavaStat::getName)
-                        .collect(Collectors.toList())
+                this.listToStringList(similarStats, JavaStat::getName)
         );
         throw new CommandReturnException();
-    }
-
-    @SneakyThrows
-    public <T> T awaitOrDefault(final CompletableFuture<T> completableFuture, final T defaultValue) {
-        try {
-            return completableFuture.get();
-        } catch (final ExecutionException ignore) {
-            return defaultValue;
-        }
     }
 }

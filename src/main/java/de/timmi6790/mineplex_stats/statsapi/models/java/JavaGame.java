@@ -1,16 +1,17 @@
 package de.timmi6790.mineplex_stats.statsapi.models.java;
 
-import de.timmi6790.discord_framework.utilities.DataUtilities;
 import de.timmi6790.mineplex_stats.utilities.StatsComparator;
 import lombok.Data;
 
 import java.util.*;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 @Data
 public class JavaGame {
-    private static final Pattern ILLEGAL_STAT_CHARACTERS = Pattern.compile("([ !<,\\.?`'])|(Achievement)", Pattern.CASE_INSENSITIVE);
+    private static final Pattern ILLEGAL_STAT_CHARACTERS = Pattern.compile(
+            "([ !<,\\.?`'])|(Achievement)",
+            Pattern.CASE_INSENSITIVE
+    );
 
     private final String name;
     private final String[] aliasNames;
@@ -59,22 +60,13 @@ public class JavaGame {
 
     public List<String> getStatNames() {
         if (this.sortedStatsNames.isEmpty()) {
-            this.sortedStatsNames.addAll(this.stats
-                    .values()
-                    .stream()
-                    .sorted(new StatsComparator())
-                    .map(JavaStat::getPrintName)
-                    .collect(Collectors.toList())
-            );
+            final List<JavaStat> sortedStats = new ArrayList<>(this.stats.values());
+            sortedStats.sort(new StatsComparator());
+            for (final JavaStat stat : sortedStats) {
+                this.sortedStatsNames.add(stat.getName());
+            }
         }
 
         return this.sortedStatsNames;
-    }
-
-    public List<JavaStat> getSimilarStats(final String name, final double similarity, final int limit) {
-        return DataUtilities.getSimilarityList(name, this.stats.keySet(), similarity, limit)
-                .stream()
-                .map(this.stats::get)
-                .collect(Collectors.toList());
     }
 }

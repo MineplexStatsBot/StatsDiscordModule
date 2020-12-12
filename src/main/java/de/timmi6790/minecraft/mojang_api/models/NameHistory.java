@@ -36,7 +36,9 @@ public class NameHistory {
 
     public static class NameHistoryDeserializer implements JsonDeserializer<NameHistory> {
         @Override
-        public NameHistory deserialize(final JsonElement jsonElement, final Type type, final JsonDeserializationContext jsonDeserializationContext) {
+        public NameHistory deserialize(final JsonElement jsonElement,
+                                       final Type type,
+                                       final JsonDeserializationContext jsonDeserializationContext) {
             final List<NameHistoryData> nameHistory = new ArrayList<>();
             for (final JsonElement object : jsonElement.getAsJsonArray()) {
                 nameHistory.add(

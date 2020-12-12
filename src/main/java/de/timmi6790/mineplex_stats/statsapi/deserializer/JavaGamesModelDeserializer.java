@@ -1,4 +1,4 @@
-package de.timmi6790.mineplex_stats.utilities;
+package de.timmi6790.mineplex_stats.statsapi.deserializer;
 
 import com.google.gson.*;
 import de.timmi6790.mineplex_stats.statsapi.models.java.JavaBoard;

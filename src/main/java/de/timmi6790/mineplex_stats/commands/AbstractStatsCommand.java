@@ -8,12 +8,14 @@ import de.timmi6790.discord_framework.modules.emote_reaction.EmoteReactionMessag
 import de.timmi6790.discord_framework.modules.emote_reaction.EmoteReactionModule;
 import de.timmi6790.discord_framework.modules.emote_reaction.emotereactions.AbstractEmoteReaction;
 import de.timmi6790.discord_framework.modules.emote_reaction.emotereactions.CommandEmoteReaction;
+import de.timmi6790.discord_framework.utilities.DataUtilities;
 import de.timmi6790.discord_framework.utilities.discord.DiscordEmotes;
 import de.timmi6790.mineplex_stats.MineplexStatsModule;
 import de.timmi6790.mineplex_stats.statsapi.models.ResponseModel;
 import de.timmi6790.mineplex_stats.statsapi.models.errors.ErrorModel;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import lombok.NonNull;
 import net.dv8tion.jda.api.utils.MarkdownUtil;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.ocpsoft.prettytime.nlp.PrettyTimeParser;
@@ -26,6 +28,8 @@ import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Function;
+import java.util.function.Supplier;
 
 @EqualsAndHashCode(callSuper = true)
 @Getter
@@ -61,6 +65,81 @@ public abstract class AbstractStatsCommand extends AbstractCommand {
         this.emoteReactionModule = getModuleManager().getModuleOrThrow(EmoteReactionModule.class);
     }
 
+    protected <T> T getArgumentDefaultOrThrow(final CommandParameters commandParameters,
+                                              final String argName,
+                                              final int argPos,
+                                              final String defaultUserInput,
+                                              final Function<String, Optional<T>> firstValueFunction,
+                                              final Function<T, String> toString,
+                                              final Supplier<Collection<T>> allValues,
+                                              final Supplier<String[]> newArgsSupplier,
+                                              final Class<? extends AbstractCommand> helpCommandClass) {
+        return this.getArgumentOrThrow(
+                commandParameters,
+                this.getArgOrDefault(commandParameters, argPos, defaultUserInput),
+                argName,
+                argPos,
+                firstValueFunction,
+                toString,
+                allValues,
+                newArgsSupplier,
+                helpCommandClass
+        );
+    }
+
+    protected <T> T getArgumentOrThrow(final CommandParameters commandParameters,
+                                       final String argName,
+                                       final int argPos,
+                                       final Function<String, Optional<T>> firstValueFunction,
+                                       final Function<T, String> toString,
+                                       final Supplier<Collection<T>> allValues,
+                                       final Supplier<String[]> newArgsSupplier,
+                                       final Class<? extends AbstractCommand> helpCommandClass) {
+        return this.getArgumentOrThrow(
+                commandParameters,
+                this.getArg(commandParameters, argPos),
+                argName,
+                argPos,
+                firstValueFunction,
+                toString,
+                allValues,
+                newArgsSupplier,
+                helpCommandClass
+        );
+    }
+
+    protected <T> T getArgumentOrThrow(final CommandParameters commandParameters,
+                                       final String userInput,
+                                       final String argName,
+                                       final int argPos,
+                                       final Function<String, Optional<T>> firstValueFunction,
+                                       final Function<T, String> toString,
+                                       final Supplier<Collection<T>> allValues,
+                                       final Supplier<String[]> newArgsSupplier,
+                                       final Class<? extends AbstractCommand> helpCommandClass) {
+        final Optional<T> valueOpt = firstValueFunction.apply(userInput);
+        if (valueOpt.isPresent()) {
+            return valueOpt.get();
+        }
+
+        final List<T> similarValues = this.getSimilarityList(userInput, allValues.get(), toString);
+        if (!similarValues.isEmpty() && commandParameters.getUserDb().hasAutoCorrection()) {
+            return similarValues.get(0);
+        }
+
+        // Error message
+        this.sendHelpMessage(
+                commandParameters,
+                userInput,
+                argPos,
+                argName,
+                helpCommandClass != null ? getCommandModule().getCommand(helpCommandClass).orElse(null) : null,
+                newArgsSupplier.get(),
+                this.listToStringList(similarValues, toString)
+        );
+        throw new CommandReturnException();
+    }
+
     private boolean isInt(final String userInput) {
         try {
             Integer.parseInt(userInput);
@@ -68,6 +147,40 @@ public abstract class AbstractStatsCommand extends AbstractCommand {
         } catch (final NumberFormatException e) {
             return false;
         }
+    }
+
+    protected <T> List<String> listToStringList(final List<T> list, final Function<T, String> toString) {
+        final List<String> result = new ArrayList<>();
+        for (final T value : list) {
+            result.add(toString.apply(value));
+        }
+        return result;
+    }
+
+    protected String getArg(final CommandParameters commandParameters, final int argPos) {
+        return commandParameters.getArgs()[argPos];
+    }
+
+    protected String getArgOrDefault(final CommandParameters commandParameters, final int argPos, final String defaultValue) {
+        if (argPos >= commandParameters.getArgs().length || commandParameters.getArgs()[argPos] == null) {
+            return defaultValue;
+        } else {
+            return this.getArg(commandParameters, argPos);
+        }
+    }
+
+    protected List<String> getSimilarityList(@NonNull final String source,
+                                             @NonNull final Collection<String> values
+    ) {
+
+        return this.getSimilarityList(source, values, String::toString);
+    }
+
+    public <T> List<T> getSimilarityList(@NonNull final String source,
+                                         @NonNull final Collection<T> values,
+                                         @NonNull final Function<T, String> toString
+    ) {
+        return DataUtilities.getSimilarityList(source, values, toString, 0.6, 3);
     }
 
     protected String getFormattedTime(long time) {
@@ -145,22 +258,22 @@ public abstract class AbstractStatsCommand extends AbstractCommand {
     }
 
     protected int getStartPositionThrow(final CommandParameters commandParameters, final int argPos, final int upperLimit) {
-        final String name = argPos >= commandParameters.getArgs().length ? "1" : commandParameters.getArgs()[argPos];
-        if (!this.isInt(name)) {
+        final String userInput = this.getArgOrDefault(commandParameters, argPos, "1");
+        if (!this.isInt(userInput)) {
             throw new CommandReturnException(
                     this.getEmbedBuilder(commandParameters)
                             .setTitle("Invalid start position")
                             .setDescription(
                                     "%s is not a valid start position for the leaderboard.\n" +
                                             "Use a number between %s and %s.",
-                                    MarkdownUtil.monospace(name),
+                                    MarkdownUtil.monospace(userInput),
                                     MarkdownUtil.bold("1"),
                                     MarkdownUtil.bold(String.valueOf(upperLimit))
                             )
             );
         }
 
-        return Math.min(Math.max(1, Integer.parseInt(name)), upperLimit);
+        return Math.min(Math.max(1, Integer.parseInt(userInput)), upperLimit);
     }
 
     protected int getEndPositionThrow(final int startPos,
@@ -168,7 +281,8 @@ public abstract class AbstractStatsCommand extends AbstractCommand {
                                       final int argPos,
                                       final int upperLimit,
                                       final int maxDistance) {
-        if (commandParameters.getArgs().length > argPos && !this.isInt(commandParameters.getArgs()[argPos])) {
+        final String userInput = this.getArg(commandParameters, argPos);
+        if (commandParameters.getArgs().length > argPos && !this.isInt(userInput)) {
             throw new CommandReturnException(
                     this.getEmbedBuilder(commandParameters)
                             .setTitle("Invalid end position")
@@ -182,7 +296,7 @@ public abstract class AbstractStatsCommand extends AbstractCommand {
             );
         }
 
-        int endPos = argPos >= commandParameters.getArgs().length ? upperLimit : Integer.parseInt(commandParameters.getArgs()[argPos]);
+        int endPos = argPos >= commandParameters.getArgs().length ? upperLimit : Integer.parseInt(userInput);
         if (startPos > endPos || endPos - startPos > maxDistance) {
             endPos = startPos + maxDistance;
         }
@@ -214,13 +328,14 @@ public abstract class AbstractStatsCommand extends AbstractCommand {
     }
 
     protected UUID getUUIDThrow(final CommandParameters commandParameters, final int argPos) {
+        final String userInput = this.getArg(commandParameters, argPos);
         try {
-            return UUID.fromString(commandParameters.getArgs()[argPos]);
+            return UUID.fromString(userInput);
         } catch (final IllegalArgumentException ignore) {
             throw new CommandReturnException(
                     this.getEmbedBuilder(commandParameters)
                             .setTitle("Invalid UUID")
-                            .setDescription(MarkdownUtil.monospace(commandParameters.getArgs()[argPos]) + " is not a valid UUID")
+                            .setDescription(MarkdownUtil.monospace(userInput) + " is not a valid UUID")
             );
         }
     }

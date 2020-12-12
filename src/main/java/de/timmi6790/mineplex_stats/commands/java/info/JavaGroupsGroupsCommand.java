@@ -38,7 +38,7 @@ public class JavaGroupsGroupsCommand extends AbstractJavaStatsCommand {
 
     private CommandResult handleAllGroups(final CommandParameters commandParameters) {
         final List<String> sortedGroupNames = new TreeList<>();
-        for (final JavaGroup group : this.getMineplexStatsModule().getJavaGroups().values()) {
+        for (final JavaGroup group : this.getMineplexStatsModule().getJavaGroups()) {
             sortedGroupNames.add(group.getName());
         }
 
