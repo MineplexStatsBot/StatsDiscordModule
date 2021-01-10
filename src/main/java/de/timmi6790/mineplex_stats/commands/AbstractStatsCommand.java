@@ -61,8 +61,8 @@ public abstract class AbstractStatsCommand extends AbstractCommand {
                                    final String... aliasNames) {
         super(name, category, description, syntax, aliasNames);
 
-        this.mineplexStatsModule = getModuleManager().getModuleOrThrow(MineplexStatsModule.class);
-        this.emoteReactionModule = getModuleManager().getModuleOrThrow(EmoteReactionModule.class);
+        this.mineplexStatsModule = this.getModuleManager().getModuleOrThrow(MineplexStatsModule.class);
+        this.emoteReactionModule = this.getModuleManager().getModuleOrThrow(EmoteReactionModule.class);
     }
 
     protected <T> T getArgumentDefaultOrThrow(final CommandParameters commandParameters,
@@ -133,7 +133,7 @@ public abstract class AbstractStatsCommand extends AbstractCommand {
                 userInput,
                 argPos,
                 argName,
-                helpCommandClass != null ? getCommandModule().getCommand(helpCommandClass).orElse(null) : null,
+                helpCommandClass,
                 newArgsSupplier.get(),
                 this.listToStringList(similarValues, toString)
         );
@@ -150,23 +150,7 @@ public abstract class AbstractStatsCommand extends AbstractCommand {
     }
 
     protected <T> List<String> listToStringList(final List<T> list, final Function<T, String> toString) {
-        final List<String> result = new ArrayList<>();
-        for (final T value : list) {
-            result.add(toString.apply(value));
-        }
-        return result;
-    }
-
-    protected String getArg(final CommandParameters commandParameters, final int argPos) {
-        return commandParameters.getArgs()[argPos];
-    }
-
-    protected String getArgOrDefault(final CommandParameters commandParameters, final int argPos, final String defaultValue) {
-        if (argPos >= commandParameters.getArgs().length || commandParameters.getArgs()[argPos] == null) {
-            return defaultValue;
-        } else {
-            return this.getArg(commandParameters, argPos);
-        }
+        return DataUtilities.convertToStringList(list, toString);
     }
 
     protected List<String> getSimilarityList(@NonNull final String source,

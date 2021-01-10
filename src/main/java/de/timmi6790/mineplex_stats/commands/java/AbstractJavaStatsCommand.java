@@ -1,6 +1,5 @@
 package de.timmi6790.mineplex_stats.commands.java;
 
-import de.timmi6790.discord_framework.modules.command.CommandModule;
 import de.timmi6790.discord_framework.modules.command.CommandParameters;
 import de.timmi6790.discord_framework.modules.command.exceptions.CommandReturnException;
 import de.timmi6790.discord_framework.utilities.DataUtilities;
@@ -175,9 +174,7 @@ public abstract class AbstractJavaStatsCommand extends AbstractStatsCommand {
                 userInput,
                 argPos,
                 "board",
-                this.getMineplexStatsModule().getModuleOrThrow(CommandModule.class)
-                        .getCommand(JavaGamesCommand.class)
-                        .orElse(null),
+                JavaGamesCommand.class,
                 new String[]{
                         game.getName(),
                         game.getStats().values().stream().findFirst().map(JavaStat::getName).orElse("")
@@ -282,9 +279,7 @@ public abstract class AbstractJavaStatsCommand extends AbstractStatsCommand {
                 userInput,
                 argPos,
                 "stat",
-                this.getMineplexStatsModule().getModuleOrThrow(CommandModule.class)
-                        .getCommand(JavaGroupsGroupsCommand.class)
-                        .orElse(null),
+                JavaGroupsGroupsCommand.class,
                 new String[]{group.getName()},
                 this.listToStringList(similarStats, JavaStat::getName)
         );

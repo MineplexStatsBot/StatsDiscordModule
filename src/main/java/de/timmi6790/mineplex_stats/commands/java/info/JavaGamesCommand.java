@@ -10,10 +10,7 @@ import de.timmi6790.mineplex_stats.statsapi.models.java.JavaStat;
 import lombok.EqualsAndHashCode;
 import org.apache.commons.collections4.list.TreeList;
 
-import java.util.List;
-import java.util.Map;
-import java.util.StringJoiner;
-import java.util.TreeMap;
+import java.util.*;
 
 @EqualsAndHashCode(callSuper = true)
 public class JavaGamesCommand extends AbstractJavaStatsCommand {
@@ -62,9 +59,12 @@ public class JavaGamesCommand extends AbstractJavaStatsCommand {
         }
 
         for (final Map.Entry<String, List<String>> entry : sortedLeaderboard.entrySet()) {
+            List<String> gameNames = entry.getValue();
+            gameNames.sort(Comparator.naturalOrder());
+            
             message.addField(
                     entry.getKey(),
-                    String.join(", ", entry.getValue())
+                    String.join(", ", gameNames)
             );
         }
 

@@ -27,8 +27,8 @@
     <dependencies>
         <dependency>
             <groupId>com.github.Timmi6790</groupId>
-            <artifactId>StatsBotDiscord</artifactId>
-            <version>1217848</version>
+            <artifactId>DiscordBotFramework</artifactId>
+            <version>3.0.9</version>
             <scope>provided</scope>
         </dependency>
         <dependency>

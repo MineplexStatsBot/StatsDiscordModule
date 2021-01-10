@@ -7,6 +7,7 @@ import de.timmi6790.mineplex_stats.commands.bedrock.AbstractBedrockStatsCommand;
 import de.timmi6790.mineplex_stats.statsapi.models.bedrock.BedrockGame;
 import org.apache.commons.collections4.list.TreeList;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -29,9 +30,11 @@ public class BedrockGamesCommand extends AbstractBedrockStatsCommand {
         }
 
         for (final Map.Entry<String, List<String>> entry : sortedGames.entrySet()) {
+            final List<String> gameNames = entry.getValue();
+            gameNames.sort(Comparator.naturalOrder());
             message.addField(
                     entry.getKey(),
-                    String.join("\n", entry.getValue()),
+                    String.join("\n", gameNames),
                     false
             );
         }

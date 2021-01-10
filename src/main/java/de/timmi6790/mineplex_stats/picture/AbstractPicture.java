@@ -18,11 +18,11 @@ public abstract class AbstractPicture {
 
     protected static final Graphics2D GD_TEST = new BufferedImage(1, 1, BufferedImage.TYPE_4BYTE_ABGR).createGraphics();
 
-    protected static int getTextWidth(final String text, final Font font) {
+    protected int getTextWidth(final String text, final Font font) {
         return GD_TEST.getFontMetrics(font).stringWidth(text);
     }
 
-    protected static Graphics2D getDiscordGraphics(final BufferedImage image) {
+    protected Graphics2D getDiscordGraphics(final BufferedImage image) {
         final Graphics2D gd = image.createGraphics();
 
         // Render hints
@@ -43,7 +43,7 @@ public abstract class AbstractPicture {
         return gd;
     }
 
-    protected static InputStream convertToInputStream(final BufferedImage image) {
+    protected InputStream convertToInputStream(final BufferedImage image) {
         try (final ByteArrayOutputStream os = new ByteArrayOutputStream()) {
             ImageIO.write(image, "png", os);
             return new ByteArrayInputStream(os.toByteArray());
