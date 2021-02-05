@@ -98,7 +98,7 @@
         <dependency>
             <groupId>com.github.spotbugs</groupId>
             <artifactId>spotbugs</artifactId>
-            <version>4.2.0</version>
+            <version>4.2.1</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
@@ -130,7 +130,7 @@
                     <dependency>
                         <groupId>com.github.spotbugs</groupId>
                         <artifactId>spotbugs</artifactId>
-                        <version>4.2.0</version>
+                        <version>4.2.1</version>
                     </dependency>
                 </dependencies>
             </plugin>
