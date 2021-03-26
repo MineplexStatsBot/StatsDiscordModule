@@ -11,6 +11,7 @@ import de.timmi6790.discord_framework.utilities.discord.DiscordEmotes;
 import de.timmi6790.mineplex_stats.commands.bedrock.AbstractBedrockStatsCommand;
 import de.timmi6790.mineplex_stats.statsapi.models.bedrock.BedrockGame;
 import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.utils.MarkdownUtil;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -49,14 +50,14 @@ public class BedrockPlayerFilterCommand extends AbstractBedrockStatsCommand {
             this.getMineplexStatsModule().sendFilterNotification(
                     commandParameters,
                     "Bedrock",
-                    player,
+                    MarkdownUtil.monospace(player),
                     game.getName()
             );
         });
         emotes.put(DiscordEmotes.RED_CROSS_MARK.getEmote(), new EmptyEmoteReaction());
 
         // Send
-        sendEmoteMessage(
+        this.sendEmoteMessage(
                 commandParameters,
                 embedBuilder.setTitle("Filter Confirm")
                         .setDescription("Are you sure that you want to filter this person?"),

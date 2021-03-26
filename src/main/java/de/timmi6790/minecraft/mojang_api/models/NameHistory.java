@@ -41,10 +41,15 @@ public class NameHistory {
                                        final JsonDeserializationContext jsonDeserializationContext) {
             final List<NameHistoryData> nameHistory = new ArrayList<>();
             for (final JsonElement object : jsonElement.getAsJsonArray()) {
+                long playerNameChangeDateTime = -1;
+                if (object.getAsJsonObject().has("changedToAt")) {
+                    playerNameChangeDateTime = object.getAsJsonObject().get("changedToAt").getAsLong();
+                }
+
                 nameHistory.add(
                         new NameHistoryData(
                                 object.getAsJsonObject().get("name").getAsString(),
-                                object.getAsJsonObject().has("changedToAt") ? object.getAsJsonObject().get("changedToAt").getAsLong() : -1
+                                playerNameChangeDateTime
                         )
                 );
             }

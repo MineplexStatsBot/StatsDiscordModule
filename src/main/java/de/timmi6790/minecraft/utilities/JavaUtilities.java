@@ -28,10 +28,15 @@ public class JavaUtilities {
             .expireAfterWrite(10, TimeUnit.MINUTES)
             .expireAfterAccess(2, TimeUnit.MINUTES)
             .buildAsync(uuid -> {
-                final HttpResponse<byte[]> response = Unirest.get("https://visage.surgeplay.com/frontfull/{uuid}.png")
-                        .routeParam("uuid", uuid.toString().replace("-", ""))
-                        .connectTimeout(10_000)
-                        .asBytes();
+                final HttpResponse<byte[]> response;
+                try {
+                    response = Unirest.get("https://visage.surgeplay.com/frontfull/{uuid}.png")
+                            .routeParam("uuid", uuid.toString().replace("-", ""))
+                            .connectTimeout((int) TimeUnit.SECONDS.toMillis(2))
+                            .asBytes();
+                } catch (Exception e) {
+                    return null;
+                }
 
                 if (!response.isSuccess()) {
                     return null;

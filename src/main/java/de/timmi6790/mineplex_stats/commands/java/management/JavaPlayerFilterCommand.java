@@ -13,6 +13,7 @@ import de.timmi6790.mineplex_stats.statsapi.models.java.JavaBoard;
 import de.timmi6790.mineplex_stats.statsapi.models.java.JavaGame;
 import de.timmi6790.mineplex_stats.statsapi.models.java.JavaStat;
 import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.utils.MarkdownUtil;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -61,14 +62,18 @@ public class JavaPlayerFilterCommand extends AbstractJavaStatsCommand {
             this.getMineplexStatsModule().sendFilterNotification(
                     commandParameters,
                     "Java",
-                    uuid.toString(),
+                    String.format(
+                            "[%s](%s)",
+                            MarkdownUtil.monospace(uuid.toString()),
+                            "https://namemc.com/profile/" + uuid.toString()
+                    ),
                     String.join("-", game.getName(), stat.getName(), board.getName())
             );
         });
         emotes.put(DiscordEmotes.RED_CROSS_MARK.getEmote(), new EmptyEmoteReaction());
 
         // Send
-        sendEmoteMessage(
+        this.sendEmoteMessage(
                 commandParameters,
                 embedBuilder
                         .setTitle("Filter Confirm")

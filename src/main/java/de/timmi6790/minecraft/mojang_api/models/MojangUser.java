@@ -36,9 +36,11 @@ public class MojangUser {
         public MojangUser deserialize(final JsonElement jsonElement,
                                       final Type type,
                                       final JsonDeserializationContext jsonDeserializationContext) {
+            final String uuidShort = jsonElement.getAsJsonObject().get("id").getAsString();
+            final String uuid = FULL_UUID_PATTERN.matcher(uuidShort).replaceAll("$1-$2-$3-$4-$5");
             return new MojangUser(
                     jsonElement.getAsJsonObject().get("name").getAsString(),
-                    UUID.fromString(FULL_UUID_PATTERN.matcher(jsonElement.getAsJsonObject().get("id").getAsString()).replaceAll("$1-$2-$3-$4-$5"))
+                    UUID.fromString(uuid)
             );
         }
     }

@@ -26,11 +26,13 @@ public class MojangApi {
     private final LoadingCache<String, Optional<MojangUser>> playerCache = Caffeine.newBuilder()
             .expireAfterWrite(10, TimeUnit.MINUTES)
             .expireAfterAccess(5, TimeUnit.MINUTES)
-            .build(playerName -> parseJsonResponse(
-                    Unirest.get("https://api.mojang.com/users/profiles/minecraft/{player}")
-                            .routeParam("player", playerName),
-                    MojangUser.class
-            ));
+            .build(playerName ->
+                    parseJsonResponse(
+                            Unirest.get("https://api.mojang.com/users/profiles/minecraft/{player}")
+                                    .routeParam("player", playerName),
+                            MojangUser.class
+                    )
+            );
 
     private <T> Optional<T> parseJsonResponse(final GetRequest getRequest, final Class<T> clazz) {
         final HttpResponse<String> response;

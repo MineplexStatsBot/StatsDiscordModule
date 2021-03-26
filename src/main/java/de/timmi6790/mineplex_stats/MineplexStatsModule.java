@@ -235,7 +235,7 @@ public class MineplexStatsModule extends AbstractModule {
                 "[%s]%s added a new filter entry for %s in %s",
                 category,
                 commandParameters.getUser().getAsMention(),
-                MarkdownUtil.monospace(filteredPlayer),
+                filteredPlayer,
                 MarkdownUtil.monospace(leaderboard)
         );
     }

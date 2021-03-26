@@ -130,6 +130,7 @@ public abstract class AbstractJavaPlayerStatsCommand extends AbstractJavaStatsCo
         final long unixTime = this.getUnixTimeThrow(commandParameters, 3);
 
         // Web Requests
+        final CompletableFuture<BufferedImage> skinFuture = this.getPlayerSkin(playerUUID);
         final ResponseModel responseModel = this.getMineplexStatsModule()
                 .getMpStatsRestClient()
                 .getJavaPlayerStats(
@@ -145,7 +146,6 @@ public abstract class AbstractJavaPlayerStatsCommand extends AbstractJavaStatsCo
         final JavaPlayerStats playerStats = (JavaPlayerStats) responseModel;
         final JavaPlayerStats.Info playerStatsInfo = playerStats.getInfo();
 
-        final CompletableFuture<BufferedImage> skinFuture = this.getPlayerSkin(playerStatsInfo.getUuid());
         final LeaderboardData leaderboardData = this.parseLeaderBoard(playerStats);
         final BufferedImage skin = this.awaitOrDefault(skinFuture, null);
 

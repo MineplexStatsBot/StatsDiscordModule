@@ -86,14 +86,21 @@ public class JavaPlayerGroupCommand extends AbstractJavaStatsCommand {
         final JavaBoard board = this.getBoard(statSpecificGames.get(0), stat, commandParameters, 3);
         final long unixTime = this.getUnixTimeThrow(commandParameters, 4);
 
+        // Web request
+        final CompletableFuture<BufferedImage> skinFuture = this.getPlayerSkin(playerUUID);
         final ResponseModel responseModel = this.getMineplexStatsModule()
                 .getMpStatsRestClient()
-                .getPlayerGroup(playerUUID, javaGroup.getGroup(), stat.getName(), board.getName(), unixTime);
+                .getPlayerGroup(
+                        playerUUID,
+                        javaGroup.getGroup(),
+                        stat.getName(),
+                        board.getName(),
+                        unixTime
+                );
         this.checkApiResponseThrow(commandParameters, responseModel, "No stats available");
 
         // Parse data
         final JavaGroupsPlayer groupStats = (JavaGroupsPlayer) responseModel;
-        final CompletableFuture<BufferedImage> skinFuture = this.getPlayerSkin(groupStats.getInfo().getUuid());
         final LeaderboardData leaderboardData = this.parseLeaderboard(groupStats, stat, statSpecificGames);
         final BufferedImage skin = this.awaitOrDefault(skinFuture, null);
 
