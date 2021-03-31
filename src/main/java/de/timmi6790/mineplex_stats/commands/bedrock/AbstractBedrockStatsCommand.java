@@ -1,7 +1,7 @@
 package de.timmi6790.mineplex_stats.commands.bedrock;
 
-import de.timmi6790.discord_framework.modules.command.CommandParameters;
-import de.timmi6790.discord_framework.modules.command.exceptions.CommandReturnException;
+import de.timmi6790.discord_framework.module.modules.command.CommandParameters;
+import de.timmi6790.discord_framework.module.modules.command.exceptions.CommandReturnException;
 import de.timmi6790.minecraft.utilities.BedrockUtilities;
 import de.timmi6790.mineplex_stats.commands.AbstractStatsCommand;
 import de.timmi6790.mineplex_stats.commands.bedrock.info.BedrockGamesCommand;

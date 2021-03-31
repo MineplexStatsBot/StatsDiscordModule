@@ -1,11 +1,11 @@
 package de.timmi6790.mineplex_stats.commands.bedrock.management;
 
-import de.timmi6790.discord_framework.modules.command.CommandParameters;
-import de.timmi6790.discord_framework.modules.command.CommandResult;
-import de.timmi6790.discord_framework.modules.command.property.properties.MinArgCommandProperty;
-import de.timmi6790.discord_framework.modules.command.property.properties.RequiredDiscordBotPermsCommandProperty;
-import de.timmi6790.discord_framework.modules.emote_reaction.emotereactions.AbstractEmoteReaction;
-import de.timmi6790.discord_framework.modules.emote_reaction.emotereactions.EmptyEmoteReaction;
+import de.timmi6790.discord_framework.module.modules.command.CommandParameters;
+import de.timmi6790.discord_framework.module.modules.command.CommandResult;
+import de.timmi6790.discord_framework.module.modules.command.property.properties.MinArgCommandProperty;
+import de.timmi6790.discord_framework.module.modules.command.property.properties.RequiredDiscordBotPermsCommandProperty;
+import de.timmi6790.discord_framework.module.modules.emote_reaction.emotereactions.AbstractEmoteReaction;
+import de.timmi6790.discord_framework.module.modules.emote_reaction.emotereactions.EmptyEmoteReaction;
 import de.timmi6790.discord_framework.utilities.MultiEmbedBuilder;
 import de.timmi6790.discord_framework.utilities.discord.DiscordEmotes;
 import de.timmi6790.mineplex_stats.commands.bedrock.AbstractBedrockStatsCommand;

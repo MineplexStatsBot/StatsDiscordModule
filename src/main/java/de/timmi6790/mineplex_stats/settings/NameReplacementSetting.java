@@ -1,7 +1,7 @@
 package de.timmi6790.mineplex_stats.settings;
 
-import de.timmi6790.discord_framework.modules.command.CommandParameters;
-import de.timmi6790.discord_framework.modules.setting.settings.StringSetting;
+import de.timmi6790.discord_framework.module.modules.command.CommandParameters;
+import de.timmi6790.discord_framework.module.modules.setting.settings.StringSetting;
 import de.timmi6790.discord_framework.utilities.discord.DiscordMessagesUtilities;
 import lombok.EqualsAndHashCode;
 import net.dv8tion.jda.api.utils.MarkdownUtil;
@@ -62,7 +62,7 @@ public class NameReplacementSetting extends StringSetting {
     @Override
     protected void sendInvalidInputMessage(final CommandParameters commandParameters,
                                            final String userInput,
-                                           final List<String> possibleValues) {
+                                           final Iterable<String> possibleValues) {
         DiscordMessagesUtilities.sendMessageTimed(
                 commandParameters.getLowestMessageChannel(),
                 DiscordMessagesUtilities.getEmbedBuilder(commandParameters)

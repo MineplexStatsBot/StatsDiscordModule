@@ -1,13 +1,13 @@
 package de.timmi6790.mineplex_stats.commands;
 
-import de.timmi6790.discord_framework.modules.command.AbstractCommand;
-import de.timmi6790.discord_framework.modules.command.CommandParameters;
-import de.timmi6790.discord_framework.modules.command.CommandResult;
-import de.timmi6790.discord_framework.modules.command.exceptions.CommandReturnException;
-import de.timmi6790.discord_framework.modules.emote_reaction.EmoteReactionMessage;
-import de.timmi6790.discord_framework.modules.emote_reaction.EmoteReactionModule;
-import de.timmi6790.discord_framework.modules.emote_reaction.emotereactions.AbstractEmoteReaction;
-import de.timmi6790.discord_framework.modules.emote_reaction.emotereactions.CommandEmoteReaction;
+import de.timmi6790.discord_framework.module.modules.command.AbstractCommand;
+import de.timmi6790.discord_framework.module.modules.command.CommandParameters;
+import de.timmi6790.discord_framework.module.modules.command.CommandResult;
+import de.timmi6790.discord_framework.module.modules.command.exceptions.CommandReturnException;
+import de.timmi6790.discord_framework.module.modules.emote_reaction.EmoteReactionMessage;
+import de.timmi6790.discord_framework.module.modules.emote_reaction.EmoteReactionModule;
+import de.timmi6790.discord_framework.module.modules.emote_reaction.emotereactions.AbstractEmoteReaction;
+import de.timmi6790.discord_framework.module.modules.emote_reaction.emotereactions.CommandEmoteReaction;
 import de.timmi6790.discord_framework.utilities.DataUtilities;
 import de.timmi6790.discord_framework.utilities.discord.DiscordEmotes;
 import de.timmi6790.mineplex_stats.MineplexStatsModule;

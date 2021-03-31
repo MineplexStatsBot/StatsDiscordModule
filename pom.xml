@@ -28,7 +28,7 @@
         <dependency>
             <groupId>com.github.Timmi6790</groupId>
             <artifactId>DiscordBotFramework</artifactId>
-            <version>3.0.9</version>
+            <version>d0e3015</version>
             <scope>provided</scope>
         </dependency>
         <dependency>

@@ -1,8 +1,8 @@
 package de.timmi6790.mineplex_stats.commands.java.info;
 
-import de.timmi6790.discord_framework.modules.command.CommandParameters;
-import de.timmi6790.discord_framework.modules.command.CommandResult;
-import de.timmi6790.discord_framework.modules.command.property.properties.ExampleCommandsCommandProperty;
+import de.timmi6790.discord_framework.module.modules.command.CommandParameters;
+import de.timmi6790.discord_framework.module.modules.command.CommandResult;
+import de.timmi6790.discord_framework.module.modules.command.property.properties.ExampleCommandsCommandProperty;
 import de.timmi6790.mineplex_stats.commands.java.AbstractJavaStatsCommand;
 import de.timmi6790.mineplex_stats.statsapi.models.java.JavaGroup;
 import lombok.EqualsAndHashCode;
@@ -49,7 +49,7 @@ public class JavaGroupsGroupsCommand extends AbstractJavaStatsCommand {
                         .addField("Groups", String.join("\n", sortedGroupNames))
                         .setFooterFormat(
                                 "TIP: Run %s %s <group> to see more details",
-                                getCommandModule().getMainCommand(),
+                                this.getCommandModule().getMainCommand(),
                                 this.getName()
                         ),
                 150

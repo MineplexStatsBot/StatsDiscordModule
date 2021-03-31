@@ -1,10 +1,10 @@
 package de.timmi6790.mineplex_stats.commands.java.management;
 
-import de.timmi6790.discord_framework.modules.command.AbstractCommand;
-import de.timmi6790.discord_framework.modules.command.CommandCause;
-import de.timmi6790.discord_framework.modules.command.CommandParameters;
-import de.timmi6790.discord_framework.modules.emote_reaction.emotereactions.AbstractEmoteReaction;
-import de.timmi6790.discord_framework.modules.emote_reaction.emotereactions.CommandEmoteReaction;
+import de.timmi6790.discord_framework.module.modules.command.AbstractCommand;
+import de.timmi6790.discord_framework.module.modules.command.CommandCause;
+import de.timmi6790.discord_framework.module.modules.command.CommandParameters;
+import de.timmi6790.discord_framework.module.modules.emote_reaction.emotereactions.AbstractEmoteReaction;
+import de.timmi6790.discord_framework.module.modules.emote_reaction.emotereactions.CommandEmoteReaction;
 import de.timmi6790.discord_framework.utilities.discord.DiscordEmotes;
 import de.timmi6790.mineplex_stats.commands.java.AbstractJavaLeaderboardCommand;
 import de.timmi6790.mineplex_stats.statsapi.models.java.JavaLeaderboard;
@@ -54,7 +54,7 @@ public class JavaUUUIDLeaderboardCommand extends AbstractJavaLeaderboardCommand 
         final Map<String, AbstractEmoteReaction> emotes = new LinkedHashMap<>();
 
         final JavaLeaderboard.Info leaderboardInfo = javaLeaderboard.getInfo();
-        final Optional<AbstractCommand> filterCommandOpt = getCommandModule().getCommand(JavaPlayerFilterCommand.class);
+        final Optional<AbstractCommand> filterCommandOpt = this.getCommandModule().getCommand(JavaPlayerFilterCommand.class);
         if (filterCommandOpt.isPresent()) {
             final AbstractCommand filterCommand = filterCommandOpt.get();
 

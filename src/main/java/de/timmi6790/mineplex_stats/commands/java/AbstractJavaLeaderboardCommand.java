@@ -1,11 +1,11 @@
 package de.timmi6790.mineplex_stats.commands.java;
 
-import de.timmi6790.discord_framework.modules.command.CommandParameters;
-import de.timmi6790.discord_framework.modules.command.CommandResult;
-import de.timmi6790.discord_framework.modules.command.property.properties.ExampleCommandsCommandProperty;
-import de.timmi6790.discord_framework.modules.command.property.properties.MinArgCommandProperty;
-import de.timmi6790.discord_framework.modules.emote_reaction.EmoteReactionMessage;
-import de.timmi6790.discord_framework.modules.emote_reaction.emotereactions.AbstractEmoteReaction;
+import de.timmi6790.discord_framework.module.modules.command.CommandParameters;
+import de.timmi6790.discord_framework.module.modules.command.CommandResult;
+import de.timmi6790.discord_framework.module.modules.command.property.properties.ExampleCommandsCommandProperty;
+import de.timmi6790.discord_framework.module.modules.command.property.properties.MinArgCommandProperty;
+import de.timmi6790.discord_framework.module.modules.emote_reaction.EmoteReactionMessage;
+import de.timmi6790.discord_framework.module.modules.emote_reaction.emotereactions.AbstractEmoteReaction;
 import de.timmi6790.mineplex_stats.picture.PictureTable;
 import de.timmi6790.mineplex_stats.statsapi.models.ResponseModel;
 import de.timmi6790.mineplex_stats.statsapi.models.java.JavaBoard;

@@ -14,12 +14,13 @@ import kong.unirest.*;
 import kong.unirest.json.JSONObject;
 import lombok.AccessLevel;
 import lombok.Getter;
-import org.tinylog.TaggedLogger;
+import lombok.extern.log4j.Log4j2;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
+@Log4j2
 public class MpStatsRestApiClient {
     private static final String ALIAS = "alias";
     private static final String PLAYER = "player";
@@ -38,16 +39,13 @@ public class MpStatsRestApiClient {
 
     @Getter(value = AccessLevel.PRIVATE)
     private final boolean validCredentials;
-    private final TaggedLogger logger;
 
     private final UnirestInstance unirest;
 
-    public MpStatsRestApiClient(final TaggedLogger logger,
-                                final String authName,
+    public MpStatsRestApiClient(final String authName,
                                 final String authPassword,
                                 final String url,
                                 final int timeout) {
-        this.logger = logger;
         this.validCredentials = authName != null && authPassword != null;
 
         this.unirest = Unirest.spawnInstance();
@@ -76,10 +74,10 @@ public class MpStatsRestApiClient {
                     jsonObject.getBoolean("success") ? objectClass : ErrorModel.class
             );
         } catch (final UnirestException e) {
-            this.logger.error(e);
+            log.error("", e);
             return TIMEOUT_ERROR_RESPONSE_MODEL;
         } catch (final Exception e) {
-            this.logger.error(e);
+            log.error("", e);
             return UNKNOWN_ERROR_RESPONSE_MODEL;
         }
     }

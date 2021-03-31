@@ -1,8 +1,8 @@
 package de.timmi6790.mineplex_stats.picture;
 
-import de.timmi6790.discord_framework.DiscordBot;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
+import lombok.extern.log4j.Log4j2;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -13,6 +13,7 @@ import java.io.IOException;
 import java.io.InputStream;
 
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Log4j2
 public abstract class AbstractPicture {
     public static final Color COLOUR_DISCORD_DARK_MODE = new Color(54, 57, 63);
 
@@ -48,7 +49,7 @@ public abstract class AbstractPicture {
             ImageIO.write(image, "png", os);
             return new ByteArrayInputStream(os.toByteArray());
         } catch (final IOException e) {
-            DiscordBot.getLogger().error(e);
+            log.error("", e);
         }
 
         return null;

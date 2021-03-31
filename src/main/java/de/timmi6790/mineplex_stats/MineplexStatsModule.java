@@ -1,11 +1,10 @@
 package de.timmi6790.mineplex_stats;
 
-import de.timmi6790.discord_framework.DiscordBot;
-import de.timmi6790.discord_framework.modules.AbstractModule;
-import de.timmi6790.discord_framework.modules.command.CommandModule;
-import de.timmi6790.discord_framework.modules.command.CommandParameters;
-import de.timmi6790.discord_framework.modules.config.ConfigModule;
-import de.timmi6790.discord_framework.modules.setting.SettingModule;
+import de.timmi6790.discord_framework.module.AbstractModule;
+import de.timmi6790.discord_framework.module.modules.command.CommandModule;
+import de.timmi6790.discord_framework.module.modules.command.CommandParameters;
+import de.timmi6790.discord_framework.module.modules.config.ConfigModule;
+import de.timmi6790.discord_framework.module.modules.setting.SettingModule;
 import de.timmi6790.discord_framework.utilities.discord.DiscordMessagesUtilities;
 import de.timmi6790.minecraft.MinecraftModule;
 import de.timmi6790.mineplex_stats.commands.bedrock.BedrockLeaderboardCommand;
@@ -68,11 +67,10 @@ public class MineplexStatsModule extends AbstractModule {
     }
 
     @Override
-    public void onInitialize() {
+    public boolean onInitialize() {
         this.statsConfig = this.getModuleOrThrow(ConfigModule.class)
                 .registerAndGetConfig(this, new Config());
         this.mpStatsRestClient = new MpStatsRestApiClient(
-                DiscordBot.getLogger(),
                 this.statsConfig.getApiName(),
                 this.statsConfig.getApiPassword(),
                 this.statsConfig.getApiUrl(),
@@ -121,6 +119,8 @@ public class MineplexStatsModule extends AbstractModule {
 
                 new AboutCommand()
         );
+
+        return true;
     }
 
     public void loadJavaGames() {

@@ -2,12 +2,12 @@ package de.timmi6790.minecraft.utilities;
 
 import com.github.benmanes.caffeine.cache.AsyncLoadingCache;
 import com.github.benmanes.caffeine.cache.Caffeine;
-import de.timmi6790.discord_framework.DiscordBot;
 import io.sentry.Sentry;
 import kong.unirest.HttpResponse;
 import kong.unirest.Unirest;
 import lombok.NonNull;
 import lombok.experimental.UtilityClass;
+import lombok.extern.log4j.Log4j2;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
@@ -20,6 +20,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 
 @UtilityClass
+@Log4j2
 public class JavaUtilities {
     private final Pattern NAME_PATTERN = Pattern.compile("^\\w{1,16}$");
 
@@ -45,7 +46,7 @@ public class JavaUtilities {
                 try (final InputStream in = new ByteArrayInputStream(response.getBody())) {
                     return ImageIO.read(in);
                 } catch (final IOException e) {
-                    DiscordBot.getLogger().error(e);
+                    log.error("", e);
                     Sentry.captureException(e);
                     return null;
                 }

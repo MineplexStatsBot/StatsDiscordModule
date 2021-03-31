@@ -4,19 +4,20 @@ import com.github.benmanes.caffeine.cache.Caffeine;
 import com.github.benmanes.caffeine.cache.LoadingCache;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import de.timmi6790.discord_framework.DiscordBot;
 import de.timmi6790.minecraft.mojang_api.models.MojangUser;
 import de.timmi6790.minecraft.mojang_api.models.NameHistory;
 import kong.unirest.GetRequest;
 import kong.unirest.HttpResponse;
 import kong.unirest.Unirest;
 import lombok.experimental.UtilityClass;
+import lombok.extern.log4j.Log4j2;
 
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 @UtilityClass
+@Log4j2
 public class MojangApi {
     private final Gson gson = new GsonBuilder()
             .registerTypeAdapter(MojangUser.class, new MojangUser.MojangUserDeserializer())
@@ -39,7 +40,7 @@ public class MojangApi {
         try {
             response = getRequest.asString();
         } catch (final Exception e) {
-            DiscordBot.getLogger().error(e);
+            log.error("", e);
             return Optional.empty();
         }
 

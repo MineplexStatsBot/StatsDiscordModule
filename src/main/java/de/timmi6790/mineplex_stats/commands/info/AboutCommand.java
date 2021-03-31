@@ -1,9 +1,9 @@
 package de.timmi6790.mineplex_stats.commands.info;
 
 import de.timmi6790.discord_framework.DiscordBot;
-import de.timmi6790.discord_framework.modules.command.AbstractCommand;
-import de.timmi6790.discord_framework.modules.command.CommandParameters;
-import de.timmi6790.discord_framework.modules.command.CommandResult;
+import de.timmi6790.discord_framework.module.modules.command.AbstractCommand;
+import de.timmi6790.discord_framework.module.modules.command.CommandParameters;
+import de.timmi6790.discord_framework.module.modules.command.CommandResult;
 import net.dv8tion.jda.api.utils.MarkdownUtil;
 
 public class AboutCommand extends AbstractCommand {
@@ -13,7 +13,7 @@ public class AboutCommand extends AbstractCommand {
 
     @Override
     protected CommandResult onCommand(final CommandParameters commandParameters) {
-        final String mainCommand = getCommandModule().getMainCommand();
+        final String mainCommand = this.getCommandModule().getMainCommand();
         this.sendTimedMessage(
                 commandParameters,
                 this.getEmbedBuilder(commandParameters)

@@ -1,10 +1,10 @@
 package de.timmi6790.minecraft.commands;
 
-import de.timmi6790.discord_framework.modules.command.AbstractCommand;
-import de.timmi6790.discord_framework.modules.command.CommandParameters;
-import de.timmi6790.discord_framework.modules.command.CommandResult;
-import de.timmi6790.discord_framework.modules.command.exceptions.CommandReturnException;
-import de.timmi6790.discord_framework.modules.command.property.properties.MinArgCommandProperty;
+import de.timmi6790.discord_framework.module.modules.command.AbstractCommand;
+import de.timmi6790.discord_framework.module.modules.command.CommandParameters;
+import de.timmi6790.discord_framework.module.modules.command.CommandResult;
+import de.timmi6790.discord_framework.module.modules.command.exceptions.CommandReturnException;
+import de.timmi6790.discord_framework.module.modules.command.property.properties.MinArgCommandProperty;
 import de.timmi6790.minecraft.mojang_api.MojangApi;
 import de.timmi6790.minecraft.mojang_api.models.MojangUser;
 import de.timmi6790.minecraft.mojang_api.models.NameHistory;

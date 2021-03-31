@@ -1,8 +1,8 @@
 package de.timmi6790.mineplex_stats.commands.java.info;
 
-import de.timmi6790.discord_framework.modules.command.CommandParameters;
-import de.timmi6790.discord_framework.modules.command.CommandResult;
-import de.timmi6790.discord_framework.modules.command.property.properties.ExampleCommandsCommandProperty;
+import de.timmi6790.discord_framework.module.modules.command.CommandParameters;
+import de.timmi6790.discord_framework.module.modules.command.CommandResult;
+import de.timmi6790.discord_framework.module.modules.command.property.properties.ExampleCommandsCommandProperty;
 import de.timmi6790.discord_framework.utilities.MultiEmbedBuilder;
 import de.timmi6790.mineplex_stats.commands.java.AbstractJavaStatsCommand;
 import de.timmi6790.mineplex_stats.statsapi.models.java.JavaGame;
@@ -48,7 +48,7 @@ public class JavaGamesCommand extends AbstractJavaStatsCommand {
                 .setTitle("Java Games")
                 .setFooterFormat(
                         "TIP: Run %s %s <game> to see more details",
-                        getCommandModule().getMainCommand(),
+                        this.getCommandModule().getMainCommand(),
                         this.getName()
                 );
 
@@ -59,9 +59,9 @@ public class JavaGamesCommand extends AbstractJavaStatsCommand {
         }
 
         for (final Map.Entry<String, List<String>> entry : sortedLeaderboard.entrySet()) {
-            List<String> gameNames = entry.getValue();
+            final List<String> gameNames = entry.getValue();
             gameNames.sort(Comparator.naturalOrder());
-            
+
             message.addField(
                     entry.getKey(),
                     String.join(", ", gameNames)
@@ -106,7 +106,7 @@ public class JavaGamesCommand extends AbstractJavaStatsCommand {
                         )
                         .setFooterFormat(
                                 "TIP: Run %s %s %s <stat> to see more details",
-                                getCommandModule().getMainCommand(),
+                                this.getCommandModule().getMainCommand(),
                                 this.getName(),
                                 game.getName()
                         ),

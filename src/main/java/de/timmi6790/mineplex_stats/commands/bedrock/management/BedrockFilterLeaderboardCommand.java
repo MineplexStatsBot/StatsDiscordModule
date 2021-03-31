@@ -1,8 +1,8 @@
 package de.timmi6790.mineplex_stats.commands.bedrock.management;
 
-import de.timmi6790.discord_framework.modules.command.CommandParameters;
-import de.timmi6790.discord_framework.modules.emote_reaction.emotereactions.AbstractEmoteReaction;
-import de.timmi6790.discord_framework.modules.emote_reaction.emotereactions.CommandEmoteReaction;
+import de.timmi6790.discord_framework.module.modules.command.CommandParameters;
+import de.timmi6790.discord_framework.module.modules.emote_reaction.emotereactions.AbstractEmoteReaction;
+import de.timmi6790.discord_framework.module.modules.emote_reaction.emotereactions.CommandEmoteReaction;
 import de.timmi6790.discord_framework.utilities.discord.DiscordEmotes;
 import de.timmi6790.mineplex_stats.commands.bedrock.AbstractBedrockLeaderboardCommand;
 import de.timmi6790.mineplex_stats.statsapi.models.bedrock.BedrockLeaderboard;
@@ -47,7 +47,7 @@ public class BedrockFilterLeaderboardCommand extends AbstractBedrockLeaderboardC
                                                            final int endPos) {
         final Map<String, AbstractEmoteReaction> emotes = new LinkedHashMap<>();
 
-        getCommandModule()
+        this.getCommandModule()
                 .getCommand(BedrockPlayerFilterCommand.class)
                 .ifPresent(filterCommand -> {
                     int emoteIndex = 1;
