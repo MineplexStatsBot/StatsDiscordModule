@@ -5,6 +5,7 @@ import de.timmi6790.discord_framework.module.modules.command.CommandModule;
 import de.timmi6790.discord_framework.module.modules.command.CommandParameters;
 import de.timmi6790.discord_framework.module.modules.config.ConfigModule;
 import de.timmi6790.discord_framework.module.modules.setting.SettingModule;
+import de.timmi6790.discord_framework.utilities.MultiEmbedBuilder;
 import de.timmi6790.discord_framework.utilities.discord.DiscordMessagesUtilities;
 import de.timmi6790.minecraft.MinecraftModule;
 import de.timmi6790.mineplex_stats.commands.bedrock.BedrockLeaderboardCommand;
@@ -36,6 +37,8 @@ import de.timmi6790.mineplex_stats.statsapi.models.java.JavaGroup;
 import de.timmi6790.mineplex_stats.statsapi.models.java.JavaGroupsGroups;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.utils.MarkdownUtil;
 import org.apache.commons.collections4.map.CaseInsensitiveMap;
@@ -216,12 +219,24 @@ public class MineplexStatsModule extends AbstractModule {
                                   final Object... arguments) {
         final TextChannel logChannel = this.getDiscord().getTextChannelById(channelId);
         if (logChannel != null) {
-            DiscordMessagesUtilities.sendMessage(
-                    logChannel,
-                    DiscordMessagesUtilities.getEmbedBuilder(commandParameters)
-                            .appendDescription(format, arguments)
-                            .setTimestamp(Instant.now())
-            );
+            final MultiEmbedBuilder multiEmbedBuilder = DiscordMessagesUtilities.getEmbedBuilder(commandParameters)
+                    .appendDescription(format, arguments)
+                    .setTimestamp(Instant.now());
+
+            if (logChannel.isNews()) {
+                for (final MessageEmbed embedMessage : multiEmbedBuilder.build()) {
+                    logChannel
+                            .sendMessage(embedMessage)
+                            .flatMap(Message::crosspost)
+                            .queue();
+                }
+
+            } else {
+                DiscordMessagesUtilities.sendMessage(
+                        logChannel,
+                        multiEmbedBuilder
+                );
+            }
         }
     }
 
