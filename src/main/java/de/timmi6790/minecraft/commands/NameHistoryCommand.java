@@ -14,8 +14,8 @@ import net.dv8tion.jda.api.utils.MarkdownUtil;
 import java.util.List;
 import java.util.StringJoiner;
 
-public class NamesCommand extends AbstractCommand {
-    public NamesCommand() {
+public class NameHistoryCommand extends AbstractCommand {
+    public NameHistoryCommand() {
         super("names", "Minecraft", "Shows the players past names", "<playerName>", "n");
 
         this.addProperties(
