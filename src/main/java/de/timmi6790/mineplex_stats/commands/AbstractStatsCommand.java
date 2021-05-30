@@ -18,7 +18,6 @@ import lombok.Getter;
 import lombok.NonNull;
 import net.dv8tion.jda.api.utils.MarkdownUtil;
 import org.checkerframework.checker.nullness.qual.Nullable;
-import org.ocpsoft.prettytime.nlp.PrettyTimeParser;
 
 import java.io.InputStream;
 import java.text.DecimalFormat;
@@ -298,10 +297,13 @@ public abstract class AbstractStatsCommand extends AbstractCommand {
         final String name = String.join(" ", dateArgs).replace(".", "/");
 
         // TODO: Better date parsing :/
+        /*
         final List<Date> dates = new PrettyTimeParser().parse(name);
         if (!dates.isEmpty()) {
             return TimeUnit.MILLISECONDS.toSeconds(dates.get(0).getTime());
         }
+
+         */
 
         throw new CommandReturnException(
                 this.getEmbedBuilder(commandParameters)

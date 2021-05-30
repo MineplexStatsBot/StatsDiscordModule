@@ -2,22 +2,16 @@ package de.timmi6790.mineplex_stats.statsapi;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import de.timmi6790.commons.builders.MapBuilder;
 import de.timmi6790.mineplex_stats.statsapi.deserializer.JavaGamesModelDeserializer;
 import de.timmi6790.mineplex_stats.statsapi.models.ResponseModel;
-import de.timmi6790.mineplex_stats.statsapi.models.bedrock.BedrockGames;
-import de.timmi6790.mineplex_stats.statsapi.models.bedrock.BedrockLeaderboard;
-import de.timmi6790.mineplex_stats.statsapi.models.bedrock.BedrockPlayerStats;
 import de.timmi6790.mineplex_stats.statsapi.models.errors.ErrorModel;
-import de.timmi6790.mineplex_stats.statsapi.models.java.*;
-import kong.unirest.*;
-import kong.unirest.json.JSONObject;
+import de.timmi6790.mineplex_stats.statsapi.models.java.JavaGamesModel;
+import kong.unirest.Unirest;
+import kong.unirest.UnirestInstance;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.extern.log4j.Log4j2;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.UUID;
 
 @Log4j2
@@ -56,38 +50,8 @@ public class MpStatsRestApiClient {
                 .setDefaultBasicAuth(authName, authPassword);
     }
 
-    private ResponseModel makeRequest(final String url,
-                                      final Map<String, Object> params,
-                                      final Class<? extends ResponseModel> objectClass) {
-        try {
-            final HttpResponse<JsonNode> response = this.unirest.get(url)
-                    .queryString(params)
-                    .asJson();
-
-            if (!response.isSuccess()) {
-                return UNKNOWN_ERROR_RESPONSE_MODEL;
-            }
-
-            final JSONObject jsonObject = response.getBody().getObject();
-            return this.gson.fromJson(
-                    jsonObject.toString(),
-                    jsonObject.getBoolean("success") ? objectClass : ErrorModel.class
-            );
-        } catch (final UnirestException e) {
-            log.error("", e);
-            return TIMEOUT_ERROR_RESPONSE_MODEL;
-        } catch (final Exception e) {
-            log.error("", e);
-            return UNKNOWN_ERROR_RESPONSE_MODEL;
-        }
-    }
-
     public ResponseModel getJavaGames() {
-        return this.makeRequest(
-                "java/leaderboards/games",
-                new HashMap<>(0),
-                JavaGamesModel.class
-        );
+        return UNKNOWN_ERROR_RESPONSE_MODEL;
     }
 
     public ResponseModel getJavaPlayerStats(final String player,
@@ -95,17 +59,8 @@ public class MpStatsRestApiClient {
                                             final String board,
                                             final long unixTime,
                                             final boolean filtering) {
-        return this.makeRequest(
-                "java/leaderboards/player",
-                MapBuilder.<String, Object>ofHashMap(5)
-                        .put(PLAYER, player)
-                        .put(GAME, game)
-                        .put(BOARD, board.toLowerCase())
-                        .put(DATE, unixTime)
-                        .put(FILTERING, filtering)
-                        .build(),
-                JavaPlayerStats.class
-        );
+        return UNKNOWN_ERROR_RESPONSE_MODEL;
+
     }
 
     public ResponseModel getJavaPlayerStats(final UUID playerUUId,
@@ -114,18 +69,8 @@ public class MpStatsRestApiClient {
                                             final String board,
                                             final long unixTime,
                                             final boolean filtering) {
-        return this.makeRequest(
-                "java/leaderboards/playerUUID",
-                MapBuilder.<String, Object>ofHashMap(5)
-                        .put("uuid", playerUUId.toString())
-                        .put(PLAYER, player)
-                        .put(GAME, game)
-                        .put(BOARD, board.toLowerCase())
-                        .put(DATE, unixTime)
-                        .put(FILTERING, filtering)
-                        .build(),
-                JavaPlayerStats.class
-        );
+        return UNKNOWN_ERROR_RESPONSE_MODEL;
+
     }
 
     public ResponseModel getJavaLeaderboard(final String game,
@@ -135,27 +80,13 @@ public class MpStatsRestApiClient {
                                             final int endPos,
                                             final long unixTime,
                                             final boolean filtering) {
-        return this.makeRequest(
-                "java/leaderboards/leaderboard",
-                MapBuilder.<String, Object>ofHashMap(7)
-                        .put(GAME, game)
-                        .put(STAT, stat)
-                        .put(BOARD, board.toLowerCase())
-                        .put("startPosition", startPos)
-                        .put("endPosition", endPos)
-                        .put(DATE, unixTime)
-                        .put(FILTERING, filtering)
-                        .build(),
-                JavaLeaderboard.class
-        );
+        return UNKNOWN_ERROR_RESPONSE_MODEL;
+
     }
 
     public ResponseModel getGroups() {
-        return this.makeRequest(
-                "java/leaderboards/group/groups",
-                new HashMap<>(0),
-                JavaGroupsGroups.class
-        );
+        return UNKNOWN_ERROR_RESPONSE_MODEL;
+
     }
 
     public ResponseModel getPlayerGroup(final String player,
@@ -163,17 +94,8 @@ public class MpStatsRestApiClient {
                                         final String stat,
                                         final String board,
                                         final long unixTime) {
-        return this.makeRequest(
-                "java/leaderboards/group/player",
-                MapBuilder.<String, Object>ofHashMap(5)
-                        .put(PLAYER, player)
-                        .put("group", group)
-                        .put(STAT, stat)
-                        .put(BOARD, board.toLowerCase())
-                        .put(DATE, unixTime)
-                        .build(),
-                JavaGroupsPlayer.class
-        );
+        return UNKNOWN_ERROR_RESPONSE_MODEL;
+
     }
 
     public ResponseModel getPlayerGroup(final UUID playerUUID,
@@ -181,68 +103,35 @@ public class MpStatsRestApiClient {
                                         final String stat,
                                         final String board,
                                         final long unixTime) {
-        return this.makeRequest(
-                "java/leaderboards/group/playerUUID",
-                MapBuilder.<String, Object>ofHashMap(5)
-                        .put("uuid", playerUUID.toString())
-                        .put("group", group)
-                        .put(STAT, stat)
-                        .put(BOARD, board.toLowerCase())
-                        .put(DATE, unixTime)
-                        .build(),
-                JavaGroupsPlayer.class
-        );
+        return UNKNOWN_ERROR_RESPONSE_MODEL;
+
     }
 
     public ResponseModel getPlayerStatsRatio(final String player,
                                              final String stat,
                                              final String board,
                                              final long unixTime) {
-        return this.makeRequest(
-                "java/leaderboards/ratio/player",
-                MapBuilder.<String, Object>ofHashMap(4)
-                        .put(PLAYER, player)
-                        .put(STAT, stat)
-                        .put(BOARD, board.toLowerCase())
-                        .put(DATE, unixTime)
-                        .build(),
-                JavaRatioPlayer.class
-        );
+        return UNKNOWN_ERROR_RESPONSE_MODEL;
+
     }
 
     // Bedrock
     public ResponseModel getBedrockGames() {
-        return this.makeRequest(
-                "bedrock/leaderboards/games",
-                new HashMap<>(0),
-                BedrockGames.class
-        );
+        return UNKNOWN_ERROR_RESPONSE_MODEL;
+
     }
 
     public ResponseModel getBedrockLeaderboard(final String game,
                                                final int startPos,
                                                final int endPos,
                                                final long unixTime) {
-        return this.makeRequest(
-                "bedrock/leaderboards/leaderboard",
-                MapBuilder.<String, Object>ofHashMap(4)
-                        .put(GAME, game)
-                        .put("startPosition", startPos)
-                        .put("endPosition", endPos)
-                        .put(DATE, unixTime)
-                        .build(),
-                BedrockLeaderboard.class
-        );
+        return UNKNOWN_ERROR_RESPONSE_MODEL;
+
     }
 
     public ResponseModel getBedrockPlayerStats(final String player) {
-        return this.makeRequest(
-                "bedrock/leaderboards/player",
-                MapBuilder.<String, Object>ofHashMap(1)
-                        .put("name", player)
-                        .build(),
-                BedrockPlayerStats.class
-        );
+        return UNKNOWN_ERROR_RESPONSE_MODEL;
+
     }
 
     // Internal

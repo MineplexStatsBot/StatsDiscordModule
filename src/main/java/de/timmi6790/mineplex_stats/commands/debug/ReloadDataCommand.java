@@ -1,9 +1,9 @@
 package de.timmi6790.mineplex_stats.commands.debug;
 
-import de.timmi6790.commons.utilities.EnumUtilities;
 import de.timmi6790.discord_framework.module.modules.command.CommandParameters;
 import de.timmi6790.discord_framework.module.modules.command.CommandResult;
 import de.timmi6790.discord_framework.module.modules.command.property.properties.MinArgCommandProperty;
+import de.timmi6790.discord_framework.utilities.commons.EnumUtilities;
 import de.timmi6790.mineplex_stats.commands.AbstractStatsCommand;
 import net.dv8tion.jda.api.utils.MarkdownUtil;
 
