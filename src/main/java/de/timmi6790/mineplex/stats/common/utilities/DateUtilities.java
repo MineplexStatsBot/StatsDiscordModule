@@ -2,38 +2,31 @@ package de.timmi6790.mineplex.stats.common.utilities;
 
 import lombok.experimental.UtilityClass;
 
-import java.time.ZonedDateTime;
+import java.time.*;
 import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeParseException;
+import java.time.temporal.TemporalAccessor;
 import java.util.Optional;
 
 @UtilityClass
 public class DateUtilities {
-    // TODO: FIX ME
     public Optional<ZonedDateTime> parseZonedDateTime(final String input, final String[] dateFormats) {
         for (final String formatString : dateFormats) {
+            // Maybe we need to cache them based on the usages
             final DateTimeFormatter formatter = DateTimeFormatter.ofPattern(formatString);
+            final TemporalAccessor temporalAccessor = formatter.parse(input);
 
+            // We can't parse it to local date time directly if the input has no time,
+            // that is the reason we need to fall back to local date
+            LocalDateTime localDateTime;
             try {
-                // TODO: Parse at UTC time
-                System.out.println(input + " " + formatter);
-
-                return Optional.of(ZonedDateTime.parse(input, formatter));
-            } catch (final DateTimeParseException ignore) {
-                ignore.printStackTrace();
+                localDateTime = LocalDateTime.from(temporalAccessor);
+            } catch (final DateTimeException ignore) {
+                final LocalDate date = LocalDate.from(temporalAccessor);
+                localDateTime = LocalDateTime.of(date, LocalTime.MIN);
             }
+
+            return Optional.of(ZonedDateTime.of(localDateTime, ZoneId.of("UTC")));
         }
         return Optional.empty();
-    }
-
-    public static void main(final String[] args) {
-        final String[] ALLOWED_DATE_FORMATS = new String[]{
-                "MM.dd.yyyy",
-                "MM.dd.yyyy HH",
-                "MM.dd.yyyy HH:mm",
-                "MM.dd.yyyy HH:mm:ss"
-        };
-
-        System.out.println(parseZonedDateTime("06.03.2021", ALLOWED_DATE_FORMATS));
     }
 }
