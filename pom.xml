@@ -28,7 +28,7 @@
         <dependency>
             <groupId>com.github.Timmi6790</groupId>
             <artifactId>DiscordBotFramework</artifactId>
-            <version>fdd7a18428</version>
+            <version>292475327b</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
@@ -40,6 +40,11 @@
             <groupId>com.github.Timmi6790</groupId>
             <artifactId>MojangApiClient</artifactId>
             <version>1.0.0</version>
+        </dependency>
+        <dependency>
+            <groupId>com.github.MineplexStatsBot</groupId>
+            <artifactId>JavaRestApiClient</artifactId>
+            <version>ebbaf8f1df</version>
         </dependency>
 
         <!-- Compile only dependencies -->
@@ -84,6 +89,9 @@
                         <goals>
                             <goal>shade</goal>
                         </goals>
+                        <configuration>
+                            <shadeSourcesContent>true</shadeSourcesContent>
+                        </configuration>
                     </execution>
                 </executions>
             </plugin>
