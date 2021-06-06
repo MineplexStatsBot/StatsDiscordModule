@@ -8,6 +8,7 @@ import de.timmi6790.discord_framework.module.modules.command.property.properties
 import de.timmi6790.mineplex.stats.bedrock.utilities.BedrockArgumentParsingUtilities;
 import de.timmi6790.mineplex.stats.common.commands.BaseStatsCommand;
 import de.timmi6790.mineplex.stats.common.generators.picture.PictureTable;
+import de.timmi6790.mineplex.stats.common.models.ParserResult;
 import de.timmi6790.mineplex.stats.common.utilities.ArgumentParsingUtilities;
 import de.timmi6790.mineplex.stats.common.utilities.ErrorMessageUtilities;
 import de.timmi6790.mineplex.stats.common.utilities.FormationUtilities;
@@ -19,6 +20,8 @@ import de.timmi6790.mpstats.api.client.common.player.exceptions.InvalidPlayerNam
 import de.timmi6790.mpstats.api.client.common.player.models.PlayerEntry;
 import de.timmi6790.mpstats.api.client.common.player.models.PlayerStats;
 
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.*;
 
@@ -52,13 +55,19 @@ public class BedrockPlayerCommand extends BaseStatsCommand<BedrockPlayer> {
         };
     }
 
-    protected String[][] parsePlayerStats(final PlayerStats<BedrockPlayer> playerStats) {
+    protected ParserResult parsePlayerStats(final PlayerStats<BedrockPlayer> playerStats) {
         final List<String[]> parsed = Lists.newArrayListWithCapacity(playerStats.getGeneratedStats().size() + playerStats.getStats().size() + 1);
         parsed.add(new String[]{"Game", "Score", "Position"});
 
         final List<PlayerEntry> entries = new ArrayList<>(playerStats.getStats());
         entries.sort(Comparator.comparing(lb -> lb.getLeaderboard().getGame().getCleanName()));
+
+        ZonedDateTime highestTime = LocalDateTime.MIN.atZone(ZoneId.systemDefault());
         for (final PlayerEntry entry : entries) {
+            if (entry.getSaveTime().isAfter(highestTime)) {
+                highestTime = entry.getSaveTime();
+            }
+
             parsed.add(
                     new String[]{
                             entry.getLeaderboard().getGame().getCleanName(),
@@ -68,7 +77,13 @@ public class BedrockPlayerCommand extends BaseStatsCommand<BedrockPlayer> {
             );
         }
 
-        return parsed.toArray(new String[0][3]);
+        final String[] header = this.getTableHeader(playerStats);
+        final String[][] leaderboard = parsed.toArray(new String[0][3]);
+        return new ParserResult(
+                leaderboard,
+                header,
+                highestTime
+        );
     }
 
     @Override
@@ -83,28 +98,20 @@ public class BedrockPlayerCommand extends BaseStatsCommand<BedrockPlayer> {
         }
 
         final PlayerStats<BedrockPlayer> playerStats = playerStatsOpt.get();
+        final ParserResult parserResult = this.parsePlayerStats(playerStats);
 
-        final String[][] parsedLeaderboard = this.parsePlayerStats(playerStats);
-        // Check if only the first row exists
-        if (parsedLeaderboard.length <= 1) {
-            ErrorMessageUtilities.sendNotDataFoundMessage(commandParameters);
-            return CommandResult.SUCCESS;
-        }
-
-        final String[] header = this.getTableHeader(playerStats);
-
-        // TODO: Implement the actual time
-        final String formattedSaveTime = FormationUtilities.getFormattedTime(ZonedDateTime.now());
+        final String formattedSaveTime = FormationUtilities.getFormattedTime(parserResult.getHighestTime());
         final String subHeader = "Bedrock - " + formattedSaveTime;
 
         return this.sendPicture(
                 commandParameters,
                 new PictureTable(
-                        header,
+                        parserResult.getHeader(),
                         subHeader,
-                        parsedLeaderboard
+                        parserResult.getLeaderboard()
                 ).generatePicture(),
-                String.format("%s-%s", String.join("-", header), subHeader)
+                String.format("%s-%s", String.join("-", parserResult.getHeader()), subHeader)
         );
     }
+
 }

@@ -8,6 +8,7 @@ import de.timmi6790.discord_framework.module.modules.command.property.properties
 import de.timmi6790.minecraft.utilities.JavaUtilities;
 import de.timmi6790.mineplex.stats.common.commands.BaseStatsCommand;
 import de.timmi6790.mineplex.stats.common.generators.picture.PictureTable;
+import de.timmi6790.mineplex.stats.common.models.ParserResult;
 import de.timmi6790.mineplex.stats.common.utilities.ArgumentParsingUtilities;
 import de.timmi6790.mineplex.stats.common.utilities.ErrorMessageUtilities;
 import de.timmi6790.mineplex.stats.common.utilities.FormationUtilities;
@@ -28,6 +29,8 @@ import de.timmi6790.mpstats.api.client.java.player.models.JavaPlayer;
 import lombok.SneakyThrows;
 
 import java.awt.image.BufferedImage;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
@@ -122,7 +125,7 @@ public class JavaPlayerCommand extends BaseStatsCommand<JavaPlayer> {
         }
     }
 
-    protected String[][] parsePlayerStats(final PlayerStats<JavaPlayer> playerStats) {
+    protected ParserResult parsePlayerStats(final PlayerStats<JavaPlayer> playerStats) {
         final List<String[]> parsed = Lists.newArrayListWithCapacity(playerStats.getGeneratedStats().size() + playerStats.getStats().size() + 1);
         parsed.add(new String[]{"Stat", "Score", "Position"});
 
@@ -154,10 +157,15 @@ public class JavaPlayerCommand extends BaseStatsCommand<JavaPlayer> {
 
         final int totalEntries = generatedStats.size() + statEntries.size();
         final boolean aboveLimit = totalEntries > ROW_SOFT_LIMIT;
+        ZonedDateTime highestTime = LocalDateTime.MIN.atZone(ZoneId.systemDefault());
         for (final PlayerEntry entry : statEntries) {
             // Don't show empty rows if we are above the limit
             if (aboveLimit && entry.getScore() == -1) {
                 continue;
+            }
+
+            if (entry.getSaveTime().isAfter(highestTime)) {
+                highestTime = entry.getSaveTime();
             }
 
             parsed.add(
@@ -169,7 +177,13 @@ public class JavaPlayerCommand extends BaseStatsCommand<JavaPlayer> {
             );
         }
 
-        return parsed.toArray(new String[0][3]);
+        final String[] tableHeader = this.getTableHeader(playerStats);
+        final String[][] leaderboard = parsed.toArray(new String[0][3]);
+        return new ParserResult(
+                leaderboard,
+                tableHeader,
+                highestTime
+        );
     }
 
     @SneakyThrows
@@ -197,12 +211,9 @@ public class JavaPlayerCommand extends BaseStatsCommand<JavaPlayer> {
         }
 
         final PlayerStats<JavaPlayer> playerStats = playerStatsOpt.get();
+        final ParserResult parserResult = this.parsePlayerStats(playerStats);
 
-        final String[][] parsedLeaderboard = this.parsePlayerStats(playerStats);
-        final String[] header = this.getTableHeader(playerStats);
-
-        // TODO: Implement the actual time
-        final String formattedSaveTime = FormationUtilities.getFormattedTime(ZonedDateTime.now());
+        final String formattedSaveTime = FormationUtilities.getFormattedTime(parserResult.getHighestTime());
         final String subHeader = "Java - " + formattedSaveTime;
 
         BufferedImage skin;
@@ -215,12 +226,12 @@ public class JavaPlayerCommand extends BaseStatsCommand<JavaPlayer> {
         return this.sendPicture(
                 commandParameters,
                 new PictureTable(
-                        header,
+                        parserResult.getHeader(),
                         subHeader,
-                        parsedLeaderboard,
+                        parserResult.getLeaderboard(),
                         skin
                 ).generatePicture(),
-                String.format("%s-%s", String.join("-", header), subHeader)
+                String.format("%s-%s", String.join("-", parserResult.getHeader()), subHeader)
         );
     }
 }

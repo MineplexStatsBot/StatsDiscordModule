@@ -86,6 +86,7 @@ public class ErrorMessageUtilities {
 
     public void sendInvalidLeaderboardCombinationMessage(final CommandParameters commandParameters,
                                                          final InvalidLeaderboardCombinationRestException exception) {
+        // TODO: Add better support for the wrong combination
         final StringJoiner possibleCombinations = new StringJoiner("\n");
         for (final Leaderboard leaderboard : exception.getSuggestedLeaderboards()) {
             possibleCombinations.add(
