@@ -4,6 +4,7 @@ import lombok.experimental.UtilityClass;
 
 import java.time.*;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.time.temporal.TemporalAccessor;
 import java.util.Optional;
 
@@ -13,7 +14,13 @@ public class DateUtilities {
         for (final String formatString : dateFormats) {
             // Maybe we need to cache them based on the usages
             final DateTimeFormatter formatter = DateTimeFormatter.ofPattern(formatString);
-            final TemporalAccessor temporalAccessor = formatter.parse(input);
+
+            final TemporalAccessor temporalAccessor;
+            try {
+                temporalAccessor = formatter.parse(input);
+            } catch (final DateTimeParseException ignore) {
+                continue;
+            }
 
             // We can't parse it to local date time directly if the input has no time,
             // that is the reason we need to fall back to local date
