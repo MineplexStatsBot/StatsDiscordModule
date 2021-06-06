@@ -5,6 +5,7 @@ import de.timmi6790.discord_framework.module.modules.command.CommandModule;
 import de.timmi6790.discord_framework.module.modules.config.ConfigModule;
 import de.timmi6790.discord_framework.module.modules.reactions.button.ButtonReactionModule;
 import de.timmi6790.discord_framework.module.modules.setting.SettingModule;
+import de.timmi6790.mineplex.stats.common.commands.info.AboutCommand;
 import de.timmi6790.mineplex.stats.common.settings.DisclaimerMessagesSetting;
 import de.timmi6790.mineplex.stats.common.settings.FilterReasonSetting;
 import de.timmi6790.mpstats.api.client.MpStatsApiClient;
@@ -38,6 +39,11 @@ public class BaseMineplexStatsModule extends AbstractModule {
                 this,
                 new FilterReasonSetting(),
                 new DisclaimerMessagesSetting()
+        );
+
+        this.getModuleOrThrow(CommandModule.class).registerCommands(
+                this,
+                new AboutCommand()
         );
 
         return true;
