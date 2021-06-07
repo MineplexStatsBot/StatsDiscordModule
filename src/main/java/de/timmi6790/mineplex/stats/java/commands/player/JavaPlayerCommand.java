@@ -142,11 +142,19 @@ public class JavaPlayerCommand extends BaseStatsCommand<JavaPlayer> {
         }
 
         final List<PlayerEntry> statEntries = new ArrayList<>(playerStats.getStats());
-        // Sort after achievement
-        // TODO: Fix sorting
         statEntries.sort((object1, object2) -> {
+            // Achievements are always at the bottom
+            // Highest sorting priority at the top
+            // If same priority lexicographic
+
             final Stat stat1 = object1.getLeaderboard().getStat();
             final Stat stat2 = object2.getLeaderboard().getStat();
+            
+            final int stat1Priority = stat1.getSortingPriority();
+            final int stat2Priority = stat2.getSortingPriority();
+            if (stat1Priority != stat2Priority) {
+                return Integer.compare(stat2Priority, stat1Priority);
+            }
 
             if (!(stat1.isAchievement() && stat2.isAchievement())) {
                 return stat1.isAchievement() ? 1 : -1;
