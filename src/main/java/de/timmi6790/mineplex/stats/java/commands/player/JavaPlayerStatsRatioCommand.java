@@ -1,5 +1,6 @@
 package de.timmi6790.mineplex.stats.java.commands.player;
 
+import com.google.common.collect.Lists;
 import com.googlecode.charts4j.GCharts;
 import com.googlecode.charts4j.PieChart;
 import com.googlecode.charts4j.Slice;
@@ -65,22 +66,30 @@ public class JavaPlayerStatsRatioCommand extends BaseStatsCommand<JavaPlayer> {
         return url;
     }
 
-    private CalculatedPie parseSlices(final long totalValue, final List<PlayerEntry> entries) {
-        entries.sort(Comparator.comparingLong(PlayerEntry::getScore));
+    private float calculatePercentage(final long value, final long totalValue) {
+        if (totalValue == 0 || value == 0) {
+            return 0;
+        } else {
+            return ((float) value / totalValue) * 100;
+        }
+    }
 
+    private CalculatedPie parseSlices(final long totalValue, final List<PlayerEntry> entries) {
         ZonedDateTime biggestTime = LocalDateTime.MIN.atZone(ZoneId.systemDefault());
-        final List<Slice> slices = new ArrayList<>();
+        final List<Slice> slices = Lists.newArrayListWithExpectedSize(entries.size());
+        long foundSum = 0;
         for (final PlayerEntry entry : entries) {
-            final double percentage;
-            if (totalValue == 0 || entry.getScore() == 0) {
-                percentage = 0;
-            } else {
-                percentage = ((double) entry.getScore() / (double) totalValue) * 100;
+            // We need to ignore the global game, because it represents 100%
+            if (GLOBAL_GAME_NAME.equals(entry.getLeaderboard().getGame().getGameName())) {
+                continue;
             }
 
+            final double percentage = this.calculatePercentage(entry.getScore(), totalValue);
+            foundSum += entry.getScore();
             if (entry.getSaveTime().isAfter(biggestTime)) {
                 biggestTime = entry.getSaveTime();
             }
+
             slices.add(Slice.newSlice(
                     (int) Math.round(percentage * 100),
                     String.format(
@@ -92,6 +101,23 @@ public class JavaPlayerStatsRatioCommand extends BaseStatsCommand<JavaPlayer> {
             ));
         }
 
+        // Calculate unknown
+        final long difference = totalValue - foundSum;
+        if (difference > 0) {
+            final float percentage = this.calculatePercentage(difference, totalValue);
+            slices.add(Slice.newSlice(
+                    Math.round(percentage * 100),
+                    String.format(
+                            "%s %s %s",
+                            "Unknown",
+                            FormationUtilities.getFormattedNumber(this.calculatePercentage(difference, totalValue)) + "%",
+                            FormationUtilities.getFormattedNumber(difference)
+                    )
+            ));
+        }
+
+        // Sort after percentage
+        slices.sort(Comparator.comparingLong(Slice::getPercentage));
         return new CalculatedPie(slices, biggestTime);
     }
 
@@ -195,7 +221,6 @@ public class JavaPlayerStatsRatioCommand extends BaseStatsCommand<JavaPlayer> {
 
     @Override
     protected CommandResult onStatsCommand(final CommandParameters commandParameters) {
-        // TODO: It is missing data compared to the current version
         // Parse args
         final String playerName = JavaArgumentParsingUtilities.getJavaPlayerNameOrThrow(commandParameters, 0);
         final UUID playerUUID = JavaArgumentParsingUtilities.getPlayerUUIDOrThrow(commandParameters, playerName);
