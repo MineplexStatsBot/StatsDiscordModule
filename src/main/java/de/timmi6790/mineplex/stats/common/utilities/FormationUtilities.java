@@ -1,6 +1,7 @@
 package de.timmi6790.mineplex.stats.common.utilities;
 
 import de.timmi6790.mpstats.api.client.common.stat.models.Stat;
+import de.timmi6790.mpstats.api.client.common.stat.models.StatType;
 import lombok.experimental.UtilityClass;
 
 import java.text.DecimalFormat;
@@ -9,16 +10,11 @@ import java.text.NumberFormat;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Arrays;
-import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 
 @UtilityClass
 public class FormationUtilities {
-    // TODO: Find a better solution for this. It should be handled by the api
-    private static final List<String> STATS_TIME = Arrays.asList("IngameTime", "HubTime", "TimePlaying");
-
     private static final DecimalFormat FORMAT_NUMBER = (DecimalFormat) NumberFormat.getInstance(Locale.US);
     private static final DecimalFormat FORMAT_DECIMAL_POINT = new DecimalFormat(".##");
 
@@ -88,7 +84,7 @@ public class FormationUtilities {
             return "Unknown";
         }
 
-        if (STATS_TIME.contains(stat.getStatName())) {
+        if (stat.getType() == StatType.TIME_IN_SECONDS) {
             return getFormattedTime(score);
         }
 
