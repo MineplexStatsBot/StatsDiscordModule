@@ -1,7 +1,9 @@
 package de.timmi6790.mineplex.stats.common.generators.picture;
 
+import de.timmi6790.mineplex.stats.common.utilities.FontUtilities;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
+import lombok.extern.log4j.Log4j2;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
@@ -10,13 +12,15 @@ import java.util.Arrays;
 
 @ToString
 @EqualsAndHashCode(callSuper = true)
+@Log4j2
 public class PictureTable extends AbstractPicture {
-    private static final String ARIAL = "Arial";
-    private static final Font FONT_HEADER = new Font(ARIAL, Font.PLAIN, 42);
-    private static final Font FONT_SUB_HEADER = new Font(ARIAL, Font.PLAIN, 33);
+    private static final Font ARIAL = FontUtilities.loadFontFromFile("fonts/pictureTable.ttf", Font.TRUETYPE_FONT).orElse(FontUtilities.getRandomFont());
 
-    private static final Font FONT_LEADERBOARD_HEADER = new Font(ARIAL, Font.PLAIN, 38);
-    private static final Font FONT_LEADERBOARD = new Font(ARIAL, Font.PLAIN, 30);
+    private static final Font FONT_HEADER = ARIAL.deriveFont(42F);
+    private static final Font FONT_SUB_HEADER = ARIAL.deriveFont(33F);
+
+    private static final Font FONT_LEADERBOARD_HEADER = ARIAL.deriveFont(38F);
+    private static final Font FONT_LEADERBOARD = ARIAL.deriveFont(30F);
 
     private static final int GAP_X_BORDER = 10;
     private static final int GAP_Y_ROW = 15;
