@@ -34,7 +34,9 @@ public class ArgumentParsingUtilities {
         }
 
         final String[] dateArgs = Arrays.copyOfRange(commandParameters.getArgs(), startArgPos, commandParameters.getArgs().length);
-        final String dateInput = String.join(" ", dateArgs).replace("/", ".");
+        final String dateInput = String.join(" ", dateArgs)
+                .replace("/", ".")
+                .replace("-", ".");
 
         final Optional<ZonedDateTime> zonedDateTimeOpt = DateUtilities.parseZonedDateTime(dateInput, allowedDateFormats);
         if (zonedDateTimeOpt.isPresent()) {
