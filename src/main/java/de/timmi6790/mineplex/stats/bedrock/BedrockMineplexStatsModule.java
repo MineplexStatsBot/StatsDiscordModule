@@ -5,7 +5,9 @@ import de.timmi6790.discord_framework.module.modules.command.CommandModule;
 import de.timmi6790.discord_framework.module.modules.setting.SettingModule;
 import de.timmi6790.mineplex.stats.bedrock.commands.leaderboard.BedrockGamesCommand;
 import de.timmi6790.mineplex.stats.bedrock.commands.leaderboard.BedrockLeaderboardCommand;
+import de.timmi6790.mineplex.stats.bedrock.commands.leaderboard.UnfilteredBedrockLeaderboardCommand;
 import de.timmi6790.mineplex.stats.bedrock.commands.player.BedrockPlayerCommand;
+import de.timmi6790.mineplex.stats.bedrock.commands.player.UnfilteredBedrockPlayerCommand;
 import de.timmi6790.mineplex.stats.bedrock.settings.BedrockNameReplacementSetting;
 import de.timmi6790.mineplex.stats.common.BaseMineplexStatsModule;
 import de.timmi6790.mpstats.api.client.bedrock.BedrockMpStatsApiClient;
@@ -33,7 +35,9 @@ public class BedrockMineplexStatsModule extends AbstractModule {
                 this,
                 new BedrockLeaderboardCommand(this.statApicClient),
                 new BedrockPlayerCommand(this.statApicClient),
-                new BedrockGamesCommand(this.statApicClient)
+                new BedrockGamesCommand(this.statApicClient),
+                new UnfilteredBedrockLeaderboardCommand(this.statApicClient),
+                new UnfilteredBedrockPlayerCommand(this.statApicClient)
         );
 
         this.getModuleOrThrow(SettingModule.class).registerSetting(

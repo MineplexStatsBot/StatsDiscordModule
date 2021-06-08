@@ -62,6 +62,10 @@ public abstract class LeaderboardCommand<P extends Player> extends BaseStatsComm
         this.schemaName = schemaName;
     }
 
+    protected abstract String getStat(CommandParameters commandParameters);
+
+    protected abstract String getBoard(CommandParameters commandParameters);
+
     protected LeaderboardPositionSave<P> getSave(final CommandParameters commandParameters,
                                                  final String game,
                                                  final String stat,
@@ -168,9 +172,9 @@ public abstract class LeaderboardCommand<P extends Player> extends BaseStatsComm
         return this.getArg(commandParameters, GAME_POSITION);
     }
 
-    protected abstract String getStat(CommandParameters commandParameters);
-
-    protected abstract String getBoard(CommandParameters commandParameters);
+    protected Set<Reason> getFilterReasons(final CommandParameters commandParameters) {
+        return ArgumentParsingUtilities.getFilterReasons(commandParameters);
+    }
 
     protected int getStartPosition(final CommandParameters commandParameters) {
         if (this.getPositionIndex() >= commandParameters.getArgs().length) {
@@ -293,7 +297,7 @@ public abstract class LeaderboardCommand<P extends Player> extends BaseStatsComm
         int startPosition = this.getStartPosition(commandParameters);
         final ZonedDateTime time = ArgumentParsingUtilities.getDateTimeOrThrow(commandParameters, this.getTimeStartIndex());
 
-        final Set<Reason> filterReasons = ArgumentParsingUtilities.getFilterReasons(commandParameters);
+        final Set<Reason> filterReasons = this.getFilterReasons(commandParameters);
 
         final LeaderboardPositionSave<P> leaderboardSave = this.getSave(
                 commandParameters,

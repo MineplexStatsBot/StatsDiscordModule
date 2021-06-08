@@ -45,13 +45,24 @@ public class JavaPlayerCommand extends BaseStatsCommand<JavaPlayer> {
     private static final int BOARD_POSITION = 2;
 
     public JavaPlayerCommand(final BaseApiClient<JavaPlayer> baseApiClient) {
-        super(
+        this(
                 baseApiClient,
                 "player",
-                "Java",
                 "Check player stats",
-                "<player> <game> [board] [dateTime]",
                 "pl"
+        );
+    }
+
+    public JavaPlayerCommand(final BaseApiClient<JavaPlayer> baseApiClient,
+                             final String name,
+                             final String description, final String... aliasNames) {
+        super(
+                baseApiClient,
+                name,
+                "Java",
+                description,
+                "<player> <game> [board] [dateTime]",
+                aliasNames
         );
 
         this.addProperties(
@@ -102,6 +113,10 @@ public class JavaPlayerCommand extends BaseStatsCommand<JavaPlayer> {
         throw new CommandReturnException();
     }
 
+    protected Set<Reason> getFilterReasons(final CommandParameters commandParameters) {
+        return ArgumentParsingUtilities.getFilterReasons(commandParameters);
+    }
+
     protected String[] getTableHeader(final PlayerStats<JavaPlayer> playerStats) {
         PlayerEntry foundEntry = null;
         // Find one entry from set
@@ -149,7 +164,7 @@ public class JavaPlayerCommand extends BaseStatsCommand<JavaPlayer> {
 
             final Stat stat1 = object1.getLeaderboard().getStat();
             final Stat stat2 = object2.getLeaderboard().getStat();
-            
+
             final int stat1Priority = stat1.getSortingPriority();
             final int stat2Priority = stat2.getSortingPriority();
             if (stat1Priority != stat2Priority) {
@@ -202,7 +217,7 @@ public class JavaPlayerCommand extends BaseStatsCommand<JavaPlayer> {
         final String game = this.getArg(commandParameters, GAME_POSITION);
         final String board = this.getArgOrDefault(commandParameters, BOARD_POSITION, ArgumentParsingUtilities.getDefaultBoard());
         final ZonedDateTime zonedDateTime = ArgumentParsingUtilities.getDateTimeOrThrow(commandParameters, 3);
-        final Set<Reason> filterReasons = ArgumentParsingUtilities.getFilterReasons(commandParameters);
+        final Set<Reason> filterReasons = this.getFilterReasons(commandParameters);
 
         final CompletableFuture<BufferedImage> skinFuture = JavaUtilities.getPlayerSkin(playerUUID);
         final Optional<PlayerStats<JavaPlayer>> playerStatsOpt = this.getPlayerStats(

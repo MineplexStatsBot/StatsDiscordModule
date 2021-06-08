@@ -27,7 +27,21 @@ import java.util.*;
 
 public class BedrockPlayerCommand extends BaseStatsCommand<BedrockPlayer> {
     public BedrockPlayerCommand(final BaseApiClient<BedrockPlayer> baseApiClient) {
-        super(baseApiClient, "bedrockPlayer", "Bedrock", "Check player stats", "<player>", "bpl");
+        this(baseApiClient, "bedrockPlayer", "Check player stats", "bpl");
+    }
+
+    public BedrockPlayerCommand(final BaseApiClient<BedrockPlayer> baseApiClient,
+                                final String name,
+                                final String description,
+                                final String... aliasNames) {
+        super(
+                baseApiClient,
+                name,
+                "Bedrock",
+                description,
+                "<player>",
+                aliasNames
+        );
 
         this.addProperties(
                 new MinArgCommandProperty(1)
@@ -86,10 +100,14 @@ public class BedrockPlayerCommand extends BaseStatsCommand<BedrockPlayer> {
         );
     }
 
+    protected Set<Reason> getFilterReasons(final CommandParameters commandParameters) {
+        return ArgumentParsingUtilities.getFilterReasons(commandParameters);
+    }
+
     @Override
     protected CommandResult onStatsCommand(final CommandParameters commandParameters) {
         final String playerName = BedrockArgumentParsingUtilities.getBedrockPlayerNameThrow(commandParameters, 0);
-        final Set<Reason> filterReasons = ArgumentParsingUtilities.getFilterReasons(commandParameters);
+        final Set<Reason> filterReasons = this.getFilterReasons(commandParameters);
 
         final Optional<PlayerStats<BedrockPlayer>> playerStatsOpt = this.getPlayerStats(commandParameters, playerName, filterReasons);
         if (playerStatsOpt.isEmpty()) {

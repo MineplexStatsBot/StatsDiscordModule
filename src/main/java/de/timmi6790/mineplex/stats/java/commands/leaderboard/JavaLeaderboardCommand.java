@@ -9,20 +9,31 @@ import de.timmi6790.mpstats.api.client.java.player.models.JavaPlayer;
 
 public class JavaLeaderboardCommand extends LeaderboardCommand<JavaPlayer> {
     public JavaLeaderboardCommand(final BaseApiClient<JavaPlayer> baseApiClient) {
+        this(
+                baseApiClient,
+                "leaderboard",
+                "lb"
+        );
+    }
+
+    public JavaLeaderboardCommand(final BaseApiClient<JavaPlayer> baseApiClient,
+                                  final String name,
+                                  final String... aliasNames) {
         super(
                 baseApiClient,
                 3,
                 "Java",
-                "leaderboard",
+                name,
                 "Java",
                 "<game> <stat> [board]",
-                "lb"
+                aliasNames
         );
 
         this.addProperties(
                 new MinArgCommandProperty(2)
         );
     }
+
 
     @Override
     protected String getStat(final CommandParameters commandParameters) {

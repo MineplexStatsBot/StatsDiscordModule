@@ -8,14 +8,24 @@ import de.timmi6790.mpstats.api.client.common.BaseApiClient;
 
 public class BedrockLeaderboardCommand extends LeaderboardCommand<BedrockPlayer> {
     public BedrockLeaderboardCommand(final BaseApiClient<BedrockPlayer> baseApiClient) {
+        this(
+                baseApiClient,
+                "bedrockLeaderboard",
+                "blb"
+        );
+    }
+
+    public BedrockLeaderboardCommand(final BaseApiClient<BedrockPlayer> baseApiClient,
+                                     final String name,
+                                     final String... aliasNames) {
         super(
                 baseApiClient,
                 1,
                 "Bedrock",
-                "bedrockLeaderboard",
+                name,
                 "Bedrock",
                 "<game>",
-                "blb"
+                aliasNames
         );
 
         this.addProperties(
