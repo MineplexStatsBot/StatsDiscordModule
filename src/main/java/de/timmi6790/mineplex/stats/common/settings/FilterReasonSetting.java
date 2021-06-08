@@ -13,6 +13,7 @@ import java.util.*;
 public class FilterReasonSetting extends AbstractSetting<Set<Reason>> {
     private static final String REPOSITORY_DIVIDER = "/";
     private static final String EMPTY_SET_ARGUMENT = "None";
+    private static final String FULL_SET_ARGUMENT = "All";
     private static final Set<Reason> DEFAULT_REASONS = EnumSet.of(Reason.GLITCHED, Reason.GIVEN);
 
     public static Set<Reason> getDefaultReasons() {
@@ -25,6 +26,7 @@ public class FilterReasonSetting extends AbstractSetting<Set<Reason>> {
                 "Filter reasons that should be excluded." +
                         "\nPossible values: " + String.join(", ", EnumUtilities.getPrettyNames(Reason.values())) +
                         "\nUse " + MarkdownUtil.monospace(EMPTY_SET_ARGUMENT) + " to have no filters at all" +
+                        "\nUse " + MarkdownUtil.monospace(FULL_SET_ARGUMENT) + " to have all filters enabled " +
                         "\nDivide new input with " + MarkdownUtil.bold(","),
                 DEFAULT_REASONS
         );
@@ -68,7 +70,13 @@ public class FilterReasonSetting extends AbstractSetting<Set<Reason>> {
 
     @Override
     protected Optional<Set<Reason>> parseNewValue(final CommandParameters commandParameters, final String userInput) {
+        // Full set shortcut detection
+        if (FULL_SET_ARGUMENT.equalsIgnoreCase(userInput)) {
+            return Optional.of(EnumSet.allOf(Reason.class));
+        }
+
         final Set<Reason> found = EnumSet.noneOf(Reason.class);
+        // Empty set shortcut detection
         if (EMPTY_SET_ARGUMENT.equalsIgnoreCase(userInput)) {
             return Optional.of(found);
         }
