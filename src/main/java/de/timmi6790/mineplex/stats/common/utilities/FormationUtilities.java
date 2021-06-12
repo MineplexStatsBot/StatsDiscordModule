@@ -39,7 +39,7 @@ public class FormationUtilities {
     }
 
     public String getFormattedStat(final Stat stat) {
-        return (stat.isAchievement() ? "Achievement" : "") + stat.getCleanName();
+        return (stat.isAchievement() ? "Achievement " : "") + stat.getCleanName();
     }
 
     protected String getFormattedTime(long time) {

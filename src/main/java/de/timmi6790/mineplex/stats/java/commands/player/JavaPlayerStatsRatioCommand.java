@@ -13,6 +13,7 @@ import de.timmi6790.mineplex.stats.common.settings.DisclaimerMessagesSetting;
 import de.timmi6790.mineplex.stats.common.utilities.ArgumentParsingUtilities;
 import de.timmi6790.mineplex.stats.common.utilities.ErrorMessageUtilities;
 import de.timmi6790.mineplex.stats.common.utilities.FormationUtilities;
+import de.timmi6790.mineplex.stats.common.utilities.SetUtilities;
 import de.timmi6790.mineplex.stats.java.utilities.JavaArgumentParsingUtilities;
 import de.timmi6790.mpstats.api.client.common.BaseApiClient;
 import de.timmi6790.mpstats.api.client.common.board.exceptions.InvalidBoardNameException;
@@ -32,6 +33,14 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.*;
+
+// TODO: Reimplement old logic
+//- The stat pls command now only includes data of the last x days. This will prevent  that your old stats are mixed into this.
+//   All: 365 * 10 days
+//   Yearly: Days since the start of the year
+//   Monthly: Days since the start of the month
+//   Weekly: Days since the start of the week
+//   Daily: 1
 
 public class JavaPlayerStatsRatioCommand extends BaseStatsCommand<JavaPlayer> {
     private static final String GLOBAL_GAME_NAME = "Global";
@@ -144,13 +153,14 @@ public class JavaPlayerStatsRatioCommand extends BaseStatsCommand<JavaPlayer> {
                 new ArrayList<>(playerStats.getStats())
         );
 
+        final PlayerEntry entry = SetUtilities.getFirstEntry(playerStats.getStats());
         final PieChart pieChart = GCharts.newPieChart(calculatedPie.getSlices());
         pieChart.setSize(750, 400);
         pieChart.setTitle(String.format(
                 "%s %s %s %s %s",
                 playerStats.getPlayer().getName(),
-                "Stat",
-                "Board",
+                entry.getLeaderboard().getStat().getCleanName(),
+                entry.getLeaderboard().getBoard().getCleanName(),
                 FormationUtilities.getFormattedNumber(totalValue),
                 FormationUtilities.getFormattedTime(calculatedPie.getHighestTime())
         ));
