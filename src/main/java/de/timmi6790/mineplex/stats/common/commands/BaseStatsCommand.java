@@ -25,6 +25,7 @@ import lombok.NonNull;
 import net.dv8tion.jda.api.entities.Emoji;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageChannel;
+import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.interactions.components.Button;
 import net.dv8tion.jda.api.interactions.components.ButtonStyle;
@@ -193,23 +194,32 @@ public abstract class BaseStatsCommand<P extends Player> extends AbstractCommand
         }
 
         // Send message
-        commandParameters.getLowestMessageChannel()
-                .sendMessage(
-                        this.getEmbedBuilder(commandParameters)
-                                .setTitle("Invalid " + StringUtilities.capitalize(argName))
-                                .setDescription(description.toString())
-                                .setFooter("↓ Click Me!")
-                                .buildSingle()
-                ).setActionRows(ActionRow.of(buttons.keySet()))
-                .queue(message ->
-                        this.buttonReactionModule.addButtonReactionMessage(
-                                message,
-                                new ButtonReaction(
-                                        buttons,
-                                        commandParameters.getUserDb().getDiscordId()
-                                )
-                        )
-                );
+        final MessageEmbed messageEmbed = this.getEmbedBuilder(commandParameters)
+                .setTitle("Invalid " + StringUtilities.capitalize(argName))
+                .setDescription(description.toString())
+                .setFooter("↓ Click Me!")
+                .buildSingle();
+
+        // Handle empty actions
+        // We need to handle them because jda will throw an exception otherwise
+        if (buttons.isEmpty()) {
+            commandParameters.getLowestMessageChannel()
+                    .sendMessage(messageEmbed)
+                    .queue();
+        } else {
+            commandParameters.getLowestMessageChannel()
+                    .sendMessage(messageEmbed)
+                    .setActionRows(ActionRow.of(buttons.keySet()))
+                    .queue(message ->
+                            this.buttonReactionModule.addButtonReactionMessage(
+                                    message,
+                                    new ButtonReaction(
+                                            buttons,
+                                            commandParameters.getUserDb().getDiscordId()
+                                    )
+                            )
+                    );
+        }
     }
 
     protected CommandResult sendPicture(final CommandParameters commandParameters,
