@@ -12,6 +12,7 @@ import de.timmi6790.mineplex.stats.common.models.ParserResult;
 import de.timmi6790.mineplex.stats.common.utilities.ArgumentParsingUtilities;
 import de.timmi6790.mineplex.stats.common.utilities.ErrorMessageUtilities;
 import de.timmi6790.mineplex.stats.common.utilities.FormationUtilities;
+import de.timmi6790.mineplex.stats.common.utilities.SetUtilities;
 import de.timmi6790.mineplex.stats.java.utilities.JavaArgumentParsingUtilities;
 import de.timmi6790.mpstats.api.client.common.BaseApiClient;
 import de.timmi6790.mpstats.api.client.common.board.exceptions.InvalidBoardNameException;
@@ -118,13 +119,7 @@ public class JavaPlayerCommand extends BaseStatsCommand<JavaPlayer> {
     }
 
     protected String[] getTableHeader(final PlayerStats<JavaPlayer> playerStats) {
-        PlayerEntry foundEntry = null;
-        // Find one entry from set
-        for (final PlayerEntry entry : playerStats.getStats()) {
-            foundEntry = entry;
-            break;
-        }
-
+        final PlayerEntry foundEntry = SetUtilities.getFirstEntry(playerStats.getStats());
         if (foundEntry == null) {
             return new String[]{
                     playerStats.getPlayer().getName(),

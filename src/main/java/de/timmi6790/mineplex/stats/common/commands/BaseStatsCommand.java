@@ -228,6 +228,16 @@ public abstract class BaseStatsCommand<P extends Player> extends AbstractCommand
                                         @Nullable final InputStream inputStream,
                                         final String pictureName,
                                         final Map<Button, ButtonAction> buttonActions) {
+        // Handle empty actions
+        // We need to handle them because jda will throw an exception otherwise
+        if (buttonActions.isEmpty()) {
+            return this.sendPicture(
+                    commandParameters,
+                    inputStream,
+                    pictureName
+            );
+        }
+
         return this.sendPicture(
                 commandParameters,
                 inputStream,
