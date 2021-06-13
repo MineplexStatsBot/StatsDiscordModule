@@ -183,7 +183,7 @@ public class GroupPlayerStatsCommand extends BaseStatsCommand<JavaPlayer> {
         final String groupName = this.getArg(commandParameters, GROUP_POSITION);
         final String stat = this.getArg(commandParameters, STAT_POSITION);
         final String board = this.getArgOrDefault(commandParameters, BOARD_POSITION, ArgumentParsingUtilities.getDefaultBoard());
-        final ZonedDateTime zonedDateTime = ArgumentParsingUtilities.getDateTimeOrThrow(commandParameters, 3);
+        final ZonedDateTime zonedDateTime = ArgumentParsingUtilities.getDateTimeOrThrow(commandParameters, 4);
         final Set<Reason> filterReasons = this.getFilterReasons(commandParameters);
 
         final CompletableFuture<BufferedImage> skinFuture = JavaUtilities.getPlayerSkin(playerUUID);
