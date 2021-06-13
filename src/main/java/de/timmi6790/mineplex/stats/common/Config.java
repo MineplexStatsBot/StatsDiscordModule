@@ -15,7 +15,7 @@ public class Config {
 
     @Data
     public static class ApiConfig {
-        private String url = "https://mpstats.timmi6790.de/";
+        private String url = "https://mpstats.timmi6790.de";
         private String key = "";
     }
 }
