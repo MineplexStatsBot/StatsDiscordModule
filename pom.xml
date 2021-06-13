@@ -44,7 +44,7 @@
         <dependency>
             <groupId>com.github.MineplexStatsBot</groupId>
             <artifactId>JavaRestApiClient</artifactId>
-            <version>cb15c81339</version>
+            <version>65de518bab</version>
         </dependency>
 
         <!-- Compile only dependencies -->
