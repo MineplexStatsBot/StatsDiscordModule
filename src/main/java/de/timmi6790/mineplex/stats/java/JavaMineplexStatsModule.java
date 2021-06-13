@@ -4,6 +4,8 @@ import de.timmi6790.discord_framework.module.AbstractModule;
 import de.timmi6790.discord_framework.module.modules.command.CommandModule;
 import de.timmi6790.discord_framework.module.modules.setting.SettingModule;
 import de.timmi6790.mineplex.stats.common.BaseMineplexStatsModule;
+import de.timmi6790.mineplex.stats.java.commands.group.GroupPlayerStatsCommand;
+import de.timmi6790.mineplex.stats.java.commands.group.GroupsCommand;
 import de.timmi6790.mineplex.stats.java.commands.leaderboard.JavaGamesCommand;
 import de.timmi6790.mineplex.stats.java.commands.leaderboard.JavaLeaderboardCommand;
 import de.timmi6790.mineplex.stats.java.commands.leaderboard.UnfilteredJavaLeaderboardCommand;
@@ -39,7 +41,9 @@ public class JavaMineplexStatsModule extends AbstractModule {
                 new JavaPlayerStatsRatioCommand(this.statApicClient),
                 new JavaGamesCommand(this.statApicClient),
                 new UnfilteredJavaLeaderboardCommand(this.statApicClient),
-                new UnfilteredJavaPlayerCommand(this.statApicClient)
+                new UnfilteredJavaPlayerCommand(this.statApicClient),
+                new GroupsCommand(this.statApicClient),
+                new GroupPlayerStatsCommand(this.statApicClient)
         );
 
         this.getModuleOrThrow(SettingModule.class).registerSetting(
