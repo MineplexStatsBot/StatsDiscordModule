@@ -2,6 +2,7 @@ package de.timmi6790.mineplex.stats.common.utilities;
 
 import de.timmi6790.discord_framework.module.modules.command.CommandParameters;
 import de.timmi6790.discord_framework.module.modules.command.exceptions.CommandReturnException;
+import de.timmi6790.mineplex.stats.common.BaseMineplexStatsModule;
 import de.timmi6790.mineplex.stats.common.settings.FilterReasonSetting;
 import de.timmi6790.mpstats.api.client.common.filter.models.Reason;
 import lombok.Getter;
@@ -40,7 +41,7 @@ public class ArgumentParsingUtilities {
 
         final Optional<ZonedDateTime> zonedDateTimeOpt = DateUtilities.parseZonedDateTime(dateInput, allowedDateFormats);
         if (zonedDateTimeOpt.isPresent()) {
-            return zonedDateTimeOpt.get();
+            return BaseMineplexStatsModule.getMineplexTimeZone(zonedDateTimeOpt.get());
         }
 
         // Send error message

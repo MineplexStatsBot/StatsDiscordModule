@@ -1,13 +1,14 @@
 package de.timmi6790.mineplex.stats.common.utilities;
 
+import de.timmi6790.mineplex.stats.common.BaseMineplexStatsModule;
 import de.timmi6790.mpstats.api.client.common.stat.models.Stat;
 import de.timmi6790.mpstats.api.client.common.stat.models.StatType;
+import lombok.NonNull;
 import lombok.experimental.UtilityClass;
 
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.text.NumberFormat;
-import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Locale;
@@ -30,11 +31,12 @@ public class FormationUtilities {
     }
 
     public String getFormattedTime(final ZonedDateTime zonedDateTime) {
-        final DateTimeFormatter dateFormat = DateTimeFormatter.ofPattern("MM/dd/yyyy HH:mm:ss O");
-        return zonedDateTime.withZoneSameInstant(ZoneOffset.UTC).format(dateFormat);
+        final DateTimeFormatter dateFormat = DateTimeFormatter.ofPattern("MM/dd/yyyy HH:mm:ss");
+        final String formattedTime = BaseMineplexStatsModule.getMineplexTimeZone(zonedDateTime).format(dateFormat);
+        return formattedTime + " " + BaseMineplexStatsModule.TIME_ZONE;
     }
 
-    public String getFormattedNumber(final Number number) {
+    public String getFormattedNumber(@NonNull final Number number) {
         return FORMAT_NUMBER.format(number);
     }
 

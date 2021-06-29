@@ -11,7 +11,17 @@ import de.timmi6790.mineplex.stats.common.settings.FilterReasonSetting;
 import de.timmi6790.mpstats.api.client.MpStatsApiClient;
 import lombok.Getter;
 
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
+
 public class BaseMineplexStatsModule extends AbstractModule {
+    public static String TIME_ZONE = "-05:00";
+
+    public static ZonedDateTime getMineplexTimeZone(final ZonedDateTime zonedDateTime) {
+        return zonedDateTime
+                .withZoneSameInstant(ZoneOffset.of(BaseMineplexStatsModule.TIME_ZONE));
+    }
+
     @Getter
     private MpStatsApiClient mpStatsApiClient;
 
