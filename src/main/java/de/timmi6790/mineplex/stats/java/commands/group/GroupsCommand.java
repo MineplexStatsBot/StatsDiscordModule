@@ -1,7 +1,12 @@
 package de.timmi6790.mineplex.stats.java.commands.group;
 
-import de.timmi6790.discord_framework.module.modules.command.CommandParameters;
-import de.timmi6790.discord_framework.module.modules.command.CommandResult;
+import de.timmi6790.discord_framework.module.modules.command.CommandModule;
+import de.timmi6790.discord_framework.module.modules.command.models.BaseCommandResult;
+import de.timmi6790.discord_framework.module.modules.command.models.CommandParameters;
+import de.timmi6790.discord_framework.module.modules.command.models.CommandResult;
+import de.timmi6790.discord_framework.module.modules.command.property.properties.info.CategoryProperty;
+import de.timmi6790.discord_framework.module.modules.command.property.properties.info.DescriptionProperty;
+import de.timmi6790.discord_framework.module.modules.command.property.properties.info.SyntaxProperty;
 import de.timmi6790.discord_framework.utilities.commons.ListUtilities;
 import de.timmi6790.mineplex.stats.common.commands.BaseStatsCommand;
 import de.timmi6790.mpstats.api.client.common.BaseApiClient;
@@ -17,13 +22,17 @@ import java.util.Objects;
 public class GroupsCommand extends BaseStatsCommand<JavaPlayer> {
     private static final int GROUP_POSITION = 0;
 
-    public GroupsCommand(final BaseApiClient<JavaPlayer> apiClient) {
+    public GroupsCommand(final BaseApiClient<JavaPlayer> apiClient, final CommandModule commandModule) {
         super(
                 apiClient,
                 "groups",
-                "Java",
-                "Groups",
-                "[group]"
+                commandModule
+        );
+
+        this.addProperties(
+                new CategoryProperty("Java"),
+                new DescriptionProperty("Groups"),
+                new SyntaxProperty("[group]")
         );
     }
 
@@ -33,9 +42,8 @@ public class GroupsCommand extends BaseStatsCommand<JavaPlayer> {
         final List<String> groupNames = ListUtilities.toStringList(groups, Group::getGroupName);
         groupNames.sort(Comparator.naturalOrder());
 
-        this.sendTimedMessage(
-                commandParameters,
-                this.getEmbedBuilder(commandParameters)
+        commandParameters.sendMessage(
+                commandParameters.getEmbedBuilder()
                         .setTitle("Java Groups")
                         .setDescription(String.join("\n", groupNames))
                         .setFooterFormat(
@@ -45,7 +53,7 @@ public class GroupsCommand extends BaseStatsCommand<JavaPlayer> {
                         )
         );
 
-        return CommandResult.SUCCESS;
+        return BaseCommandResult.SUCCESSFUL;
     }
 
     protected CommandResult handleGroupCommand(final CommandParameters commandParameters, final String groupName) {
@@ -63,12 +71,11 @@ public class GroupsCommand extends BaseStatsCommand<JavaPlayer> {
                     exception.getSuggestedGroups(),
                     Group::getGroupName
             );
-            return CommandResult.INVALID_ARGS;
+            return BaseCommandResult.INVALID_ARGS;
         }
 
-        this.sendTimedMessage(
-                commandParameters,
-                this.getEmbedBuilder(commandParameters)
+        commandParameters.sendMessage(
+                commandParameters.getEmbedBuilder()
                         .setTitle("Java Groups - " + group.getCleanName())
                         .addField(
                                 "Description",
@@ -85,11 +92,10 @@ public class GroupsCommand extends BaseStatsCommand<JavaPlayer> {
                         .addField(
                                 "Games",
                                 String.join(", ", ListUtilities.toStringList(group.getGames(), Game::getGameName))
-                        ),
-                600
+                        )
         );
 
-        return CommandResult.SUCCESS;
+        return BaseCommandResult.SUCCESSFUL;
     }
 
     @Override
@@ -98,7 +104,7 @@ public class GroupsCommand extends BaseStatsCommand<JavaPlayer> {
             return this.handleAllGroupsCommand(commandParameters);
         }
 
-        final String groupName = this.getArg(commandParameters, GROUP_POSITION);
+        final String groupName = commandParameters.getArg(GROUP_POSITION);
         return this.handleGroupCommand(commandParameters, groupName);
     }
 }

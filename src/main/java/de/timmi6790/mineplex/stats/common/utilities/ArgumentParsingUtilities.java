@@ -1,7 +1,7 @@
 package de.timmi6790.mineplex.stats.common.utilities;
 
-import de.timmi6790.discord_framework.module.modules.command.CommandParameters;
 import de.timmi6790.discord_framework.module.modules.command.exceptions.CommandReturnException;
+import de.timmi6790.discord_framework.module.modules.command.models.CommandParameters;
 import de.timmi6790.mineplex.stats.common.BaseMineplexStatsModule;
 import de.timmi6790.mineplex.stats.common.settings.FilterReasonSetting;
 import de.timmi6790.mpstats.api.client.common.filter.models.Reason;
@@ -14,8 +14,6 @@ import java.util.Arrays;
 import java.util.Optional;
 import java.util.Set;
 import java.util.StringJoiner;
-
-import static de.timmi6790.discord_framework.utilities.discord.DiscordMessagesUtilities.getEmbedBuilder;
 
 @UtilityClass
 public class ArgumentParsingUtilities {
@@ -49,12 +47,15 @@ public class ArgumentParsingUtilities {
         for (final String format : allowedDateFormats) {
             validDateFormats.add(format);
         }
-        throw new CommandReturnException(
-                getEmbedBuilder(commandParameters)
+
+
+        commandParameters.sendMessage(
+                commandParameters.getEmbedBuilder()
                         .setTitle("Invalid Date")
                         .setDescription(MarkdownUtil.monospace(dateInput) + " is not a valid date time.")
                         .addField("Valid Formats", validDateFormats.toString(), false)
         );
+        throw new CommandReturnException();
     }
 
     public Set<Reason> getFilterReasons(final CommandParameters commandParameters) {
@@ -62,14 +63,5 @@ public class ArgumentParsingUtilities {
                 FilterReasonSetting.class,
                 FilterReasonSetting.getDefaultReasons()
         );
-    }
-
-    public int getIntThrow(final CommandParameters commandParameters, final int argPosition) {
-        try {
-            return Integer.parseInt(commandParameters.getArgs()[argPosition]);
-        } catch (final NumberFormatException e) {
-            InvalidArgUtilities.throwInvalidArg(commandParameters, argPosition, "integer");
-            throw new CommandReturnException();
-        }
     }
 }

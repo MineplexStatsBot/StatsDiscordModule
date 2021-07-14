@@ -1,10 +1,16 @@
 package de.timmi6790.mineplex.stats.java.commands.player;
 
 import com.google.common.collect.Lists;
-import de.timmi6790.discord_framework.module.modules.command.CommandParameters;
-import de.timmi6790.discord_framework.module.modules.command.CommandResult;
+import de.timmi6790.discord_framework.module.modules.command.CommandModule;
 import de.timmi6790.discord_framework.module.modules.command.exceptions.CommandReturnException;
-import de.timmi6790.discord_framework.module.modules.command.property.properties.MinArgCommandProperty;
+import de.timmi6790.discord_framework.module.modules.command.models.BaseCommandResult;
+import de.timmi6790.discord_framework.module.modules.command.models.CommandParameters;
+import de.timmi6790.discord_framework.module.modules.command.models.CommandResult;
+import de.timmi6790.discord_framework.module.modules.command.property.properties.controll.MinArgProperty;
+import de.timmi6790.discord_framework.module.modules.command.property.properties.info.AliasNamesProperty;
+import de.timmi6790.discord_framework.module.modules.command.property.properties.info.CategoryProperty;
+import de.timmi6790.discord_framework.module.modules.command.property.properties.info.DescriptionProperty;
+import de.timmi6790.discord_framework.module.modules.command.property.properties.info.SyntaxProperty;
 import de.timmi6790.minecraft.utilities.JavaUtilities;
 import de.timmi6790.mineplex.stats.common.commands.BaseStatsCommand;
 import de.timmi6790.mineplex.stats.common.generators.picture.PictureTable;
@@ -45,9 +51,10 @@ public class JavaPlayerCommand extends BaseStatsCommand<JavaPlayer> {
     private static final int GAME_POSITION = 1;
     private static final int BOARD_POSITION = 2;
 
-    public JavaPlayerCommand(final BaseApiClient<JavaPlayer> baseApiClient) {
+    public JavaPlayerCommand(final BaseApiClient<JavaPlayer> baseApiClient, final CommandModule commandModule) {
         this(
                 baseApiClient,
+                commandModule,
                 "player",
                 "Check player stats",
                 "pl"
@@ -55,19 +62,22 @@ public class JavaPlayerCommand extends BaseStatsCommand<JavaPlayer> {
     }
 
     public JavaPlayerCommand(final BaseApiClient<JavaPlayer> baseApiClient,
+                             final CommandModule commandModule,
                              final String name,
-                             final String description, final String... aliasNames) {
+                             final String description,
+                             final String... aliasNames) {
         super(
                 baseApiClient,
                 name,
-                "Java",
-                description,
-                "<player> <game> [board] [dateTime]",
-                aliasNames
+                commandModule
         );
 
         this.addProperties(
-                new MinArgCommandProperty(2)
+                new MinArgProperty(2),
+                new CategoryProperty("Java"),
+                new DescriptionProperty(description),
+                new SyntaxProperty("<player> <game> [board] [dateTime]"),
+                new AliasNamesProperty(aliasNames)
         );
     }
 
@@ -209,8 +219,8 @@ public class JavaPlayerCommand extends BaseStatsCommand<JavaPlayer> {
     protected CommandResult onStatsCommand(final CommandParameters commandParameters) {
         final String playerName = JavaArgumentParsingUtilities.getJavaPlayerNameOrThrow(commandParameters, 0);
         final UUID playerUUID = JavaArgumentParsingUtilities.getPlayerUUIDOrThrow(commandParameters, playerName);
-        final String game = this.getArg(commandParameters, GAME_POSITION);
-        final String board = this.getArgOrDefault(commandParameters, BOARD_POSITION, ArgumentParsingUtilities.getDefaultBoard());
+        final String game = commandParameters.getArg(GAME_POSITION);
+        final String board = commandParameters.getArgOrDefault(BOARD_POSITION, ArgumentParsingUtilities.getDefaultBoard());
         final ZonedDateTime zonedDateTime = ArgumentParsingUtilities.getDateTimeOrThrow(commandParameters, 3);
         final Set<Reason> filterReasons = this.getFilterReasons(commandParameters);
 
@@ -225,7 +235,7 @@ public class JavaPlayerCommand extends BaseStatsCommand<JavaPlayer> {
         );
         if (playerStatsOpt.isEmpty()) {
             ErrorMessageUtilities.sendNotDataFoundMessage(commandParameters);
-            return CommandResult.SUCCESS;
+            return BaseCommandResult.SUCCESSFUL;
         }
 
         final PlayerStats<JavaPlayer> playerStats = playerStatsOpt.get();

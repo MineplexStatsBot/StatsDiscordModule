@@ -51,9 +51,10 @@ public class BaseMineplexStatsModule extends AbstractModule {
                 new DisclaimerMessagesSetting()
         );
 
-        this.getModuleOrThrow(CommandModule.class).registerCommands(
+        final CommandModule commandModule = this.getModuleOrThrow(CommandModule.class);
+        commandModule.registerCommands(
                 this,
-                new AboutCommand()
+                new AboutCommand(commandModule)
         );
 
         return true;

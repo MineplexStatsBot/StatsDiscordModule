@@ -4,10 +4,16 @@ import com.google.common.collect.Lists;
 import com.googlecode.charts4j.GCharts;
 import com.googlecode.charts4j.PieChart;
 import com.googlecode.charts4j.Slice;
-import de.timmi6790.discord_framework.module.modules.command.CommandParameters;
-import de.timmi6790.discord_framework.module.modules.command.CommandResult;
+import de.timmi6790.discord_framework.module.modules.command.CommandModule;
 import de.timmi6790.discord_framework.module.modules.command.exceptions.CommandReturnException;
-import de.timmi6790.discord_framework.module.modules.command.property.properties.MinArgCommandProperty;
+import de.timmi6790.discord_framework.module.modules.command.models.BaseCommandResult;
+import de.timmi6790.discord_framework.module.modules.command.models.CommandParameters;
+import de.timmi6790.discord_framework.module.modules.command.models.CommandResult;
+import de.timmi6790.discord_framework.module.modules.command.property.properties.controll.MinArgProperty;
+import de.timmi6790.discord_framework.module.modules.command.property.properties.info.AliasNamesProperty;
+import de.timmi6790.discord_framework.module.modules.command.property.properties.info.CategoryProperty;
+import de.timmi6790.discord_framework.module.modules.command.property.properties.info.DescriptionProperty;
+import de.timmi6790.discord_framework.module.modules.command.property.properties.info.SyntaxProperty;
 import de.timmi6790.mineplex.stats.common.commands.BaseStatsCommand;
 import de.timmi6790.mineplex.stats.common.settings.DisclaimerMessagesSetting;
 import de.timmi6790.mineplex.stats.common.utilities.ArgumentParsingUtilities;
@@ -48,18 +54,19 @@ public class JavaPlayerStatsRatioCommand extends BaseStatsCommand<JavaPlayer> {
     private static final int STAT_POSITION = 1;
     private static final int BOARD_POSITION = 2;
 
-    public JavaPlayerStatsRatioCommand(final BaseApiClient<JavaPlayer> apiClient) {
+    public JavaPlayerStatsRatioCommand(final BaseApiClient<JavaPlayer> apiClient, final CommandModule commandModule) {
         super(
                 apiClient,
                 "playerstats",
-                "Java",
-                "Player stats as graph",
-                "<player> <stat> [board]",
-                "pls", "plsats", "plstat"
+                commandModule
         );
 
         this.addProperties(
-                new MinArgCommandProperty(2)
+                new MinArgProperty(2),
+                new CategoryProperty("Java"),
+                new DescriptionProperty("Player stats as graph"),
+                new SyntaxProperty("<player> <stat> [board]"),
+                new AliasNamesProperty("pls", "plsats", "plstat")
         );
     }
 
@@ -212,9 +219,8 @@ public class JavaPlayerStatsRatioCommand extends BaseStatsCommand<JavaPlayer> {
     }
 
     private void sendDisclaimerMessage(final CommandParameters commandParameters) {
-        this.sendMessage(
-                commandParameters,
-                this.getEmbedBuilder(commandParameters)
+        commandParameters.sendMessage(
+                commandParameters.getEmbedBuilder()
                         .setTitle("Prototype Command")
                         .setDescription(
                                 """
@@ -234,8 +240,8 @@ public class JavaPlayerStatsRatioCommand extends BaseStatsCommand<JavaPlayer> {
         // Parse args
         final String playerName = JavaArgumentParsingUtilities.getJavaPlayerNameOrThrow(commandParameters, 0);
         final UUID playerUUID = JavaArgumentParsingUtilities.getPlayerUUIDOrThrow(commandParameters, playerName);
-        final String stat = this.getArg(commandParameters, STAT_POSITION);
-        final String board = this.getArgOrDefault(commandParameters, BOARD_POSITION, ArgumentParsingUtilities.getDefaultBoard());
+        final String stat = commandParameters.getArg(STAT_POSITION);
+        final String board = commandParameters.getArgOrDefault(BOARD_POSITION, ArgumentParsingUtilities.getDefaultBoard());
         final ZonedDateTime zonedDateTime = ArgumentParsingUtilities.getDateTimeOrThrow(commandParameters, 3);
         final Set<Reason> filterReasons = ArgumentParsingUtilities.getFilterReasons(commandParameters);
 
@@ -250,7 +256,7 @@ public class JavaPlayerStatsRatioCommand extends BaseStatsCommand<JavaPlayer> {
         );
         if (playerStatsOpt.isEmpty()) {
             ErrorMessageUtilities.sendNotDataFoundMessage(commandParameters);
-            return CommandResult.SUCCESS;
+            return BaseCommandResult.SUCCESSFUL;
         }
 
         final PlayerStats<JavaPlayer> playerStats = playerStatsOpt.get();
@@ -264,7 +270,7 @@ public class JavaPlayerStatsRatioCommand extends BaseStatsCommand<JavaPlayer> {
         if (commandParameters.getUserDb().getSettingOrDefault(DisclaimerMessagesSetting.class, true)) {
             this.sendDisclaimerMessage(commandParameters);
         }
-        return CommandResult.SUCCESS;
+        return BaseCommandResult.SUCCESSFUL;
     }
 
     @Data

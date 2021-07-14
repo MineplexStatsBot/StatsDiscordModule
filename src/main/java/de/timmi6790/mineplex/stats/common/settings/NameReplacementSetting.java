@@ -1,8 +1,7 @@
 package de.timmi6790.mineplex.stats.common.settings;
 
-import de.timmi6790.discord_framework.module.modules.command.CommandParameters;
+import de.timmi6790.discord_framework.module.modules.command.models.CommandParameters;
 import de.timmi6790.discord_framework.module.modules.setting.settings.StringSetting;
-import de.timmi6790.discord_framework.utilities.discord.DiscordMessagesUtilities;
 import net.dv8tion.jda.api.utils.MarkdownUtil;
 
 import java.util.ArrayList;
@@ -61,16 +60,14 @@ public class NameReplacementSetting extends StringSetting {
     protected void sendInvalidInputMessage(final CommandParameters commandParameters,
                                            final String userInput,
                                            final Iterable<String> possibleValues) {
-        DiscordMessagesUtilities.sendMessageTimed(
-                commandParameters.getLowestMessageChannel(),
-                DiscordMessagesUtilities.getEmbedBuilder(commandParameters)
+        commandParameters.sendMessage(
+                commandParameters.getEmbedBuilder()
                         .setTitleFormat("Invalid %s name", this.name.toLowerCase())
                         .setDescription(
                                 "%s is not a valid minecraft %s name.",
                                 MarkdownUtil.monospace(userInput),
                                 this.name.toLowerCase()
-                        ),
-                400
+                        )
         );
     }
 }

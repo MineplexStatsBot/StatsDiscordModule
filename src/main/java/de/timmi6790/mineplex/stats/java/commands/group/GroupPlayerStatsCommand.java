@@ -1,10 +1,16 @@
 package de.timmi6790.mineplex.stats.java.commands.group;
 
 import com.google.common.collect.Lists;
-import de.timmi6790.discord_framework.module.modules.command.CommandParameters;
-import de.timmi6790.discord_framework.module.modules.command.CommandResult;
+import de.timmi6790.discord_framework.module.modules.command.CommandModule;
 import de.timmi6790.discord_framework.module.modules.command.exceptions.CommandReturnException;
-import de.timmi6790.discord_framework.module.modules.command.property.properties.MinArgCommandProperty;
+import de.timmi6790.discord_framework.module.modules.command.models.BaseCommandResult;
+import de.timmi6790.discord_framework.module.modules.command.models.CommandParameters;
+import de.timmi6790.discord_framework.module.modules.command.models.CommandResult;
+import de.timmi6790.discord_framework.module.modules.command.property.properties.controll.MinArgProperty;
+import de.timmi6790.discord_framework.module.modules.command.property.properties.info.AliasNamesProperty;
+import de.timmi6790.discord_framework.module.modules.command.property.properties.info.CategoryProperty;
+import de.timmi6790.discord_framework.module.modules.command.property.properties.info.DescriptionProperty;
+import de.timmi6790.discord_framework.module.modules.command.property.properties.info.SyntaxProperty;
 import de.timmi6790.minecraft.utilities.JavaUtilities;
 import de.timmi6790.mineplex.stats.common.commands.BaseStatsCommand;
 import de.timmi6790.mineplex.stats.common.generators.picture.PictureTable;
@@ -45,18 +51,19 @@ public class GroupPlayerStatsCommand extends BaseStatsCommand<JavaPlayer> {
     private static final int STAT_POSITION = 2;
     private static final int BOARD_POSITION = 3;
 
-    public GroupPlayerStatsCommand(final BaseApiClient<JavaPlayer> baseApiClient) {
+    public GroupPlayerStatsCommand(final BaseApiClient<JavaPlayer> baseApiClient, final CommandModule commandModule) {
         super(
                 baseApiClient,
                 "groupPlayer",
-                "Java",
-                "Check group player stats",
-                "<player> <group> <stat> [board] [dateTime]",
-                "gpl"
+                commandModule
         );
 
         this.addProperties(
-                new MinArgCommandProperty(3)
+                new MinArgProperty(3),
+                new CategoryProperty("Java"),
+                new DescriptionProperty("Check group player stats"),
+                new SyntaxProperty("<player> <group> <stat> [board] [dateTime]"),
+                new AliasNamesProperty("gpl")
         );
     }
 
@@ -180,9 +187,9 @@ public class GroupPlayerStatsCommand extends BaseStatsCommand<JavaPlayer> {
     protected CommandResult onStatsCommand(final CommandParameters commandParameters) {
         final String playerName = JavaArgumentParsingUtilities.getJavaPlayerNameOrThrow(commandParameters, 0);
         final UUID playerUUID = JavaArgumentParsingUtilities.getPlayerUUIDOrThrow(commandParameters, playerName);
-        final String groupName = this.getArg(commandParameters, GROUP_POSITION);
-        final String stat = this.getArg(commandParameters, STAT_POSITION);
-        final String board = this.getArgOrDefault(commandParameters, BOARD_POSITION, ArgumentParsingUtilities.getDefaultBoard());
+        final String groupName = commandParameters.getArg(GROUP_POSITION);
+        final String stat = commandParameters.getArg(STAT_POSITION);
+        final String board = commandParameters.getArgOrDefault(BOARD_POSITION, ArgumentParsingUtilities.getDefaultBoard());
         final ZonedDateTime zonedDateTime = ArgumentParsingUtilities.getDateTimeOrThrow(commandParameters, 4);
         final Set<Reason> filterReasons = this.getFilterReasons(commandParameters);
 
@@ -198,7 +205,7 @@ public class GroupPlayerStatsCommand extends BaseStatsCommand<JavaPlayer> {
         );
         if (playerStatsOpt.isEmpty()) {
             ErrorMessageUtilities.sendNotDataFoundMessage(commandParameters);
-            return CommandResult.SUCCESS;
+            return BaseCommandResult.SUCCESSFUL;
         }
 
         final GroupPlayerStats<JavaPlayer> groupPlayerStats = playerStatsOpt.get();

@@ -1,10 +1,16 @@
 package de.timmi6790.mineplex.stats.bedrock.commands.player;
 
 import com.google.common.collect.Lists;
-import de.timmi6790.discord_framework.module.modules.command.CommandParameters;
-import de.timmi6790.discord_framework.module.modules.command.CommandResult;
+import de.timmi6790.discord_framework.module.modules.command.CommandModule;
 import de.timmi6790.discord_framework.module.modules.command.exceptions.CommandReturnException;
-import de.timmi6790.discord_framework.module.modules.command.property.properties.MinArgCommandProperty;
+import de.timmi6790.discord_framework.module.modules.command.models.BaseCommandResult;
+import de.timmi6790.discord_framework.module.modules.command.models.CommandParameters;
+import de.timmi6790.discord_framework.module.modules.command.models.CommandResult;
+import de.timmi6790.discord_framework.module.modules.command.property.properties.controll.MinArgProperty;
+import de.timmi6790.discord_framework.module.modules.command.property.properties.info.AliasNamesProperty;
+import de.timmi6790.discord_framework.module.modules.command.property.properties.info.CategoryProperty;
+import de.timmi6790.discord_framework.module.modules.command.property.properties.info.DescriptionProperty;
+import de.timmi6790.discord_framework.module.modules.command.property.properties.info.SyntaxProperty;
 import de.timmi6790.mineplex.stats.bedrock.utilities.BedrockArgumentParsingUtilities;
 import de.timmi6790.mineplex.stats.common.commands.BaseStatsCommand;
 import de.timmi6790.mineplex.stats.common.generators.picture.PictureTable;
@@ -26,25 +32,33 @@ import java.time.ZonedDateTime;
 import java.util.*;
 
 public class BedrockPlayerCommand extends BaseStatsCommand<BedrockPlayer> {
-    public BedrockPlayerCommand(final BaseApiClient<BedrockPlayer> baseApiClient) {
-        this(baseApiClient, "bedrockPlayer", "Check player stats", "bpl");
+    public BedrockPlayerCommand(final BaseApiClient<BedrockPlayer> baseApiClient, final CommandModule commandModule) {
+        this(
+                baseApiClient,
+                commandModule,
+                "bedrockPlayer",
+                "Check player stats",
+                "bpl"
+        );
     }
 
     public BedrockPlayerCommand(final BaseApiClient<BedrockPlayer> baseApiClient,
+                                final CommandModule commandModule,
                                 final String name,
                                 final String description,
                                 final String... aliasNames) {
         super(
                 baseApiClient,
                 name,
-                "Bedrock",
-                description,
-                "<player>",
-                aliasNames
+                commandModule
         );
 
         this.addProperties(
-                new MinArgCommandProperty(1)
+                new MinArgProperty(1),
+                new CategoryProperty("Bedrock"),
+                new DescriptionProperty(description),
+                new SyntaxProperty("<player>"),
+                new AliasNamesProperty(aliasNames)
         );
     }
 
@@ -59,7 +73,7 @@ public class BedrockPlayerCommand extends BaseStatsCommand<BedrockPlayer> {
             );
         } catch (final InvalidPlayerNameRestException exception) {
             ErrorMessageUtilities.sendInvalidPlayerNameMessage(commandParameters, playerName);
-            throw new CommandReturnException(CommandResult.SUCCESS);
+            throw new CommandReturnException(BaseCommandResult.SUCCESSFUL);
         }
     }
 
@@ -112,7 +126,7 @@ public class BedrockPlayerCommand extends BaseStatsCommand<BedrockPlayer> {
         final Optional<PlayerStats<BedrockPlayer>> playerStatsOpt = this.getPlayerStats(commandParameters, playerName, filterReasons);
         if (playerStatsOpt.isEmpty()) {
             ErrorMessageUtilities.sendNotDataFoundMessage(commandParameters);
-            return CommandResult.SUCCESS;
+            return BaseCommandResult.SUCCESSFUL;
         }
 
         final PlayerStats<BedrockPlayer> playerStats = playerStatsOpt.get();

@@ -9,6 +9,7 @@ import de.timmi6790.mineplex.stats.java.commands.group.GroupsCommand;
 import de.timmi6790.mineplex.stats.java.commands.leaderboard.JavaGamesCommand;
 import de.timmi6790.mineplex.stats.java.commands.leaderboard.JavaLeaderboardCommand;
 import de.timmi6790.mineplex.stats.java.commands.leaderboard.UnfilteredJavaLeaderboardCommand;
+import de.timmi6790.mineplex.stats.java.commands.managment.JavaFilterCommand;
 import de.timmi6790.mineplex.stats.java.commands.player.JavaPlayerCommand;
 import de.timmi6790.mineplex.stats.java.commands.player.JavaPlayerStatsRatioCommand;
 import de.timmi6790.mineplex.stats.java.commands.player.UnfilteredJavaPlayerCommand;
@@ -32,18 +33,22 @@ public class JavaMineplexStatsModule extends AbstractModule {
 
     @Override
     public boolean onInitialize() {
-        this.statApicClient = this.getModuleOrThrow(BaseMineplexStatsModule.class).getMpStatsApiClient().getJavaClient();
+        this.statApicClient = this.getModuleOrThrow(BaseMineplexStatsModule.class)
+                .getMpStatsApiClient()
+                .getJavaClient();
 
-        this.getModuleOrThrow(CommandModule.class).registerCommands(
+        final CommandModule commandModule = this.getModuleOrThrow(CommandModule.class);
+        commandModule.registerCommands(
                 this,
-                new JavaLeaderboardCommand(this.statApicClient),
-                new JavaPlayerCommand(this.statApicClient),
-                new JavaPlayerStatsRatioCommand(this.statApicClient),
-                new JavaGamesCommand(this.statApicClient),
-                new UnfilteredJavaLeaderboardCommand(this.statApicClient),
-                new UnfilteredJavaPlayerCommand(this.statApicClient),
-                new GroupsCommand(this.statApicClient),
-                new GroupPlayerStatsCommand(this.statApicClient)
+                new JavaLeaderboardCommand(this.statApicClient, commandModule),
+                new JavaPlayerCommand(this.statApicClient, commandModule),
+                new JavaPlayerStatsRatioCommand(this.statApicClient, commandModule),
+                new JavaGamesCommand(this.statApicClient, commandModule),
+                new UnfilteredJavaLeaderboardCommand(this.statApicClient, commandModule),
+                new UnfilteredJavaPlayerCommand(this.statApicClient, commandModule),
+                new GroupsCommand(this.statApicClient, commandModule),
+                new GroupPlayerStatsCommand(this.statApicClient, commandModule),
+                new JavaFilterCommand(this.statApicClient, commandModule, this.getDiscord())
         );
 
         this.getModuleOrThrow(SettingModule.class).registerSetting(

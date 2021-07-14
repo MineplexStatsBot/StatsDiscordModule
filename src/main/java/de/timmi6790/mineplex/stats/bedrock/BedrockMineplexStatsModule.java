@@ -31,13 +31,14 @@ public class BedrockMineplexStatsModule extends AbstractModule {
     public boolean onInitialize() {
         this.statApicClient = this.getModuleOrThrow(BaseMineplexStatsModule.class).getMpStatsApiClient().getBedrockClient();
 
-        this.getModuleOrThrow(CommandModule.class).registerCommands(
+        final CommandModule commandModule = this.getModuleOrThrow(CommandModule.class);
+        commandModule.registerCommands(
                 this,
-                new BedrockLeaderboardCommand(this.statApicClient),
-                new BedrockPlayerCommand(this.statApicClient),
-                new BedrockGamesCommand(this.statApicClient),
-                new UnfilteredBedrockLeaderboardCommand(this.statApicClient),
-                new UnfilteredBedrockPlayerCommand(this.statApicClient)
+                new BedrockLeaderboardCommand(this.statApicClient, commandModule),
+                new BedrockPlayerCommand(this.statApicClient, commandModule),
+                new BedrockGamesCommand(this.statApicClient, commandModule),
+                new UnfilteredBedrockLeaderboardCommand(this.statApicClient, commandModule),
+                new UnfilteredBedrockPlayerCommand(this.statApicClient, commandModule)
         );
 
         this.getModuleOrThrow(SettingModule.class).registerSetting(

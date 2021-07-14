@@ -1,6 +1,6 @@
 package de.timmi6790.mineplex.stats.bedrock.utilities;
 
-import de.timmi6790.discord_framework.module.modules.command.CommandParameters;
+import de.timmi6790.discord_framework.module.modules.command.models.CommandParameters;
 import de.timmi6790.discord_framework.module.modules.command.exceptions.CommandReturnException;
 import de.timmi6790.minecraft.utilities.BedrockUtilities;
 import de.timmi6790.mineplex.stats.bedrock.settings.BedrockNameReplacementSetting;

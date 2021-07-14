@@ -28,7 +28,7 @@
         <dependency>
             <groupId>com.github.Timmi6790</groupId>
             <artifactId>DiscordBotFramework</artifactId>
-            <version>292475327b</version>
+            <version>856e92e56d</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
@@ -44,7 +44,7 @@
         <dependency>
             <groupId>com.github.MineplexStatsBot</groupId>
             <artifactId>JavaRestApiClient</artifactId>
-            <version>65de518bab</version>
+            <version>8409b2b689</version>
         </dependency>
 
         <!-- Compile only dependencies -->

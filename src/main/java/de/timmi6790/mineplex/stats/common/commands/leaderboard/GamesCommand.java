@@ -1,5 +1,10 @@
 package de.timmi6790.mineplex.stats.common.commands.leaderboard;
 
+import de.timmi6790.discord_framework.module.modules.command.CommandModule;
+import de.timmi6790.discord_framework.module.modules.command.property.properties.info.AliasNamesProperty;
+import de.timmi6790.discord_framework.module.modules.command.property.properties.info.CategoryProperty;
+import de.timmi6790.discord_framework.module.modules.command.property.properties.info.DescriptionProperty;
+import de.timmi6790.discord_framework.module.modules.command.property.properties.info.SyntaxProperty;
 import de.timmi6790.discord_framework.utilities.MultiEmbedBuilder;
 import de.timmi6790.mineplex.stats.common.commands.BaseStatsCommand;
 import de.timmi6790.mpstats.api.client.common.BaseApiClient;
@@ -11,12 +16,24 @@ import java.util.*;
 
 public abstract class GamesCommand<P extends Player> extends BaseStatsCommand<P> {
     protected GamesCommand(final BaseApiClient<P> apiClient,
+                           final CommandModule commandModule,
                            @NonNull final String name,
                            @NonNull final String category,
                            @NonNull final String description,
                            @NonNull final String syntax,
                            final String... aliasNames) {
-        super(apiClient, name, category, description, syntax, aliasNames);
+        super(
+                apiClient,
+                name,
+                commandModule
+        );
+
+        this.addProperties(
+                new CategoryProperty(category),
+                new DescriptionProperty(description),
+                new SyntaxProperty(syntax),
+                new AliasNamesProperty(aliasNames)
+        );
     }
 
     protected MultiEmbedBuilder parseGames(final List<Game> games, final MultiEmbedBuilder messageBuilder) {

@@ -1,16 +1,23 @@
 package de.timmi6790.mineplex.stats.common.commands.leaderboard;
 
 import com.google.common.collect.Lists;
-import de.timmi6790.discord_framework.module.modules.command.CommandParameters;
-import de.timmi6790.discord_framework.module.modules.command.CommandResult;
+import de.timmi6790.discord_framework.module.modules.command.CommandModule;
 import de.timmi6790.discord_framework.module.modules.command.exceptions.CommandReturnException;
+import de.timmi6790.discord_framework.module.modules.command.models.BaseCommandResult;
+import de.timmi6790.discord_framework.module.modules.command.models.CommandParameters;
+import de.timmi6790.discord_framework.module.modules.command.models.CommandResult;
+import de.timmi6790.discord_framework.module.modules.command.property.properties.info.AliasNamesProperty;
+import de.timmi6790.discord_framework.module.modules.command.property.properties.info.CategoryProperty;
+import de.timmi6790.discord_framework.module.modules.command.property.properties.info.DescriptionProperty;
+import de.timmi6790.discord_framework.module.modules.command.property.properties.info.SyntaxProperty;
+import de.timmi6790.discord_framework.module.modules.command.utilities.ArgumentUtilities;
+import de.timmi6790.discord_framework.module.modules.command.utilities.ArrayUtilities;
 import de.timmi6790.discord_framework.module.modules.reactions.button.actions.ButtonAction;
 import de.timmi6790.discord_framework.module.modules.reactions.button.actions.CommandButtonAction;
 import de.timmi6790.discord_framework.utilities.discord.DiscordEmotes;
 import de.timmi6790.mineplex.stats.common.commands.BaseStatsCommand;
 import de.timmi6790.mineplex.stats.common.generators.picture.PictureTable;
 import de.timmi6790.mineplex.stats.common.utilities.ArgumentParsingUtilities;
-import de.timmi6790.mineplex.stats.common.utilities.ArrayUtilities;
 import de.timmi6790.mineplex.stats.common.utilities.ErrorMessageUtilities;
 import de.timmi6790.mineplex.stats.common.utilities.FormationUtilities;
 import de.timmi6790.mpstats.api.client.common.BaseApiClient;
@@ -33,6 +40,7 @@ import net.dv8tion.jda.api.interactions.components.ButtonStyle;
 import java.time.ZonedDateTime;
 import java.util.*;
 
+// TODO: Leaps incorrectly, it only jumps 15 entries instead of 16 and includes the last page first entry on the new page
 public abstract class LeaderboardCommand<P extends Player> extends BaseStatsCommand<P> {
     private static final int ROW_COUNT = 15;
 
@@ -44,18 +52,24 @@ public abstract class LeaderboardCommand<P extends Player> extends BaseStatsComm
     private final String schemaName;
 
     protected LeaderboardCommand(final BaseApiClient<P> apiClient,
+                                 final CommandModule commandModule,
                                  final int positionIndex,
                                  final String schemaName,
                                  @NonNull final String name,
                                  @NonNull final String category,
                                  final String syntax,
                                  final String... aliasNames) {
-        super(apiClient,
+        super(
+                apiClient,
                 name,
-                category,
-                "Check the leaderboard",
-                syntax + " [startPosition] [dateTime]",
-                aliasNames
+                commandModule
+        );
+
+        this.addProperties(
+                new AliasNamesProperty(aliasNames),
+                new SyntaxProperty(syntax + " [startPosition] [dateTime]"),
+                new DescriptionProperty("Check the leaderboard"),
+                new CategoryProperty(category)
         );
 
         this.positionIndex = positionIndex;
@@ -86,13 +100,12 @@ public abstract class LeaderboardCommand<P extends Player> extends BaseStatsComm
             }
 
             // SEND ERROR;
-            this.sendTimedMessage(
-                    commandParameters,
-                    this.getEmbedBuilder(commandParameters)
+            commandParameters.sendMessage(
+                    commandParameters.getEmbedBuilder()
                             .setTitle("No data found")
                             .setDescription("No data was found.")
             );
-            throw new CommandReturnException(CommandResult.SUCCESS);
+            throw new CommandReturnException(BaseCommandResult.SUCCESSFUL);
 
         } catch (final InvalidGameNameRestException exception) {
             this.throwArgumentCorrectionMessage(
@@ -132,7 +145,7 @@ public abstract class LeaderboardCommand<P extends Player> extends BaseStatsComm
         }
 
         // This line should never be called
-        throw new CommandReturnException(CommandResult.INVALID_ARGS);
+        throw new CommandReturnException(BaseCommandResult.INVALID_ARGS);
     }
 
     protected int getMaxRenderCount() {
@@ -169,7 +182,7 @@ public abstract class LeaderboardCommand<P extends Player> extends BaseStatsComm
     }
 
     protected String getGame(final CommandParameters commandParameters) {
-        return this.getArg(commandParameters, GAME_POSITION);
+        return commandParameters.getArg(GAME_POSITION);
     }
 
     protected Set<Reason> getFilterReasons(final CommandParameters commandParameters) {
@@ -181,14 +194,13 @@ public abstract class LeaderboardCommand<P extends Player> extends BaseStatsComm
             return 1;
         }
 
-        final int startPosition = ArgumentParsingUtilities.getIntThrow(commandParameters, this.getPositionIndex());
+        final int startPosition = ArgumentUtilities.getIntOrThrow(commandParameters, this.getPositionIndex());
         if (startPosition > 0) {
             return startPosition;
         }
 
-        this.sendTimedMessage(
-                commandParameters,
-                this.getEmbedBuilder(commandParameters)
+        commandParameters.sendMessage(
+                commandParameters.getEmbedBuilder()
                         .setTitle("Invalid start position")
                         .setDescription("The start position must be bigger than 0.")
         );
@@ -207,11 +219,15 @@ public abstract class LeaderboardCommand<P extends Player> extends BaseStatsComm
         }
 
         return CommandParameters.of(
-                commandParameters,
                 ArrayUtilities.modifyArrayAtPosition(commandParameters.getArgs(),
                         String.valueOf(newStartPosition),
                         this.getPositionIndex()
-                )
+                ),
+                commandParameters.isGuildCommand(),
+                commandParameters.getCommandCause(),
+                commandParameters.getCommandModule(),
+                commandParameters.getChannelDb(),
+                commandParameters.getUserDb()
         );
     }
 
@@ -310,7 +326,7 @@ public abstract class LeaderboardCommand<P extends Player> extends BaseStatsComm
         // Catch 0 entry leaderboards. This should never be the case but I wanna make sure here.
         if (leaderboardSave.getEntries().isEmpty()) {
             ErrorMessageUtilities.sendNotDataFoundMessage(commandParameters);
-            return CommandResult.SUCCESS;
+            return BaseCommandResult.SUCCESSFUL;
         }
 
         // Fall back into the leaderboard if the selected start position with the entries is outside of the possible area

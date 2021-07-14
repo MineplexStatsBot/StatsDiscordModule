@@ -1,8 +1,10 @@
 package de.timmi6790.mineplex.stats.java.commands.leaderboard;
 
 import com.google.common.collect.Lists;
-import de.timmi6790.discord_framework.module.modules.command.CommandParameters;
-import de.timmi6790.discord_framework.module.modules.command.CommandResult;
+import de.timmi6790.discord_framework.module.modules.command.CommandModule;
+import de.timmi6790.discord_framework.module.modules.command.models.BaseCommandResult;
+import de.timmi6790.discord_framework.module.modules.command.models.CommandParameters;
+import de.timmi6790.discord_framework.module.modules.command.models.CommandResult;
 import de.timmi6790.discord_framework.utilities.MultiEmbedBuilder;
 import de.timmi6790.mineplex.stats.common.commands.leaderboard.GamesCommand;
 import de.timmi6790.mpstats.api.client.common.BaseApiClient;
@@ -19,9 +21,10 @@ public class JavaGamesCommand extends GamesCommand<JavaPlayer> {
     private static final int GAME_POSITION = 0;
     private static final int STAT_POSITION = 1;
 
-    public JavaGamesCommand(final BaseApiClient<JavaPlayer> apiClient) {
+    public JavaGamesCommand(final BaseApiClient<JavaPlayer> apiClient, final CommandModule commandModule) {
         super(
                 apiClient,
+                commandModule,
                 "games",
                 "Java",
                 "Java games",
@@ -31,7 +34,7 @@ public class JavaGamesCommand extends GamesCommand<JavaPlayer> {
 
     private CommandResult handleGamesCommand(final CommandParameters commandParameters) {
         final List<Game> games = this.getApiClient().getGameClient().getGames();
-        final MultiEmbedBuilder message = this.getEmbedBuilder(commandParameters)
+        final MultiEmbedBuilder message = commandParameters.getEmbedBuilder()
                 .setTitle("Java Games")
                 .setFooterFormat(
                         "TIP: Run %s %s <game> to see more details",
@@ -39,12 +42,8 @@ public class JavaGamesCommand extends GamesCommand<JavaPlayer> {
                         this.getName()
                 );
 
-        this.sendTimedMessage(
-                commandParameters,
-                this.parseGames(games, message),
-                600
-        );
-        return CommandResult.SUCCESS;
+        commandParameters.sendMessage(this.parseGames(games, message));
+        return BaseCommandResult.SUCCESSFUL;
     }
 
     private CommandResult handleGameInfoCommand(final CommandParameters commandParameters, final String gameName) {
@@ -63,17 +62,16 @@ public class JavaGamesCommand extends GamesCommand<JavaPlayer> {
                     exception.getSuggestedGames(),
                     Game::getGameName
             );
-            return CommandResult.INVALID_ARGS;
+            return BaseCommandResult.INVALID_ARGS;
         }
 
         if (gameLeaderboards.isEmpty()) {
-            this.sendTimedMessage(
-                    commandParameters,
-                    this.getEmbedBuilder(commandParameters)
+            commandParameters.sendMessage(
+                    commandParameters.getEmbedBuilder()
                             .setTitle("No Stats Found")
                             .setDescription("The game has no stats")
             );
-            return CommandResult.SUCCESS;
+            return BaseCommandResult.SUCCESSFUL;
         }
 
         // Parse found leaderboards
@@ -88,9 +86,8 @@ public class JavaGamesCommand extends GamesCommand<JavaPlayer> {
         final List<String> sortedStatNames = new ArrayList<>(statNames);
         sortedStatNames.sort(Comparator.naturalOrder());
 
-        this.sendTimedMessage(
-                commandParameters,
-                this.getEmbedBuilder(commandParameters)
+        commandParameters.sendMessage(
+                commandParameters.getEmbedBuilder()
                         .setTitle("Java Games - " + game.getCleanName())
                         .addField(
                                 "Wiki",
@@ -119,10 +116,9 @@ public class JavaGamesCommand extends GamesCommand<JavaPlayer> {
                                 this.getCommandModule().getMainCommand(),
                                 this.getName(),
                                 gameName
-                        ),
-                600
+                        )
         );
-        return CommandResult.SUCCESS;
+        return BaseCommandResult.SUCCESSFUL;
     }
 
     private CommandResult handleStatInfoCommand(final CommandParameters commandParameters,
@@ -143,7 +139,7 @@ public class JavaGamesCommand extends GamesCommand<JavaPlayer> {
                     exception.getSuggestedGames(),
                     Game::getGameName
             );
-            return CommandResult.INVALID_ARGS;
+            return BaseCommandResult.INVALID_ARGS;
         } catch (final InvalidStatNameRestException exception) {
             this.throwArgumentCorrectionMessage(
                     commandParameters,
@@ -155,18 +151,17 @@ public class JavaGamesCommand extends GamesCommand<JavaPlayer> {
                     exception.getSuggestedStats(),
                     Stat::getStatName
             );
-            return CommandResult.INVALID_ARGS;
+            return BaseCommandResult.INVALID_ARGS;
         }
 
         if (statLeaderboards.isEmpty()) {
             // TODO: Add better support for the wrong combination
-            this.sendTimedMessage(
-                    commandParameters,
-                    this.getEmbedBuilder(commandParameters)
+            commandParameters.sendMessage(
+                    commandParameters.getEmbedBuilder()
                             .setTitle("No Stat Info Found")
                             .setDescription("Are you sure that the inputted combination is correct?")
             );
-            return CommandResult.SUCCESS;
+            return BaseCommandResult.SUCCESSFUL;
         }
 
         // Parse found leaderboards
@@ -180,9 +175,8 @@ public class JavaGamesCommand extends GamesCommand<JavaPlayer> {
         }
         sortedBoardNames.sort(Comparator.naturalOrder());
 
-        this.sendTimedMessage(
-                commandParameters,
-                this.getEmbedBuilder(commandParameters)
+        commandParameters.sendMessage(
+                commandParameters.getEmbedBuilder()
                         .setTitleFormat(
                                 "Java Games - %s - %s",
                                 game.getCleanName(),
@@ -204,10 +198,9 @@ public class JavaGamesCommand extends GamesCommand<JavaPlayer> {
                                 "Boards",
                                 String.join(", ", sortedBoardNames),
                                 false
-                        ),
-                600
+                        )
         );
-        return CommandResult.SUCCESS;
+        return BaseCommandResult.SUCCESSFUL;
     }
 
     @Override
@@ -216,11 +209,11 @@ public class JavaGamesCommand extends GamesCommand<JavaPlayer> {
             return this.handleGamesCommand(commandParameters);
         }
 
-        final String gameName = this.getArg(commandParameters, GAME_POSITION);
+        final String gameName = commandParameters.getArg(GAME_POSITION);
         if (commandParameters.getArgs().length == 1) {
             return this.handleGameInfoCommand(commandParameters, gameName);
         }
-        final String statName = this.getArg(commandParameters, STAT_POSITION);
+        final String statName = commandParameters.getArg(STAT_POSITION);
         return this.handleStatInfoCommand(commandParameters, gameName, statName);
     }
 }

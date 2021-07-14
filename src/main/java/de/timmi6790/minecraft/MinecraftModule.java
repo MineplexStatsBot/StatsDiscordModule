@@ -19,9 +19,10 @@ public class MinecraftModule extends AbstractModule {
 
     @Override
     public boolean onInitialize() {
-        this.getModuleOrThrow(CommandModule.class).registerCommands(
+        final CommandModule commandModule = this.getModuleOrThrow(CommandModule.class);
+        commandModule.registerCommands(
                 this,
-                new NameHistoryCommand()
+                new NameHistoryCommand(commandModule)
         );
 
         return true;

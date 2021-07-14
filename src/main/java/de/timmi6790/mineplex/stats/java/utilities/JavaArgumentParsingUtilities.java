@@ -1,9 +1,8 @@
 package de.timmi6790.mineplex.stats.java.utilities;
 
 import de.timmi6790.api.mojang.MojangApiClient;
-import de.timmi6790.discord_framework.module.modules.command.CommandParameters;
 import de.timmi6790.discord_framework.module.modules.command.exceptions.CommandReturnException;
-import de.timmi6790.discord_framework.utilities.discord.DiscordMessagesUtilities;
+import de.timmi6790.discord_framework.module.modules.command.models.CommandParameters;
 import de.timmi6790.minecraft.utilities.JavaUtilities;
 import de.timmi6790.mineplex.stats.common.utilities.InvalidArgUtilities;
 import de.timmi6790.mineplex.stats.java.settings.JavaNameReplacementSetting;
@@ -41,17 +40,15 @@ public class JavaArgumentParsingUtilities {
             return playerUUIDOpt.get();
         }
 
-        DiscordMessagesUtilities.sendMessageTimed(
-                commandParameters.getLowestMessageChannel(),
-                DiscordMessagesUtilities.getEmbedBuilder(commandParameters)
+        commandParameters.sendMessage(
+                commandParameters.getEmbedBuilder()
                         .setTitle("Invalid Player Name")
                         .setDescription(
                                 "Are you sure that %s is the name of a current player?\n" +
                                         "The Mojang api can not find a uuid for the given player name.\n" +
                                         "This can have two reasons, either your input is incorrect or the api is down.",
                                 MarkdownUtil.monospace(playerName)
-                        ),
-                400
+                        )
         );
         throw new CommandReturnException();
     }

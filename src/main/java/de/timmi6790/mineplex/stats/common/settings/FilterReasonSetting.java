@@ -1,6 +1,6 @@
 package de.timmi6790.mineplex.stats.common.settings;
 
-import de.timmi6790.discord_framework.module.modules.command.CommandParameters;
+import de.timmi6790.discord_framework.module.modules.command.models.CommandParameters;
 import de.timmi6790.discord_framework.module.modules.setting.AbstractSetting;
 import de.timmi6790.discord_framework.utilities.commons.EnumUtilities;
 import de.timmi6790.mpstats.api.client.common.filter.models.Reason;
