@@ -1,8 +1,9 @@
 package de.timmi6790.mineplex.stats.java.utilities;
 
 import de.timmi6790.api.mojang.MojangApiClient;
-import de.timmi6790.discord_framework.module.modules.command.exceptions.CommandReturnException;
-import de.timmi6790.discord_framework.module.modules.command.models.CommandParameters;
+import de.timmi6790.discord_framework.module.modules.slashcommand.exceptions.CommandReturnException;
+import de.timmi6790.discord_framework.module.modules.slashcommand.option.Option;
+import de.timmi6790.discord_framework.module.modules.slashcommand.parameters.SlashCommandParameters;
 import de.timmi6790.minecraft.utilities.JavaUtilities;
 import de.timmi6790.mineplex.stats.common.utilities.InvalidArgUtilities;
 import de.timmi6790.mineplex.stats.java.settings.JavaNameReplacementSetting;
@@ -14,8 +15,8 @@ import java.util.UUID;
 
 @UtilityClass
 public class JavaArgumentParsingUtilities {
-    public String getJavaPlayerNameOrThrow(final CommandParameters commandParameters, final int argPosition) {
-        String playerName = commandParameters.getArgs()[argPosition];
+    public String getJavaPlayerNameOrThrow(final SlashCommandParameters commandParameters, final Option<String> playerOption) {
+        String playerName = commandParameters.getOptionOrThrow(playerOption);
 
         // Check if the setting is used or not
         if (playerName.equals(JavaNameReplacementSetting.getKeyword())) {
@@ -28,13 +29,13 @@ public class JavaArgumentParsingUtilities {
 
         InvalidArgUtilities.throwInvalidArg(
                 commandParameters,
-                argPosition,
-                "playerName"
+                playerName,
+                playerOption
         );
         throw new CommandReturnException();
     }
 
-    public UUID getPlayerUUIDOrThrow(final CommandParameters commandParameters, final String playerName) {
+    public UUID getPlayerUUIDOrThrow(final SlashCommandParameters commandParameters, final String playerName) {
         final Optional<UUID> playerUUIDOpt = MojangApiClient.getInstance().getPlayerUUID(playerName);
         if (playerUUIDOpt.isPresent()) {
             return playerUUIDOpt.get();

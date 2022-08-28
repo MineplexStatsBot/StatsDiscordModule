@@ -1,6 +1,6 @@
 package de.timmi6790.mineplex.stats.common.utilities;
 
-import de.timmi6790.discord_framework.module.modules.command.models.CommandParameters;
+import de.timmi6790.discord_framework.module.modules.slashcommand.parameters.SlashCommandParameters;
 import de.timmi6790.mpstats.api.client.common.leaderboard.exceptions.InvalidLeaderboardCombinationRestException;
 import de.timmi6790.mpstats.api.client.common.leaderboard.models.Leaderboard;
 import de.timmi6790.mpstats.api.client.exception.exceptions.RateLimitException;
@@ -12,7 +12,7 @@ import java.util.StringJoiner;
 
 @UtilityClass
 public class ErrorMessageUtilities {
-    public void sendApiOfflineMessage(final CommandParameters commandParameters) {
+    public void sendApiOfflineMessage(final SlashCommandParameters commandParameters) {
         commandParameters.sendMessage(
                 commandParameters.getEmbedBuilder()
                         .setTitle("Api Offline")
@@ -22,7 +22,7 @@ public class ErrorMessageUtilities {
         );
     }
 
-    public void sendInvalidApiKeyMessage(final CommandParameters commandParameters) {
+    public void sendInvalidApiKeyMessage(final SlashCommandParameters commandParameters) {
         commandParameters.sendMessage(
                 commandParameters.getEmbedBuilder()
                         .setTitle("Invalid Api Key")
@@ -31,7 +31,7 @@ public class ErrorMessageUtilities {
         );
     }
 
-    public void sendRateLimitMessage(final CommandParameters commandParameters, final RateLimitException rateLimitException) {
+    public void sendRateLimitMessage(final SlashCommandParameters commandParameters, final RateLimitException rateLimitException) {
         commandParameters.sendMessage(
                 commandParameters.getEmbedBuilder()
                         .setTitle("Reached Api Rate Limit")
@@ -41,7 +41,7 @@ public class ErrorMessageUtilities {
         );
     }
 
-    public void sendUnknownApiExceptionMessage(final CommandParameters commandParameters, final UnknownApiException exception) {
+    public void sendUnknownApiExceptionMessage(final SlashCommandParameters commandParameters, final UnknownApiException exception) {
         commandParameters.sendMessage(
                 commandParameters.getEmbedBuilder()
                         .setTitle("Api Exception")
@@ -50,7 +50,7 @@ public class ErrorMessageUtilities {
         );
     }
 
-    public void sendInvalidPlayerNameMessage(final CommandParameters commandParameters, final String playerName) {
+    public void sendInvalidPlayerNameMessage(final SlashCommandParameters commandParameters, final String playerName) {
         commandParameters.sendMessage(
                 commandParameters.getEmbedBuilder()
                         .setTitle("Invalid Player Name")
@@ -61,7 +61,7 @@ public class ErrorMessageUtilities {
         );
     }
 
-    public void sendNotDataFoundMessage(final CommandParameters commandParameters) {
+    public void sendNotDataFoundMessage(final SlashCommandParameters commandParameters) {
         commandParameters.sendMessage(
                 commandParameters.getEmbedBuilder()
                         .setTitle("No Data Found")
@@ -69,7 +69,7 @@ public class ErrorMessageUtilities {
         );
     }
 
-    public void sendInvalidLeaderboardCombinationMessage(final CommandParameters commandParameters,
+    public void sendInvalidLeaderboardCombinationMessage(final SlashCommandParameters commandParameters,
                                                          final InvalidLeaderboardCombinationRestException exception) {
         // TODO: Add better support for the wrong combination
         final StringJoiner possibleCombinations = new StringJoiner("\n");

@@ -4,22 +4,16 @@ import com.google.common.collect.Lists;
 import com.googlecode.charts4j.GCharts;
 import com.googlecode.charts4j.PieChart;
 import com.googlecode.charts4j.Slice;
-import de.timmi6790.discord_framework.module.modules.command.CommandModule;
-import de.timmi6790.discord_framework.module.modules.command.exceptions.CommandReturnException;
-import de.timmi6790.discord_framework.module.modules.command.models.BaseCommandResult;
-import de.timmi6790.discord_framework.module.modules.command.models.CommandParameters;
-import de.timmi6790.discord_framework.module.modules.command.models.CommandResult;
-import de.timmi6790.discord_framework.module.modules.command.property.properties.controll.MinArgProperty;
-import de.timmi6790.discord_framework.module.modules.command.property.properties.info.AliasNamesProperty;
-import de.timmi6790.discord_framework.module.modules.command.property.properties.info.CategoryProperty;
-import de.timmi6790.discord_framework.module.modules.command.property.properties.info.DescriptionProperty;
-import de.timmi6790.discord_framework.module.modules.command.property.properties.info.SyntaxProperty;
+import de.timmi6790.discord_framework.module.modules.slashcommand.SlashCommandModule;
+import de.timmi6790.discord_framework.module.modules.slashcommand.exceptions.CommandReturnException;
+import de.timmi6790.discord_framework.module.modules.slashcommand.parameters.SlashCommandParameters;
+import de.timmi6790.discord_framework.module.modules.slashcommand.property.properties.info.CategoryProperty;
+import de.timmi6790.discord_framework.module.modules.slashcommand.property.properties.info.SyntaxProperty;
+import de.timmi6790.discord_framework.module.modules.slashcommand.result.BaseCommandResult;
+import de.timmi6790.discord_framework.module.modules.slashcommand.result.CommandResult;
 import de.timmi6790.mineplex.stats.common.commands.BaseStatsCommand;
 import de.timmi6790.mineplex.stats.common.settings.DisclaimerMessagesSetting;
-import de.timmi6790.mineplex.stats.common.utilities.ArgumentParsingUtilities;
-import de.timmi6790.mineplex.stats.common.utilities.ErrorMessageUtilities;
-import de.timmi6790.mineplex.stats.common.utilities.FormationUtilities;
-import de.timmi6790.mineplex.stats.common.utilities.SetUtilities;
+import de.timmi6790.mineplex.stats.common.utilities.*;
 import de.timmi6790.mineplex.stats.java.utilities.JavaArgumentParsingUtilities;
 import de.timmi6790.mpstats.api.client.common.BaseApiClient;
 import de.timmi6790.mpstats.api.client.common.board.exceptions.InvalidBoardNameException;
@@ -51,22 +45,24 @@ import java.util.*;
 public class JavaPlayerStatsRatioCommand extends BaseStatsCommand<JavaPlayer> {
     private static final String GLOBAL_GAME_NAME = "Global";
 
-    private static final int STAT_POSITION = 1;
-    private static final int BOARD_POSITION = 2;
-
-    public JavaPlayerStatsRatioCommand(final BaseApiClient<JavaPlayer> apiClient, final CommandModule commandModule) {
+    public JavaPlayerStatsRatioCommand(final BaseApiClient<JavaPlayer> apiClient, final SlashCommandModule commandModule) {
         super(
                 apiClient,
                 "playerstats",
+                "Player stats as graph",
                 commandModule
         );
 
         this.addProperties(
-                new MinArgProperty(2),
                 new CategoryProperty("Java"),
-                new DescriptionProperty("Player stats as graph"),
-                new SyntaxProperty("<player> <stat> [board]"),
-                new AliasNamesProperty("pls", "plsats", "plstat")
+                new SyntaxProperty("<player> <stat> [board]")
+        );
+
+        this.addOptions(
+                JAVA_PLAYER_NAME_REQUIRED,
+                STAT_OPTION_REQUIRED,
+                BOARD_OPTION,
+                DATE_OPTION
         );
     }
 
@@ -86,7 +82,7 @@ public class JavaPlayerStatsRatioCommand extends BaseStatsCommand<JavaPlayer> {
         if (totalValue == 0 || value == 0) {
             return 0;
         } else {
-            return ((float) value / totalValue) * 100;
+            return MathUtilities.round((((float) value / totalValue) * 100), 2);
         }
     }
 
@@ -175,7 +171,7 @@ public class JavaPlayerStatsRatioCommand extends BaseStatsCommand<JavaPlayer> {
         return this.generatePieUrl(pieChart);
     }
 
-    private Optional<PlayerStats<JavaPlayer>> getPlayerStats(final CommandParameters commandParameters,
+    private Optional<PlayerStats<JavaPlayer>> getPlayerStats(final SlashCommandParameters commandParameters,
                                                              final UUID playerUUID,
                                                              final String stat,
                                                              final String board,
@@ -193,11 +189,8 @@ public class JavaPlayerStatsRatioCommand extends BaseStatsCommand<JavaPlayer> {
         } catch (final InvalidStatNameRestException exception) {
             this.throwArgumentCorrectionMessage(
                     commandParameters,
-                    stat,
-                    STAT_POSITION,
-                    "stat",
+                    STAT_OPTION,
                     null,
-                    new String[0],
                     exception.getSuggestedStats(),
                     Stat::getStatName
             );
@@ -206,11 +199,8 @@ public class JavaPlayerStatsRatioCommand extends BaseStatsCommand<JavaPlayer> {
         } catch (final InvalidBoardNameException exception) {
             this.throwArgumentCorrectionMessage(
                     commandParameters,
-                    board,
-                    BOARD_POSITION,
-                    "board",
+                    BOARD_OPTION,
                     null,
-                    new String[0],
                     exception.getSuggestedBoards(),
                     Board::getBoardName
             );
@@ -218,7 +208,7 @@ public class JavaPlayerStatsRatioCommand extends BaseStatsCommand<JavaPlayer> {
         throw new CommandReturnException();
     }
 
-    private void sendDisclaimerMessage(final CommandParameters commandParameters) {
+    private void sendDisclaimerMessage(final SlashCommandParameters commandParameters) {
         commandParameters.sendMessage(
                 commandParameters.getEmbedBuilder()
                         .setTitle("Prototype Command")
@@ -236,13 +226,13 @@ public class JavaPlayerStatsRatioCommand extends BaseStatsCommand<JavaPlayer> {
     }
 
     @Override
-    protected CommandResult onStatsCommand(final CommandParameters commandParameters) {
+    protected CommandResult onStatsCommand(final SlashCommandParameters commandParameters) {
         // Parse args
-        final String playerName = JavaArgumentParsingUtilities.getJavaPlayerNameOrThrow(commandParameters, 0);
+        final String playerName = JavaArgumentParsingUtilities.getJavaPlayerNameOrThrow(commandParameters, JAVA_PLAYER_NAME_REQUIRED);
         final UUID playerUUID = JavaArgumentParsingUtilities.getPlayerUUIDOrThrow(commandParameters, playerName);
-        final String stat = commandParameters.getArg(STAT_POSITION);
-        final String board = commandParameters.getArgOrDefault(BOARD_POSITION, ArgumentParsingUtilities.getDefaultBoard());
-        final ZonedDateTime zonedDateTime = ArgumentParsingUtilities.getDateTimeOrThrow(commandParameters, 3);
+        final String stat = commandParameters.getOptionOrThrow(STAT_OPTION_REQUIRED);
+        final String board = commandParameters.getOption(BOARD_OPTION).orElseGet(ArgumentParsingUtilities::getDefaultBoard);
+        final ZonedDateTime zonedDateTime = ArgumentParsingUtilities.getDateTimeOrThrow(commandParameters, DATE_OPTION);
         final Set<Reason> filterReasons = ArgumentParsingUtilities.getFilterReasons(commandParameters);
 
         // Web request
@@ -263,9 +253,13 @@ public class JavaPlayerStatsRatioCommand extends BaseStatsCommand<JavaPlayer> {
         final String pieUrl = this.generatePieChart(playerStats);
 
         // Send to server
-        commandParameters.getLowestMessageChannel()
-                .sendMessage(pieUrl)
-                .queue();
+        if (pieUrl.length() <= 2000) {
+            commandParameters
+                    .sendMessage(pieUrl);
+        } else {
+            commandParameters
+                    .sendMessage("Currently not working for the input. This should only affect nwang exp");
+        }
 
         if (commandParameters.getUserDb().getSettingOrDefault(DisclaimerMessagesSetting.class, true)) {
             this.sendDisclaimerMessage(commandParameters);

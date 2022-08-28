@@ -1,7 +1,7 @@
 package de.timmi6790.mineplex.stats.common.settings;
 
-import de.timmi6790.discord_framework.module.modules.command.models.CommandParameters;
 import de.timmi6790.discord_framework.module.modules.setting.AbstractSetting;
+import de.timmi6790.discord_framework.module.modules.slashcommand.parameters.SlashCommandParameters;
 import de.timmi6790.discord_framework.utilities.commons.EnumUtilities;
 import de.timmi6790.mpstats.api.client.common.filter.models.Reason;
 import lombok.extern.log4j.Log4j2;
@@ -69,7 +69,7 @@ public class FilterReasonSetting extends AbstractSetting<Set<Reason>> {
     }
 
     @Override
-    protected Optional<Set<Reason>> parseNewValue(final CommandParameters commandParameters, final String userInput) {
+    protected Optional<Set<Reason>> parseNewValue(final SlashCommandParameters commandParameters, final String userInput) {
         // Full set shortcut detection
         if (FULL_SET_ARGUMENT.equalsIgnoreCase(userInput)) {
             return Optional.of(EnumSet.allOf(Reason.class));
@@ -93,7 +93,7 @@ public class FilterReasonSetting extends AbstractSetting<Set<Reason>> {
     }
 
     @Override
-    protected List<Set<Reason>> possibleValues(final CommandParameters commandParameters, final String userInput) {
+    protected List<Set<Reason>> possibleValues(final SlashCommandParameters commandParameters, final String userInput) {
         return List.of(EnumSet.allOf(Reason.class));
     }
 }

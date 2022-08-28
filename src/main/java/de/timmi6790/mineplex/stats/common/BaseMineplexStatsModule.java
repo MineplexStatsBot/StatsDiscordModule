@@ -1,10 +1,10 @@
 package de.timmi6790.mineplex.stats.common;
 
 import de.timmi6790.discord_framework.module.AbstractModule;
-import de.timmi6790.discord_framework.module.modules.command.CommandModule;
 import de.timmi6790.discord_framework.module.modules.config.ConfigModule;
 import de.timmi6790.discord_framework.module.modules.reactions.button.ButtonReactionModule;
 import de.timmi6790.discord_framework.module.modules.setting.SettingModule;
+import de.timmi6790.discord_framework.module.modules.slashcommand.SlashCommandModule;
 import de.timmi6790.mineplex.stats.common.commands.info.AboutCommand;
 import de.timmi6790.mineplex.stats.common.settings.DisclaimerMessagesSetting;
 import de.timmi6790.mineplex.stats.common.settings.FilterReasonSetting;
@@ -29,7 +29,7 @@ public class BaseMineplexStatsModule extends AbstractModule {
         super("BaseMineplexStats");
 
         this.addDependenciesAndLoadAfter(
-                CommandModule.class,
+                SlashCommandModule.class,
                 ButtonReactionModule.class,
                 ConfigModule.class,
                 SettingModule.class
@@ -51,7 +51,7 @@ public class BaseMineplexStatsModule extends AbstractModule {
                 new DisclaimerMessagesSetting()
         );
 
-        final CommandModule commandModule = this.getModuleOrThrow(CommandModule.class);
+        final SlashCommandModule commandModule = this.getModuleOrThrow(SlashCommandModule.class);
         commandModule.registerCommands(
                 this,
                 new AboutCommand(commandModule)

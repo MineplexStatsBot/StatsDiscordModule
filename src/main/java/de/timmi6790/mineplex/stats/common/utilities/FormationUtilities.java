@@ -16,18 +16,12 @@ import java.util.concurrent.TimeUnit;
 
 @UtilityClass
 public class FormationUtilities {
-    private static final DecimalFormat FORMAT_NUMBER = (DecimalFormat) NumberFormat.getInstance(Locale.US);
     private static final DecimalFormat FORMAT_DECIMAL_POINT = new DecimalFormat(".##");
 
     static {
-        final DecimalFormatSymbols numberSymbol = FORMAT_NUMBER.getDecimalFormatSymbols();
-        numberSymbol.setGroupingSeparator(',');
-        FORMAT_NUMBER.setDecimalFormatSymbols(numberSymbol);
-
         final DecimalFormatSymbols dateSymbol = FORMAT_DECIMAL_POINT.getDecimalFormatSymbols();
         dateSymbol.setDecimalSeparator('.');
         FORMAT_DECIMAL_POINT.setDecimalFormatSymbols(dateSymbol);
-
     }
 
     public String getFormattedTime(final ZonedDateTime zonedDateTime) {
@@ -37,7 +31,8 @@ public class FormationUtilities {
     }
 
     public String getFormattedNumber(@NonNull final Number number) {
-        return FORMAT_NUMBER.format(number);
+        final DecimalFormat decimalFormat = (DecimalFormat) NumberFormat.getInstance(Locale.US);
+        return decimalFormat.format(number);
     }
 
     public String getFormattedStat(final Stat stat) {

@@ -1,10 +1,10 @@
 package de.timmi6790.mineplex.stats.java.commands.leaderboard;
 
 import com.google.common.collect.Lists;
-import de.timmi6790.discord_framework.module.modules.command.CommandModule;
-import de.timmi6790.discord_framework.module.modules.command.models.BaseCommandResult;
-import de.timmi6790.discord_framework.module.modules.command.models.CommandParameters;
-import de.timmi6790.discord_framework.module.modules.command.models.CommandResult;
+import de.timmi6790.discord_framework.module.modules.slashcommand.SlashCommandModule;
+import de.timmi6790.discord_framework.module.modules.slashcommand.parameters.SlashCommandParameters;
+import de.timmi6790.discord_framework.module.modules.slashcommand.result.BaseCommandResult;
+import de.timmi6790.discord_framework.module.modules.slashcommand.result.CommandResult;
 import de.timmi6790.discord_framework.utilities.MultiEmbedBuilder;
 import de.timmi6790.mineplex.stats.common.commands.leaderboard.GamesCommand;
 import de.timmi6790.mpstats.api.client.common.BaseApiClient;
@@ -18,10 +18,7 @@ import de.timmi6790.mpstats.api.client.java.player.models.JavaPlayer;
 import java.util.*;
 
 public class JavaGamesCommand extends GamesCommand<JavaPlayer> {
-    private static final int GAME_POSITION = 0;
-    private static final int STAT_POSITION = 1;
-
-    public JavaGamesCommand(final BaseApiClient<JavaPlayer> apiClient, final CommandModule commandModule) {
+    public JavaGamesCommand(final BaseApiClient<JavaPlayer> apiClient, final SlashCommandModule commandModule) {
         super(
                 apiClient,
                 commandModule,
@@ -30,15 +27,19 @@ public class JavaGamesCommand extends GamesCommand<JavaPlayer> {
                 "Java games",
                 "[game] [stat]"
         );
+
+        this.addOptions(
+                GAME_OPTION,
+                STAT_OPTION
+        );
     }
 
-    private CommandResult handleGamesCommand(final CommandParameters commandParameters) {
+    private CommandResult handleGamesCommand(final SlashCommandParameters commandParameters) {
         final List<Game> games = this.getApiClient().getGameClient().getGames();
         final MultiEmbedBuilder message = commandParameters.getEmbedBuilder()
                 .setTitle("Java Games")
                 .setFooterFormat(
-                        "TIP: Run %s %s <game> to see more details",
-                        this.getCommandModule().getMainCommand(),
+                        "TIP: Run /%s <game> to see more details",
                         this.getName()
                 );
 
@@ -46,7 +47,7 @@ public class JavaGamesCommand extends GamesCommand<JavaPlayer> {
         return BaseCommandResult.SUCCESSFUL;
     }
 
-    private CommandResult handleGameInfoCommand(final CommandParameters commandParameters, final String gameName) {
+    private CommandResult handleGameInfoCommand(final SlashCommandParameters commandParameters, final String gameName) {
         // Get leaderboards
         final List<Leaderboard> gameLeaderboards;
         try {
@@ -54,11 +55,8 @@ public class JavaGamesCommand extends GamesCommand<JavaPlayer> {
         } catch (final InvalidGameNameRestException exception) {
             this.throwArgumentCorrectionMessage(
                     commandParameters,
-                    gameName,
-                    GAME_POSITION,
-                    "game",
+                    GAME_OPTION_REQUIRED,
                     null,
-                    new String[0],
                     exception.getSuggestedGames(),
                     Game::getGameName
             );
@@ -112,8 +110,7 @@ public class JavaGamesCommand extends GamesCommand<JavaPlayer> {
                                 String.join(", ", sortedStatNames)
                         )
                         .setFooterFormat(
-                                "TIP: Run %s %s %s <stat> to see more details",
-                                this.getCommandModule().getMainCommand(),
+                                "TIP: Run /%s %s <stat> to see more details",
                                 this.getName(),
                                 gameName
                         )
@@ -121,7 +118,7 @@ public class JavaGamesCommand extends GamesCommand<JavaPlayer> {
         return BaseCommandResult.SUCCESSFUL;
     }
 
-    private CommandResult handleStatInfoCommand(final CommandParameters commandParameters,
+    private CommandResult handleStatInfoCommand(final SlashCommandParameters commandParameters,
                                                 final String gameName,
                                                 final String statName) {
         // Get leaderboards
@@ -131,11 +128,8 @@ public class JavaGamesCommand extends GamesCommand<JavaPlayer> {
         } catch (final InvalidGameNameRestException exception) {
             this.throwArgumentCorrectionMessage(
                     commandParameters,
-                    gameName,
-                    GAME_POSITION,
-                    "game",
+                    GAME_OPTION_REQUIRED,
                     null,
-                    new String[0],
                     exception.getSuggestedGames(),
                     Game::getGameName
             );
@@ -143,11 +137,8 @@ public class JavaGamesCommand extends GamesCommand<JavaPlayer> {
         } catch (final InvalidStatNameRestException exception) {
             this.throwArgumentCorrectionMessage(
                     commandParameters,
-                    statName,
-                    STAT_POSITION,
-                    "stat",
+                    STAT_OPTION_REQUIRED,
                     null,
-                    new String[0],
                     exception.getSuggestedStats(),
                     Stat::getStatName
             );
@@ -204,16 +195,18 @@ public class JavaGamesCommand extends GamesCommand<JavaPlayer> {
     }
 
     @Override
-    protected CommandResult onStatsCommand(final CommandParameters commandParameters) {
-        if (commandParameters.getArgs().length == 0) {
+    protected CommandResult onStatsCommand(final SlashCommandParameters commandParameters) {
+        final Optional<String> gameOpt = commandParameters.getOption(GAME_OPTION_REQUIRED);
+        final Optional<String> statOpt = commandParameters.getOption(STAT_OPTION_REQUIRED);
+
+        if (gameOpt.isEmpty()) {
             return this.handleGamesCommand(commandParameters);
         }
 
-        final String gameName = commandParameters.getArg(GAME_POSITION);
-        if (commandParameters.getArgs().length == 1) {
-            return this.handleGameInfoCommand(commandParameters, gameName);
+        if (statOpt.isEmpty()) {
+            return this.handleGameInfoCommand(commandParameters, gameOpt.get());
         }
-        final String statName = commandParameters.getArg(STAT_POSITION);
-        return this.handleStatInfoCommand(commandParameters, gameName, statName);
+
+        return this.handleStatInfoCommand(commandParameters, gameOpt.get(), statOpt.get());
     }
 }

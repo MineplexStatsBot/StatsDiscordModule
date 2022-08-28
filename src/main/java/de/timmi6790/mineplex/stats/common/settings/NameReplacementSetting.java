@@ -1,7 +1,8 @@
 package de.timmi6790.mineplex.stats.common.settings;
 
-import de.timmi6790.discord_framework.module.modules.command.models.CommandParameters;
+
 import de.timmi6790.discord_framework.module.modules.setting.settings.StringSetting;
+import de.timmi6790.discord_framework.module.modules.slashcommand.parameters.SlashCommandParameters;
 import net.dv8tion.jda.api.utils.MarkdownUtil;
 
 import java.util.ArrayList;
@@ -44,7 +45,7 @@ public class NameReplacementSetting extends StringSetting {
     }
 
     @Override
-    protected Optional<String> parseNewValue(final CommandParameters commandParameters, final String s) {
+    protected Optional<String> parseNewValue(final SlashCommandParameters commandParameters, final String s) {
         if (this.namePredicate.test(s)) {
             return Optional.of(s);
         }
@@ -52,12 +53,12 @@ public class NameReplacementSetting extends StringSetting {
     }
 
     @Override
-    protected List<String> possibleValues(final CommandParameters commandParameters, final String s) {
+    protected List<String> possibleValues(final SlashCommandParameters commandParameters, final String s) {
         return new ArrayList<>();
     }
 
     @Override
-    protected void sendInvalidInputMessage(final CommandParameters commandParameters,
+    protected void sendInvalidInputMessage(final SlashCommandParameters commandParameters,
                                            final String userInput,
                                            final Iterable<String> possibleValues) {
         commandParameters.sendMessage(

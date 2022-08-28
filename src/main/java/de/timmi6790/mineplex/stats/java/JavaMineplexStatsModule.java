@@ -1,8 +1,8 @@
 package de.timmi6790.mineplex.stats.java;
 
 import de.timmi6790.discord_framework.module.AbstractModule;
-import de.timmi6790.discord_framework.module.modules.command.CommandModule;
 import de.timmi6790.discord_framework.module.modules.setting.SettingModule;
+import de.timmi6790.discord_framework.module.modules.slashcommand.SlashCommandModule;
 import de.timmi6790.mineplex.stats.common.BaseMineplexStatsModule;
 import de.timmi6790.mineplex.stats.java.commands.group.GroupPlayerStatsCommand;
 import de.timmi6790.mineplex.stats.java.commands.group.GroupsCommand;
@@ -26,7 +26,7 @@ public class JavaMineplexStatsModule extends AbstractModule {
 
         this.addDependenciesAndLoadAfter(
                 BaseMineplexStatsModule.class,
-                CommandModule.class,
+                SlashCommandModule.class,
                 SettingModule.class
         );
     }
@@ -37,7 +37,7 @@ public class JavaMineplexStatsModule extends AbstractModule {
                 .getMpStatsApiClient()
                 .getJavaClient();
 
-        final CommandModule commandModule = this.getModuleOrThrow(CommandModule.class);
+        final SlashCommandModule commandModule = this.getModuleOrThrow(SlashCommandModule.class);
         commandModule.registerCommands(
                 this,
                 new JavaLeaderboardCommand(this.statApicClient, commandModule),

@@ -1,7 +1,7 @@
 package de.timmi6790.minecraft;
 
 import de.timmi6790.discord_framework.module.AbstractModule;
-import de.timmi6790.discord_framework.module.modules.command.CommandModule;
+import de.timmi6790.discord_framework.module.modules.slashcommand.SlashCommandModule;
 import de.timmi6790.minecraft.commands.NameHistoryCommand;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -13,13 +13,13 @@ public class MinecraftModule extends AbstractModule {
         super("Minecraft");
 
         this.addDependenciesAndLoadAfter(
-                CommandModule.class
+                SlashCommandModule.class
         );
     }
 
     @Override
     public boolean onInitialize() {
-        final CommandModule commandModule = this.getModuleOrThrow(CommandModule.class);
+        final SlashCommandModule commandModule = this.getModuleOrThrow(SlashCommandModule.class);
         commandModule.registerCommands(
                 this,
                 new NameHistoryCommand(commandModule)
