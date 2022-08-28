@@ -1,16 +1,15 @@
 package de.timmi6790.mineplex.stats.java.commands.group;
 
 import com.google.common.collect.Lists;
-import de.timmi6790.discord_framework.module.modules.command.CommandModule;
-import de.timmi6790.discord_framework.module.modules.command.exceptions.CommandReturnException;
-import de.timmi6790.discord_framework.module.modules.command.models.BaseCommandResult;
-import de.timmi6790.discord_framework.module.modules.command.models.CommandParameters;
-import de.timmi6790.discord_framework.module.modules.command.models.CommandResult;
-import de.timmi6790.discord_framework.module.modules.command.property.properties.controll.MinArgProperty;
-import de.timmi6790.discord_framework.module.modules.command.property.properties.info.AliasNamesProperty;
-import de.timmi6790.discord_framework.module.modules.command.property.properties.info.CategoryProperty;
-import de.timmi6790.discord_framework.module.modules.command.property.properties.info.DescriptionProperty;
-import de.timmi6790.discord_framework.module.modules.command.property.properties.info.SyntaxProperty;
+import de.timmi6790.discord_framework.module.modules.slashcommand.SlashCommandModule;
+import de.timmi6790.discord_framework.module.modules.slashcommand.exceptions.CommandReturnException;
+import de.timmi6790.discord_framework.module.modules.slashcommand.option.Option;
+import de.timmi6790.discord_framework.module.modules.slashcommand.option.options.StringOption;
+import de.timmi6790.discord_framework.module.modules.slashcommand.parameters.SlashCommandParameters;
+import de.timmi6790.discord_framework.module.modules.slashcommand.property.properties.info.CategoryProperty;
+import de.timmi6790.discord_framework.module.modules.slashcommand.property.properties.info.SyntaxProperty;
+import de.timmi6790.discord_framework.module.modules.slashcommand.result.BaseCommandResult;
+import de.timmi6790.discord_framework.module.modules.slashcommand.result.CommandResult;
 import de.timmi6790.minecraft.utilities.JavaUtilities;
 import de.timmi6790.mineplex.stats.common.commands.BaseStatsCommand;
 import de.timmi6790.mineplex.stats.common.generators.picture.PictureTable;
@@ -47,27 +46,31 @@ import java.util.concurrent.TimeoutException;
 public class GroupPlayerStatsCommand extends BaseStatsCommand<JavaPlayer> {
     private static final int ROW_SOFT_LIMIT = 20;
 
-    private static final int GROUP_POSITION = 1;
-    private static final int STAT_POSITION = 2;
-    private static final int BOARD_POSITION = 3;
+    public static final Option<String> GROUP_OPTION_REQUIRED = new StringOption("group", "Group").setRequired(true);
 
-    public GroupPlayerStatsCommand(final BaseApiClient<JavaPlayer> baseApiClient, final CommandModule commandModule) {
+    public GroupPlayerStatsCommand(final BaseApiClient<JavaPlayer> baseApiClient, final SlashCommandModule commandModule) {
         super(
                 baseApiClient,
                 "groupPlayer",
+                "Check group player stats",
                 commandModule
         );
 
         this.addProperties(
-                new MinArgProperty(3),
                 new CategoryProperty("Java"),
-                new DescriptionProperty("Check group player stats"),
-                new SyntaxProperty("<player> <group> <stat> [board] [dateTime]"),
-                new AliasNamesProperty("gpl")
+                new SyntaxProperty("<player> <group> <stat> [board] [dateTime]")
+        );
+
+        this.addOptions(
+                JAVA_PLAYER_NAME_REQUIRED,
+                GROUP_OPTION_REQUIRED,
+                STAT_OPTION_REQUIRED,
+                BOARD_OPTION,
+                DATE_OPTION
         );
     }
 
-    protected Optional<GroupPlayerStats<JavaPlayer>> getPlayerStats(final CommandParameters commandParameters,
+    protected Optional<GroupPlayerStats<JavaPlayer>> getPlayerStats(final SlashCommandParameters commandParameters,
                                                                     final String playerName,
                                                                     final String group,
                                                                     final String stat,
@@ -87,22 +90,16 @@ public class GroupPlayerStatsCommand extends BaseStatsCommand<JavaPlayer> {
         } catch (final InvalidBoardNameException exception) {
             this.throwArgumentCorrectionMessage(
                     commandParameters,
-                    board,
-                    BOARD_POSITION,
-                    "board",
+                    BOARD_OPTION,
                     null,
-                    new String[0],
                     exception.getSuggestedBoards(),
                     Board::getBoardName
             );
         } catch (final InvalidStatNameRestException exception) {
             this.throwArgumentCorrectionMessage(
                     commandParameters,
-                    stat,
-                    STAT_POSITION,
-                    "stat",
+                    STAT_OPTION,
                     null,
-                    new String[0],
                     exception.getSuggestedStats(),
                     Stat::getStatName
             );
@@ -111,11 +108,8 @@ public class GroupPlayerStatsCommand extends BaseStatsCommand<JavaPlayer> {
         } catch (final InvalidGroupNameRestException exception) {
             this.throwArgumentCorrectionMessage(
                     commandParameters,
-                    group,
-                    GROUP_POSITION,
-                    "group",
+                    GROUP_OPTION_REQUIRED,
                     null,
-                    new String[0],
                     exception.getSuggestedGroups(),
                     Group::getGroupName
             );
@@ -123,7 +117,7 @@ public class GroupPlayerStatsCommand extends BaseStatsCommand<JavaPlayer> {
         throw new CommandReturnException();
     }
 
-    protected Set<Reason> getFilterReasons(final CommandParameters commandParameters) {
+    protected Set<Reason> getFilterReasons(final SlashCommandParameters commandParameters) {
         return ArgumentParsingUtilities.getFilterReasons(commandParameters);
     }
 
@@ -184,13 +178,13 @@ public class GroupPlayerStatsCommand extends BaseStatsCommand<JavaPlayer> {
 
     @SneakyThrows
     @Override
-    protected CommandResult onStatsCommand(final CommandParameters commandParameters) {
-        final String playerName = JavaArgumentParsingUtilities.getJavaPlayerNameOrThrow(commandParameters, 0);
+    protected CommandResult onStatsCommand(final SlashCommandParameters commandParameters) {
+        final String playerName = JavaArgumentParsingUtilities.getJavaPlayerNameOrThrow(commandParameters, JAVA_PLAYER_NAME_REQUIRED);
         final UUID playerUUID = JavaArgumentParsingUtilities.getPlayerUUIDOrThrow(commandParameters, playerName);
-        final String groupName = commandParameters.getArg(GROUP_POSITION);
-        final String stat = commandParameters.getArg(STAT_POSITION);
-        final String board = commandParameters.getArgOrDefault(BOARD_POSITION, ArgumentParsingUtilities.getDefaultBoard());
-        final ZonedDateTime zonedDateTime = ArgumentParsingUtilities.getDateTimeOrThrow(commandParameters, 4);
+        final String groupName = commandParameters.getOptionOrThrow(GROUP_OPTION_REQUIRED);
+        final String stat = commandParameters.getOptionOrThrow(STAT_OPTION);
+        final String board = commandParameters.getOption(BOARD_OPTION).orElseGet(ArgumentParsingUtilities::getDefaultBoard);
+        final ZonedDateTime zonedDateTime = ArgumentParsingUtilities.getDateTimeOrThrow(commandParameters, DATE_OPTION);
         final Set<Reason> filterReasons = this.getFilterReasons(commandParameters);
 
         final CompletableFuture<BufferedImage> skinFuture = JavaUtilities.getPlayerSkin(playerUUID);

@@ -1,16 +1,14 @@
 package de.timmi6790.mineplex.stats.common.commands.managment;
 
-import de.timmi6790.discord_framework.module.modules.command.CommandModule;
-import de.timmi6790.discord_framework.module.modules.command.exceptions.CommandReturnException;
-import de.timmi6790.discord_framework.module.modules.command.models.BaseCommandResult;
-import de.timmi6790.discord_framework.module.modules.command.models.CommandParameters;
-import de.timmi6790.discord_framework.module.modules.command.models.CommandResult;
-import de.timmi6790.discord_framework.module.modules.command.property.properties.controll.MinArgProperty;
-import de.timmi6790.discord_framework.module.modules.command.property.properties.info.AliasNamesProperty;
-import de.timmi6790.discord_framework.module.modules.command.property.properties.info.CategoryProperty;
-import de.timmi6790.discord_framework.module.modules.command.property.properties.info.DescriptionProperty;
-import de.timmi6790.discord_framework.module.modules.command.property.properties.info.SyntaxProperty;
-import de.timmi6790.discord_framework.module.modules.command.utilities.ArgumentUtilities;
+import de.timmi6790.discord_framework.module.modules.slashcommand.SlashCommandModule;
+import de.timmi6790.discord_framework.module.modules.slashcommand.exceptions.CommandReturnException;
+import de.timmi6790.discord_framework.module.modules.slashcommand.option.Option;
+import de.timmi6790.discord_framework.module.modules.slashcommand.option.options.EnumOption;
+import de.timmi6790.discord_framework.module.modules.slashcommand.parameters.SlashCommandParameters;
+import de.timmi6790.discord_framework.module.modules.slashcommand.property.properties.info.CategoryProperty;
+import de.timmi6790.discord_framework.module.modules.slashcommand.property.properties.info.SyntaxProperty;
+import de.timmi6790.discord_framework.module.modules.slashcommand.result.BaseCommandResult;
+import de.timmi6790.discord_framework.module.modules.slashcommand.result.CommandResult;
 import de.timmi6790.discord_framework.utilities.MultiEmbedBuilder;
 import de.timmi6790.mineplex.stats.common.commands.BaseStatsCommand;
 import de.timmi6790.mineplex.stats.common.utilities.ErrorMessageUtilities;
@@ -30,7 +28,6 @@ import de.timmi6790.mpstats.api.client.common.stat.models.Stat;
 import lombok.NonNull;
 import lombok.extern.log4j.Log4j2;
 import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.sharding.ShardManager;
 import net.dv8tion.jda.api.utils.MarkdownUtil;
@@ -41,9 +38,7 @@ import java.util.Optional;
 
 @Log4j2
 public abstract class FilterCommand<P extends Player> extends BaseStatsCommand<P> {
-    private static final int GAME_POSITION = 0;
-    private static final int STAT_POSITION = 1;
-    private static final int BOARD_POSITION = 2;
+    private static final Option<Reason> REASON_OPTION = new EnumOption<>(Reason.class, "reason", "Filter reason").setRequired(true);
 
     // TODO: Move into config
     private static final long FILTER_ANNOUNCEMENT_CHANNEL = 787325600196853790L;
@@ -52,28 +47,34 @@ public abstract class FilterCommand<P extends Player> extends BaseStatsCommand<P
 
     protected FilterCommand(final BaseApiClient<P> apiClient,
                             @NonNull final String name,
-                            final CommandModule commandModule,
+                            final SlashCommandModule commandModule,
                             final ShardManager shardManager,
                             @NonNull final String category,
                             final String... aliasNames) {
         super(
                 apiClient,
                 name,
+                "Filter",
                 commandModule
         );
-     
+
         this.addProperties(
-                new MinArgProperty(5),
                 new CategoryProperty(category),
-                new DescriptionProperty("Filter"),
-                new SyntaxProperty("<game> <stat> <board> <player> <reason>"),
-                new AliasNamesProperty(aliasNames)
+                new SyntaxProperty("<game> <stat> <board> <player> <reason>")
         );
 
         this.shardManager = shardManager;
+
+        this.addOptions(
+                GAME_OPTION_REQUIRED,
+                STAT_OPTION_REQUIRED,
+                BOARD_OPTION_REQUIRED,
+                JAVA_PLAYER_NAME_REQUIRED,
+                REASON_OPTION
+        );
     }
 
-    private Filter<P> createFilter(final CommandParameters commandParameters,
+    private Filter<P> createFilter(final SlashCommandParameters commandParameters,
                                    final String game,
                                    final String stat,
                                    final String board,
@@ -103,22 +104,16 @@ public abstract class FilterCommand<P extends Player> extends BaseStatsCommand<P
         } catch (final InvalidStatNameRestException exception) {
             this.throwArgumentCorrectionMessage(
                     commandParameters,
-                    stat,
-                    STAT_POSITION,
-                    "stat",
+                    STAT_OPTION,
                     null,
-                    new String[0],
                     exception.getSuggestedStats(),
                     Stat::getStatName
             );
         } catch (final InvalidGameNameRestException exception) {
             this.throwArgumentCorrectionMessage(
                     commandParameters,
-                    game,
-                    GAME_POSITION,
-                    "game",
+                    GAME_OPTION,
                     null,
-                    new String[0],
                     exception.getSuggestedGames(),
                     Game::getGameName
             );
@@ -136,11 +131,8 @@ public abstract class FilterCommand<P extends Player> extends BaseStatsCommand<P
         } catch (final InvalidBoardNameException exception) {
             this.throwArgumentCorrectionMessage(
                     commandParameters,
-                    board,
-                    BOARD_POSITION,
-                    "board",
+                    BOARD_OPTION,
                     null,
-                    new String[0],
                     exception.getSuggestedBoards(),
                     Board::getBoardName
             );
@@ -149,7 +141,7 @@ public abstract class FilterCommand<P extends Player> extends BaseStatsCommand<P
         throw new CommandReturnException();
     }
 
-    private void sendFilterLogMessage(final CommandParameters commandParameters, final Filter<P> filter) {
+    private void sendFilterLogMessage(final SlashCommandParameters commandParameters, final Filter<P> filter) {
         final TextChannel channel = this.shardManager.getTextChannelById(FILTER_ANNOUNCEMENT_CHANNEL);
         if (channel == null) {
             log.warn("Can't find filter announcement channel");
@@ -163,7 +155,7 @@ public abstract class FilterCommand<P extends Player> extends BaseStatsCommand<P
                 .setDescription(
                         "[%s]%s added a new filter entry for %s in %s",
                         this.getSchemaName(),
-                        commandParameters.getUser().getAsMention(),
+                        commandParameters.getUserDb().getUser().getAsMention(),
                         this.getFormattedPlayer(filter.getPlayer()),
                         MarkdownUtil.monospace(
                                 leaderboard.getGame().getGameName() + "-" +
@@ -172,12 +164,10 @@ public abstract class FilterCommand<P extends Player> extends BaseStatsCommand<P
                         )
                 )
                 .setTimestamp(Instant.now());
-        for (final MessageEmbed embedMessage : message.build()) {
-            channel
-                    .sendMessage(embedMessage)
-                    .flatMap(Message::crosspost)
-                    .queue();
-        }
+
+        channel.sendMessageEmbeds(message.build())
+                .flatMap(Message::crosspost)
+                .queue();
     }
 
     protected abstract String getFormattedPlayer(P player);
@@ -185,18 +175,12 @@ public abstract class FilterCommand<P extends Player> extends BaseStatsCommand<P
     protected abstract String getSchemaName();
 
     @Override
-    protected CommandResult onStatsCommand(final CommandParameters commandParameters) {
-        final String game = commandParameters.getArg(GAME_POSITION);
-        final String stat = commandParameters.getArg(STAT_POSITION);
-        final String board = commandParameters.getArg(BOARD_POSITION);
-        // TODO: We need to think about a way for bedrock
-        final String player = commandParameters.getArg(3);
-        final Reason reason = ArgumentUtilities.getFromEnumIgnoreCaseOrThrow(
-                commandParameters,
-                this.getClass(),
-                4,
-                Reason.class
-        );
+    protected CommandResult onStatsCommand(final SlashCommandParameters commandParameters) {
+        final String game = commandParameters.getOptionOrThrow(GAME_OPTION_REQUIRED);
+        final String stat = commandParameters.getOptionOrThrow(STAT_OPTION_REQUIRED);
+        final String board = commandParameters.getOptionOrThrow(BOARD_OPTION_REQUIRED);
+        final String player = commandParameters.getOptionOrThrow(JAVA_PLAYER_NAME_REQUIRED);
+        final Reason reason = commandParameters.getOptionOrThrow(REASON_OPTION);
 
         final Filter<P> filter = this.createFilter(
                 commandParameters,

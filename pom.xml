@@ -10,8 +10,8 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <maven.compiler.source>16</maven.compiler.source>
-        <maven.compiler.target>16</maven.compiler.target>
+        <maven.compiler.source>17</maven.compiler.source>
+        <maven.compiler.target>17</maven.compiler.target>
         <sonar.projectKey>Timmi6790_MineplexStatsDiscordModule</sonar.projectKey>
         <sonar.organization>timmi6790</sonar.organization>
         <sonar.host.url>https://sonarcloud.io</sonar.host.url>
@@ -28,7 +28,7 @@
         <dependency>
             <groupId>com.github.Timmi6790</groupId>
             <artifactId>DiscordBotFramework</artifactId>
-            <version>856e92e56d</version>
+            <version>jd5-f7f1dcd93e-1</version>
             <scope>provided</scope>
         </dependency>
         <dependency>

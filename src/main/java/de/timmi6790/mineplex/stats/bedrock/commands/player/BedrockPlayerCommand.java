@@ -1,16 +1,13 @@
 package de.timmi6790.mineplex.stats.bedrock.commands.player;
 
 import com.google.common.collect.Lists;
-import de.timmi6790.discord_framework.module.modules.command.CommandModule;
-import de.timmi6790.discord_framework.module.modules.command.exceptions.CommandReturnException;
-import de.timmi6790.discord_framework.module.modules.command.models.BaseCommandResult;
-import de.timmi6790.discord_framework.module.modules.command.models.CommandParameters;
-import de.timmi6790.discord_framework.module.modules.command.models.CommandResult;
-import de.timmi6790.discord_framework.module.modules.command.property.properties.controll.MinArgProperty;
-import de.timmi6790.discord_framework.module.modules.command.property.properties.info.AliasNamesProperty;
-import de.timmi6790.discord_framework.module.modules.command.property.properties.info.CategoryProperty;
-import de.timmi6790.discord_framework.module.modules.command.property.properties.info.DescriptionProperty;
-import de.timmi6790.discord_framework.module.modules.command.property.properties.info.SyntaxProperty;
+import de.timmi6790.discord_framework.module.modules.slashcommand.SlashCommandModule;
+import de.timmi6790.discord_framework.module.modules.slashcommand.exceptions.CommandReturnException;
+import de.timmi6790.discord_framework.module.modules.slashcommand.parameters.SlashCommandParameters;
+import de.timmi6790.discord_framework.module.modules.slashcommand.property.properties.info.CategoryProperty;
+import de.timmi6790.discord_framework.module.modules.slashcommand.property.properties.info.SyntaxProperty;
+import de.timmi6790.discord_framework.module.modules.slashcommand.result.BaseCommandResult;
+import de.timmi6790.discord_framework.module.modules.slashcommand.result.CommandResult;
 import de.timmi6790.mineplex.stats.bedrock.utilities.BedrockArgumentParsingUtilities;
 import de.timmi6790.mineplex.stats.common.commands.BaseStatsCommand;
 import de.timmi6790.mineplex.stats.common.generators.picture.PictureTable;
@@ -32,37 +29,39 @@ import java.time.ZonedDateTime;
 import java.util.*;
 
 public class BedrockPlayerCommand extends BaseStatsCommand<BedrockPlayer> {
-    public BedrockPlayerCommand(final BaseApiClient<BedrockPlayer> baseApiClient, final CommandModule commandModule) {
+    public BedrockPlayerCommand(final BaseApiClient<BedrockPlayer> baseApiClient, final SlashCommandModule commandModule) {
         this(
                 baseApiClient,
                 commandModule,
-                "bedrockPlayer",
+                "bedrockplayer",
                 "Check player stats",
                 "bpl"
         );
     }
 
     public BedrockPlayerCommand(final BaseApiClient<BedrockPlayer> baseApiClient,
-                                final CommandModule commandModule,
+                                final SlashCommandModule commandModule,
                                 final String name,
                                 final String description,
                                 final String... aliasNames) {
         super(
                 baseApiClient,
                 name,
+                description,
                 commandModule
         );
 
         this.addProperties(
-                new MinArgProperty(1),
                 new CategoryProperty("Bedrock"),
-                new DescriptionProperty(description),
-                new SyntaxProperty("<player>"),
-                new AliasNamesProperty(aliasNames)
+                new SyntaxProperty("<player>")
+        );
+
+        this.addOptions(
+                BEDROCK_PLAYER_NAME_REQUIRED
         );
     }
 
-    protected Optional<PlayerStats<BedrockPlayer>> getPlayerStats(final CommandParameters commandParameters,
+    protected Optional<PlayerStats<BedrockPlayer>> getPlayerStats(final SlashCommandParameters commandParameters,
                                                                   final String playerName,
                                                                   final Set<Reason> filterReasons) {
         try {
@@ -114,13 +113,13 @@ public class BedrockPlayerCommand extends BaseStatsCommand<BedrockPlayer> {
         );
     }
 
-    protected Set<Reason> getFilterReasons(final CommandParameters commandParameters) {
+    protected Set<Reason> getFilterReasons(final SlashCommandParameters commandParameters) {
         return ArgumentParsingUtilities.getFilterReasons(commandParameters);
     }
 
     @Override
-    protected CommandResult onStatsCommand(final CommandParameters commandParameters) {
-        final String playerName = BedrockArgumentParsingUtilities.getBedrockPlayerNameThrow(commandParameters, 0);
+    protected CommandResult onStatsCommand(final SlashCommandParameters commandParameters) {
+        final String playerName = BedrockArgumentParsingUtilities.getBedrockPlayerNameThrow(commandParameters, BEDROCK_PLAYER_NAME_REQUIRED);
         final Set<Reason> filterReasons = this.getFilterReasons(commandParameters);
 
         final Optional<PlayerStats<BedrockPlayer>> playerStatsOpt = this.getPlayerStats(commandParameters, playerName, filterReasons);

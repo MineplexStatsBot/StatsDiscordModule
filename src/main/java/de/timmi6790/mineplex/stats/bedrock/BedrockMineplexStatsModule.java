@@ -1,8 +1,8 @@
 package de.timmi6790.mineplex.stats.bedrock;
 
 import de.timmi6790.discord_framework.module.AbstractModule;
-import de.timmi6790.discord_framework.module.modules.command.CommandModule;
 import de.timmi6790.discord_framework.module.modules.setting.SettingModule;
+import de.timmi6790.discord_framework.module.modules.slashcommand.SlashCommandModule;
 import de.timmi6790.mineplex.stats.bedrock.commands.leaderboard.BedrockGamesCommand;
 import de.timmi6790.mineplex.stats.bedrock.commands.leaderboard.BedrockLeaderboardCommand;
 import de.timmi6790.mineplex.stats.bedrock.commands.leaderboard.UnfilteredBedrockLeaderboardCommand;
@@ -22,7 +22,7 @@ public class BedrockMineplexStatsModule extends AbstractModule {
 
         this.addDependenciesAndLoadAfter(
                 BaseMineplexStatsModule.class,
-                CommandModule.class,
+                SlashCommandModule.class,
                 SettingModule.class
         );
     }
@@ -31,7 +31,7 @@ public class BedrockMineplexStatsModule extends AbstractModule {
     public boolean onInitialize() {
         this.statApicClient = this.getModuleOrThrow(BaseMineplexStatsModule.class).getMpStatsApiClient().getBedrockClient();
 
-        final CommandModule commandModule = this.getModuleOrThrow(CommandModule.class);
+        final SlashCommandModule commandModule = this.getModuleOrThrow(SlashCommandModule.class);
         commandModule.registerCommands(
                 this,
                 new BedrockLeaderboardCommand(this.statApicClient, commandModule),

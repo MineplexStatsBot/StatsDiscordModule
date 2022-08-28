@@ -1,16 +1,13 @@
 package de.timmi6790.mineplex.stats.java.commands.player;
 
 import com.google.common.collect.Lists;
-import de.timmi6790.discord_framework.module.modules.command.CommandModule;
-import de.timmi6790.discord_framework.module.modules.command.exceptions.CommandReturnException;
-import de.timmi6790.discord_framework.module.modules.command.models.BaseCommandResult;
-import de.timmi6790.discord_framework.module.modules.command.models.CommandParameters;
-import de.timmi6790.discord_framework.module.modules.command.models.CommandResult;
-import de.timmi6790.discord_framework.module.modules.command.property.properties.controll.MinArgProperty;
-import de.timmi6790.discord_framework.module.modules.command.property.properties.info.AliasNamesProperty;
-import de.timmi6790.discord_framework.module.modules.command.property.properties.info.CategoryProperty;
-import de.timmi6790.discord_framework.module.modules.command.property.properties.info.DescriptionProperty;
-import de.timmi6790.discord_framework.module.modules.command.property.properties.info.SyntaxProperty;
+import de.timmi6790.discord_framework.module.modules.slashcommand.SlashCommandModule;
+import de.timmi6790.discord_framework.module.modules.slashcommand.exceptions.CommandReturnException;
+import de.timmi6790.discord_framework.module.modules.slashcommand.parameters.SlashCommandParameters;
+import de.timmi6790.discord_framework.module.modules.slashcommand.property.properties.info.CategoryProperty;
+import de.timmi6790.discord_framework.module.modules.slashcommand.property.properties.info.SyntaxProperty;
+import de.timmi6790.discord_framework.module.modules.slashcommand.result.BaseCommandResult;
+import de.timmi6790.discord_framework.module.modules.slashcommand.result.CommandResult;
 import de.timmi6790.minecraft.utilities.JavaUtilities;
 import de.timmi6790.mineplex.stats.common.commands.BaseStatsCommand;
 import de.timmi6790.mineplex.stats.common.generators.picture.PictureTable;
@@ -48,10 +45,7 @@ import java.util.concurrent.TimeoutException;
 public class JavaPlayerCommand extends BaseStatsCommand<JavaPlayer> {
     private static final int ROW_SOFT_LIMIT = 20;
 
-    private static final int GAME_POSITION = 1;
-    private static final int BOARD_POSITION = 2;
-
-    public JavaPlayerCommand(final BaseApiClient<JavaPlayer> baseApiClient, final CommandModule commandModule) {
+    public JavaPlayerCommand(final BaseApiClient<JavaPlayer> baseApiClient, final SlashCommandModule commandModule) {
         this(
                 baseApiClient,
                 commandModule,
@@ -62,26 +56,31 @@ public class JavaPlayerCommand extends BaseStatsCommand<JavaPlayer> {
     }
 
     public JavaPlayerCommand(final BaseApiClient<JavaPlayer> baseApiClient,
-                             final CommandModule commandModule,
+                             final SlashCommandModule commandModule,
                              final String name,
                              final String description,
                              final String... aliasNames) {
         super(
                 baseApiClient,
                 name,
+                description,
                 commandModule
         );
 
         this.addProperties(
-                new MinArgProperty(2),
                 new CategoryProperty("Java"),
-                new DescriptionProperty(description),
-                new SyntaxProperty("<player> <game> [board] [dateTime]"),
-                new AliasNamesProperty(aliasNames)
+                new SyntaxProperty("<player> <game> [board] [dateTime]")
+        );
+
+        this.addOptions(
+                JAVA_PLAYER_NAME_REQUIRED,
+                GAME_OPTION_REQUIRED,
+                BOARD_OPTION,
+                DATE_OPTION
         );
     }
 
-    protected Optional<PlayerStats<JavaPlayer>> getPlayerStats(final CommandParameters commandParameters,
+    protected Optional<PlayerStats<JavaPlayer>> getPlayerStats(final SlashCommandParameters commandParameters,
                                                                final UUID playerUUID,
                                                                final String game,
                                                                final String board,
@@ -99,11 +98,8 @@ public class JavaPlayerCommand extends BaseStatsCommand<JavaPlayer> {
         } catch (final InvalidGameNameRestException exception) {
             this.throwArgumentCorrectionMessage(
                     commandParameters,
-                    game,
-                    GAME_POSITION,
-                    "game",
+                    GAME_OPTION_REQUIRED,
                     null,
-                    new String[0],
                     exception.getSuggestedGames(),
                     Game::getGameName
             );
@@ -112,11 +108,8 @@ public class JavaPlayerCommand extends BaseStatsCommand<JavaPlayer> {
         } catch (final InvalidBoardNameException exception) {
             this.throwArgumentCorrectionMessage(
                     commandParameters,
-                    board,
-                    BOARD_POSITION,
-                    "board",
+                    BOARD_OPTION,
                     null,
-                    new String[0],
                     exception.getSuggestedBoards(),
                     Board::getBoardName
             );
@@ -124,7 +117,7 @@ public class JavaPlayerCommand extends BaseStatsCommand<JavaPlayer> {
         throw new CommandReturnException();
     }
 
-    protected Set<Reason> getFilterReasons(final CommandParameters commandParameters) {
+    protected Set<Reason> getFilterReasons(final SlashCommandParameters commandParameters) {
         return ArgumentParsingUtilities.getFilterReasons(commandParameters);
     }
 
@@ -216,12 +209,12 @@ public class JavaPlayerCommand extends BaseStatsCommand<JavaPlayer> {
 
     @SneakyThrows
     @Override
-    protected CommandResult onStatsCommand(final CommandParameters commandParameters) {
-        final String playerName = JavaArgumentParsingUtilities.getJavaPlayerNameOrThrow(commandParameters, 0);
+    protected CommandResult onStatsCommand(final SlashCommandParameters commandParameters) {
+        final String playerName = JavaArgumentParsingUtilities.getJavaPlayerNameOrThrow(commandParameters, JAVA_PLAYER_NAME_REQUIRED);
         final UUID playerUUID = JavaArgumentParsingUtilities.getPlayerUUIDOrThrow(commandParameters, playerName);
-        final String game = commandParameters.getArg(GAME_POSITION);
-        final String board = commandParameters.getArgOrDefault(BOARD_POSITION, ArgumentParsingUtilities.getDefaultBoard());
-        final ZonedDateTime zonedDateTime = ArgumentParsingUtilities.getDateTimeOrThrow(commandParameters, 3);
+        final String game = commandParameters.getOptionOrThrow(GAME_OPTION_REQUIRED);
+        final String board = commandParameters.getOption(BOARD_OPTION).orElseGet(ArgumentParsingUtilities::getDefaultBoard);
+        final ZonedDateTime zonedDateTime = ArgumentParsingUtilities.getDateTimeOrThrow(commandParameters, DATE_OPTION);
         final Set<Reason> filterReasons = this.getFilterReasons(commandParameters);
 
         final CompletableFuture<BufferedImage> skinFuture = JavaUtilities.getPlayerSkin(playerUUID);

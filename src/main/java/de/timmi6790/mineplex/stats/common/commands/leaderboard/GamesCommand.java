@@ -1,10 +1,8 @@
 package de.timmi6790.mineplex.stats.common.commands.leaderboard;
 
-import de.timmi6790.discord_framework.module.modules.command.CommandModule;
-import de.timmi6790.discord_framework.module.modules.command.property.properties.info.AliasNamesProperty;
-import de.timmi6790.discord_framework.module.modules.command.property.properties.info.CategoryProperty;
-import de.timmi6790.discord_framework.module.modules.command.property.properties.info.DescriptionProperty;
-import de.timmi6790.discord_framework.module.modules.command.property.properties.info.SyntaxProperty;
+import de.timmi6790.discord_framework.module.modules.slashcommand.SlashCommandModule;
+import de.timmi6790.discord_framework.module.modules.slashcommand.property.properties.info.CategoryProperty;
+import de.timmi6790.discord_framework.module.modules.slashcommand.property.properties.info.SyntaxProperty;
 import de.timmi6790.discord_framework.utilities.MultiEmbedBuilder;
 import de.timmi6790.mineplex.stats.common.commands.BaseStatsCommand;
 import de.timmi6790.mpstats.api.client.common.BaseApiClient;
@@ -16,23 +14,21 @@ import java.util.*;
 
 public abstract class GamesCommand<P extends Player> extends BaseStatsCommand<P> {
     protected GamesCommand(final BaseApiClient<P> apiClient,
-                           final CommandModule commandModule,
+                           final SlashCommandModule commandModule,
                            @NonNull final String name,
                            @NonNull final String category,
                            @NonNull final String description,
-                           @NonNull final String syntax,
-                           final String... aliasNames) {
+                           @NonNull final String syntax) {
         super(
                 apiClient,
                 name,
+                description,
                 commandModule
         );
 
         this.addProperties(
                 new CategoryProperty(category),
-                new DescriptionProperty(description),
-                new SyntaxProperty(syntax),
-                new AliasNamesProperty(aliasNames)
+                new SyntaxProperty(syntax)
         );
     }
 
